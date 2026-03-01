@@ -3,15 +3,19 @@ import { motion as Motion } from 'framer-motion'
 
 const baseUrl = import.meta.env.BASE_URL
 const carouselFiles = [
-  '18.webp',
-  '3 (1).webp',
-  '3.webp',
-  'ad-abe53a88 - 2026-02-03_10-50-40 - 1.webp',
-  'ad-abe53baf - 2026-02-03_10-55-32 - 1.webp',
-  'ad-abe54228 - 2026-02-03_11-24-28 - 1.webp',
-  'ad-abe54459 - 2026-02-03_11-30-53 - 1.webp',
+  { file: '18.webp', width: 720, height: 720 },
+  { file: '3 (1).webp', width: 720, height: 1368 },
+  { file: '3.webp', width: 720, height: 754 },
+  { file: 'ad-abe53a88 - 2026-02-03_10-50-40 - 1.webp', width: 720, height: 1290 },
+  { file: 'ad-abe53baf - 2026-02-03_10-55-32 - 1.webp', width: 720, height: 964 },
+  { file: 'ad-abe54228 - 2026-02-03_11-24-28 - 1.webp', width: 720, height: 964 },
+  { file: 'ad-abe54459 - 2026-02-03_11-30-53 - 1.webp', width: 720, height: 964 },
 ]
-const carouselCards = carouselFiles.map((file) => `${baseUrl}scroller/${file}`)
+const carouselCards = carouselFiles.map(({ file, width, height }) => ({
+  src: encodeURI(`${baseUrl}scroller/${file}`),
+  width,
+  height,
+}))
 
 function App() {
   const [showCarousel, setShowCarousel] = useState(false)
@@ -209,15 +213,18 @@ className="flex items-center justify-center w-full">
           className="w-[calc(100%+20px)] -mx-[10px] md:w-full md:mx-0"
         >
           <div className="carousel-track-wide py-2">
-            {longCarousel.map((src, idx) => (
-              <figure key={`${src}-${idx}`} className="carousel-image-card">
+            {longCarousel.map((card, idx) => (
+              <figure key={`${card.src}-${idx}`} className="carousel-image-card">
                 <img
-                  src={encodeURI(src)}
+                  src={card.src}
                   alt={`Sapone product preview ${idx + 1}`}
                   className="size-full object-cover"
-                  loading="lazy"
+                  width={card.width}
+                  height={card.height}
+                  sizes="(max-width: 768px) 40vw, 260px"
+                  loading={idx < 6 ? 'eager' : 'lazy'}
                   decoding="async"
-                  fetchPriority="low"
+                  fetchPriority={idx === 0 ? 'high' : 'low'}
                 />
               </figure>
             ))}
