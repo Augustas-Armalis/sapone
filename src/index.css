@@ -92,7 +92,8 @@ body {
   display: flex;
   width: max-content;
   gap: 0.6rem;
-  animation: scroll-cards 120s linear infinite;
+  will-change: transform;
+  animation: scroll-cards 58s linear infinite;
 }
 
 .carousel-image-card {
@@ -152,5 +153,11 @@ body {
 
   .grain::after {
     animation: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .carousel-track-wide {
+    animation-duration: 48s;
   }
 }

@@ -1,6 +1,5 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion as Motion } from 'framer-motion'
-import Lenis from 'lenis'
 
 const baseUrl = import.meta.env.BASE_URL
 const carouselFiles = [
@@ -15,8 +14,9 @@ const carouselFiles = [
 const carouselCards = carouselFiles.map((file) => `${baseUrl}scroller/${file}`)
 
 function App() {
+  const [showCarousel, setShowCarousel] = useState(false)
   const longCarousel = useMemo(
-    () => [...carouselCards, ...carouselCards, ...carouselCards, ...carouselCards],
+    () => [...carouselCards, ...carouselCards],
     [],
   )
 
@@ -24,54 +24,65 @@ function App() {
     const isTouchDevice = () =>
       'ontouchstart' in window || navigator.maxTouchPoints > 0
 
-    if (isTouchDevice()) {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (isTouchDevice() || prefersReducedMotion) {
       return
     }
 
-    const lenis = new Lenis({
-      autoRaf: false,
-      smoothWheel: true,
-      orientation: 'vertical',
-      gestureOrientation: 'vertical',
-      lerp: 0.1,
-    })
-
-    const scrollPosition = sessionStorage.getItem('scrollPosition') || 0
-
-    const saveScrollPosition = () => {
-      sessionStorage.setItem('scrollPosition', window.scrollY)
-    }
-
-    const restoreScrollPosition = () => {
-      window.scrollTo(0, scrollPosition)
-    }
-
-    window.addEventListener('beforeunload', saveScrollPosition)
-    window.addEventListener('load', restoreScrollPosition)
-
+    let lenis
     let frameId = 0
+    let destroyed = false
 
-    const raf = (time) => {
-      lenis.raf(time)
+    const initLenis = async () => {
+      const { default: Lenis } = await import('lenis')
+      if (destroyed) return
+
+      lenis = new Lenis({
+        autoRaf: false,
+        smoothWheel: true,
+        orientation: 'vertical',
+        gestureOrientation: 'vertical',
+        lerp: 0.1,
+      })
+
+      const raf = (time) => {
+        lenis.raf(time)
+        frameId = requestAnimationFrame(raf)
+      }
+
       frameId = requestAnimationFrame(raf)
     }
 
-    frameId = requestAnimationFrame(raf)
-
-    const onScroll = (e) => {
-      console.log(e)
-    }
-
-    lenis.on('scroll', onScroll)
+    initLenis()
 
     return () => {
-      window.removeEventListener('beforeunload', saveScrollPosition)
-      window.removeEventListener('load', restoreScrollPosition)
+      destroyed = true
       cancelAnimationFrame(frameId)
-      if (typeof lenis.off === 'function') {
-        lenis.off('scroll', onScroll)
+      lenis?.destroy()
+    }
+  }, [])
+
+  useEffect(() => {
+    let timeoutId = 0
+    let idleId = 0
+
+    const revealCarousel = () => {
+      timeoutId = window.setTimeout(() => {
+        setShowCarousel(true)
+      }, 120)
+    }
+
+    if ('requestIdleCallback' in window) {
+      idleId = window.requestIdleCallback(revealCarousel, { timeout: 900 })
+    } else {
+      revealCarousel()
+    }
+
+    return () => {
+      if (idleId && 'cancelIdleCallback' in window) {
+        window.cancelIdleCallback(idleId)
       }
-      lenis.destroy()
+      window.clearTimeout(timeoutId)
     }
   }, [])
 
@@ -137,15 +148,18 @@ function App() {
         className="max-w-[320px] w-full h-fit px-[16px] py-[8px] alt bg-white border border-border rounded-[12px] hover:border-red/30 transition-all duration-150 ease-out focus:outline-red focus:ring-0 focus:border-red/30 mb-[12px]"
       />
 
-
-      <Motion.button
-        initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
-        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-        transition={{ duration: 0.55, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="max-w-[320px] w-full h-fit px-[16px] py-[8px] bg-red !text-white rounded-[12px] alt cursor-pointer hover:opacity-90 transition-all duration-150 ease-out"
+<Motion.div
+initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
+animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+transition={{ duration: 0.55, delay: 0.35, ease: [0.22, 1, 0.36,1] }}
+className="flex items-center justify-center w-full">
+      <button
+         
+        className="max-w-[320px] w-full h-fit px-[16px] py-[8px] bg-red !text-white rounded-[12px] alt cursor-pointer hover:bg-red/90 transition-all duration-50 ease-out"
       >
         Join the waitlist!
-      </Motion.button>
+      </button>
+      </Motion.div>
 
       <Motion.p
       initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
@@ -159,31 +173,37 @@ function App() {
 
 
 
-      <Motion.section
-        initial={{ opacity: 0, y: 6, filter: 'blur(6px)' }}
-        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-        transition={{ duration: 0.55, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full"
-      >
-        <div className="carousel-track-wide py-2">
-          {longCarousel.map((src, idx) => (
-            <figure key={`${src}-${idx}`} className="carousel-image-card">
-              <img
-                src={encodeURI(src)}
-                alt={`Sapone product preview ${idx + 1}`}
-                className="size-full object-cover"
-                loading="lazy"
-              />
-            </figure>
-          ))}
-        </div>
-      </Motion.section>
+      {showCarousel ? (
+        <Motion.section
+          initial={{ opacity: 0, y: 6, filter: 'blur(6px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          transition={{ duration: 0.55, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full"
+        >
+          <div className="carousel-track-wide py-2">
+            {longCarousel.map((src, idx) => (
+              <figure key={`${src}-${idx}`} className="carousel-image-card">
+                <img
+                  src={encodeURI(src)}
+                  alt={`Sapone product preview ${idx + 1}`}
+                  className="size-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                  fetchPriority="low"
+                />
+              </figure>
+            ))}
+          </div>
+        </Motion.section>
+      ) : (
+        <div className="w-full h-[340px]" aria-hidden="true" />
+      )}
 
 
 
 
 
-
+<section></section>
 
         <section className="h-[200vh] w-full flex items-center justify-center">
           MATAIII
