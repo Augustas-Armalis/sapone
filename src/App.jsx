@@ -2,15 +2,17 @@ import { useEffect, useMemo } from 'react'
 import { motion as Motion } from 'framer-motion'
 import Lenis from 'lenis'
 
-const carouselCards = [
-  '/scroller/18.webp',
-  '/scroller/3 (1).webp',
-  '/scroller/3.webp',
-  '/scroller/ad-abe53a88 - 2026-02-03_10-50-40 - 1.webp',
-  '/scroller/ad-abe53baf - 2026-02-03_10-55-32 - 1.webp',
-  '/scroller/ad-abe54228 - 2026-02-03_11-24-28 - 1.webp',
-  '/scroller/ad-abe54459 - 2026-02-03_11-30-53 - 1.webp',
+const baseUrl = import.meta.env.BASE_URL
+const carouselFiles = [
+  '18.webp',
+  '3 (1).webp',
+  '3.webp',
+  'ad-abe53a88 - 2026-02-03_10-50-40 - 1.webp',
+  'ad-abe53baf - 2026-02-03_10-55-32 - 1.webp',
+  'ad-abe54228 - 2026-02-03_11-24-28 - 1.webp',
+  'ad-abe54459 - 2026-02-03_11-30-53 - 1.webp',
 ]
+const carouselCards = carouselFiles.map((file) => `${baseUrl}scroller/${file}`)
 
 function App() {
   const longCarousel = useMemo(
@@ -99,7 +101,7 @@ function App() {
         <p className="text-[14px] alt text-text !ml-[12px]">Launching March 17th.</p>
         <a className="flex ml-[8px] items-center cursor-pointer justify-center flex-row hover:opacity-80 gap-0.5">
           <p className="text-[14px] alt !text-red underline">Notify me</p>
-          <img src="/icons/arrow.svg" alt="arrow-right" className="size-4"></img>
+          <img src={`${baseUrl}icons/arrow.svg`} alt="arrow-right" className="size-4"></img>
         </a>
       </Motion.div>
       
