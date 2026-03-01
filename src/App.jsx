@@ -89,23 +89,23 @@ function App() {
   return (
     <main className="relative isolate min-h-screen overflow-x-hidden">
       <div className="grain" aria-hidden="true" />
-      <div className="relative z-10 flex items-center justify-start flex-col h-fit">
+      <div className="relative z-10 flex items-center justify-start flex-col h-fit px-[10px] md:px-0">
 
 
 
     <Motion.p
         initial={{ opacity: 0, y: 0, filter: 'blur(6px)' }}
         animate={{ opacity: 1, y: 10, filter: 'blur(0px)' }}
-        transition={{ duration: 0.55, delay: 0.15, ease: [0.22, 1, 0.36, 1] }} className="title text-[24px] tracking-[-0.04em] mb-[92px]">Sapone</Motion.p>
+        transition={{ duration: 0.55, delay: 0.15, ease: [0.22, 1, 0.36, 1] }} className="title text-[24px] tracking-[-0.04em] mb-[72px] md:mb-[92px]">Sapone</Motion.p>
 
 
-    <div className="flex items-center justify-center flex-col mb-[64px]">
+    <div className="flex items-center justify-center flex-col mb-[40px] md:mb-[64px]">
 
       <Motion.div
         initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         transition={{ duration: 0.55, delay: 0, ease: [0.22, 1, 0.36, 1] }}
-        className="flex items-center justify-center flex-row w-fit px-[14px] pb-[3px] pt-[4px] bg-white border border-border rounded-full mb-[18px]"
+        className="flex max-w-full flex-wrap items-center justify-center gap-y-1 bg-white border border-border rounded-full mb-[16px] px-[12px] pb-[4px] pt-[4px]"
       >
         <span className="live-dot" aria-hidden="true" />
         
@@ -120,7 +120,7 @@ function App() {
         initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         transition={{ duration: 0.55, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-        className="text-3xl md:text-4xl lg:text-5xl title text-center !tracking-[-0.04em] mb-[12px]"
+        className="text-4xl md:text-4xl lg:text-5xl title text-center !tracking-[-0.04em] mb-[12px]"
       >
         SHAMPOO IN SOAP PACKAGING
       </Motion.h1>
@@ -129,7 +129,7 @@ function App() {
         initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         transition={{ duration: 0.55, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-        className="text-[18px] alt !text-alt"
+        className="text-[16px] md:text-[18px] alt !text-alt"
       >
         Zero Plastic. Premium Quality. Zero waste.
       </Motion.p>
@@ -137,7 +137,7 @@ function App() {
 
 
 
-    <div className="flex items-center w-full justify-center flex-col mb-[128px]">
+    <div className="flex items-center w-full justify-center flex-col mb-[72px] md:mb-[112px]">
 
       <Motion.input
         initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
@@ -170,6 +170,34 @@ className="flex items-center justify-center w-full">
     </div>
 
 
+    <Motion.section
+      initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
+      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      transition={{ duration: 0.55, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      className="w-full mb-[8px]"
+    >
+      <div className="mx-auto grid w-full max-w-[820px] grid-cols-2 gap-1 md:grid-cols-4 md:gap-1">
+          <article className="rounded-[12px] border border-border bg-white/80 px-3 py-2 md:px-3.5 md:py-2">
+            <p className="alt text-[19px] leading-[1.06] tracking-[-0.02em] text-red md:text-[20px]">847+</p>
+            <p className="alt mt-0.5 text-[11px] text-alt/80">Signed up</p>
+          </article>
+          <article className="rounded-[12px] border border-border bg-white/80 px-3 py-2 md:px-3.5 md:py-2">
+            <p className="alt text-[19px] leading-[1.06] tracking-[-0.02em] text-red md:text-[20px]">Shark Tank</p>
+            <p className="alt mt-0.5 text-[11px] text-alt/80">Featured</p>
+          </article>
+          <article className="rounded-[12px] border border-border bg-white/80 px-3 py-2 md:px-3.5 md:py-2">
+            <p className="alt text-[19px] leading-[1.06] tracking-[-0.02em] text-red md:text-[20px]">1000+</p>
+            <p className="alt mt-0.5 text-[11px] text-alt/80">Sold</p>
+          </article>
+          <article className="rounded-[12px] border border-border bg-white/80 px-3 py-2 md:px-3.5 md:py-2">
+            <p className="alt text-[19px] leading-[1.06] tracking-[-0.02em] text-red md:text-[20px]">Loved in Europe</p>
+            <p className="alt mt-0.5 text-[11px] text-alt/80">Social proof</p>
+          </article>
+      </div>
+    </Motion.section>
+    
+
+
 
 
 
@@ -177,8 +205,8 @@ className="flex items-center justify-center w-full">
         <Motion.section
           initial={{ opacity: 0, y: 6, filter: 'blur(6px)' }}
           animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-          transition={{ duration: 0.55, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full"
+          transition={{ duration: 0.55, delay: 0.38, ease: [0.22, 1, 0.36, 1] }}
+          className="w-[calc(100%+20px)] -mx-[10px] md:w-full md:mx-0"
         >
           <div className="carousel-track-wide py-2">
             {longCarousel.map((src, idx) => (
@@ -196,14 +224,73 @@ className="flex items-center justify-center w-full">
           </div>
         </Motion.section>
       ) : (
-        <div className="w-full h-[340px]" aria-hidden="true" />
+        <div className="w-[calc(100%+20px)] -mx-[10px] h-[340px] md:w-full md:mx-0" aria-hidden="true" />
       )}
 
 
 
 
 
-<section></section>
+        <section className="w-full max-w-[980px] px-0 md:px-10 mt-[60px] md:mt-[128px] mb-[64px] md:mb-[120px]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
+            <article className="bg-white/70 border border-border rounded-[14px] p-5 md:p-6">
+              <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-2.5 py-1 mb-3">
+                Problem 1
+              </span>
+              <h2 className="title text-[19px] md:text-[21px] leading-[1.2] tracking-[-0.02em] mb-3">
+                Your family&apos;s plastic legacy
+              </h2>
+              <p className="alt text-[13px] md:text-[14px] text-[#111] mb-3">
+                24 bottles/year × 91% never recycled = 480 bottles in landfills over 20 years.
+              </p>
+              <p className="alt text-[13px] md:text-[14px] text-alt leading-normal mb-4">
+                Every “just one bottle” choice compounds into long-term waste and quiet guilt.
+              </p>
+              <p className="alt text-[13px] md:text-[14px] font-medium text-[#111]">
+                <span className="text-red">Sapone solution:</span> Zero bottles. Zero guilt. Zero plastic
+                legacy.
+              </p>
+            </article>
+
+            <article className="bg-white/70 border border-border rounded-[14px] p-5 md:p-6">
+              <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-2.5 py-1 mb-3">
+                Problem 2
+              </span>
+              <h2 className="title text-[19px] md:text-[21px] leading-[1.2] tracking-[-0.02em] mb-3">
+                Your bathroom is a plastic graveyard
+              </h2>
+              <p className="alt text-[13px] md:text-[14px] text-[#111] mb-3">
+                7-12 bottles cluttering your shower. €96 wasted on packaging you throw away.
+              </p>
+              <p className="alt text-[13px] md:text-[14px] text-alt leading-normal mb-4">
+                Visual clutter adds stress while promised recycling becomes bin-bound habit.
+              </p>
+              <p className="alt text-[13px] md:text-[14px] font-medium text-[#111]">
+                <span className="text-red">Sapone solution:</span> One product. Clean counter. Actual
+                minimalism.
+              </p>
+            </article>
+
+            <article className="bg-white/70 border border-border rounded-[14px] p-5 md:p-6">
+              <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-2.5 py-1 mb-3">
+                Problem 3
+              </span>
+              <h2 className="title text-[19px] md:text-[21px] leading-[1.2] tracking-[-0.02em] mb-3">
+                Zero emotion, zero ritual
+              </h2>
+              <p className="alt text-[13px] md:text-[14px] text-[#111] mb-3">
+                Mindless consumption. No connection. Just buy-use-throw-repeat.
+              </p>
+              <p className="alt text-[13px] md:text-[14px] text-alt leading-normal mb-4">
+                Disposable products turn self-care into routine autopilot with no meaning.
+              </p>
+              <p className="alt text-[13px] md:text-[14px] font-medium text-[#111]">
+                <span className="text-red">Sapone solution:</span> Beautiful product. Proud choice. Ritual
+                restored.
+              </p>
+            </article>
+          </div>
+        </section>
 
         <section className="h-[200vh] w-full flex items-center justify-center">
           MATAIII
