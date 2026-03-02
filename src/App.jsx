@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { motion as Motion } from 'framer-motion'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { AnimatePresence, motion as Motion, useScroll, useTransform } from 'framer-motion'
 
 const baseUrl = import.meta.env.BASE_URL
 const carouselFiles = [
@@ -17,12 +17,90 @@ const carouselCards = carouselFiles.map(({ file, width, height }) => ({
   height,
 }))
 
+const stackCards = [
+  { bg: 'linear-gradient(135deg, #ccdce8 0%, #a8c0d4 100%)', label: "Backed by one of Lithuania's wealthiest investors", rotate: -1.5 },
+  { bg: 'linear-gradient(135deg, #e8cece 0%, #c49090 100%)', label: 'Shark Tank vetted',                                  rotate:  1 },
+  { bg: 'linear-gradient(135deg, #e8e4c4 0%, #d4c878 100%)', label: 'Already shipped 1,000+ units successfully',           rotate: -1 },
+  { bg: 'linear-gradient(135deg, #cce0cc 0%, #90b890 100%)', label: 'Real company, real product, real commitment',         rotate:  1.5 },
+  { bg: 'linear-gradient(135deg, #e8cece 0%, #c49090 100%)', label: 'Legally binding delivery contract signed',            rotate: -0.5 },
+]
+
+function StackCard({ y, scale, rotate, bg, label, zIndex }) {
+  return (
+    <Motion.div
+      style={{ y, scale, rotate, zIndex }}
+      className="absolute top-0 left-0 right-0 mx-auto w-[300px] md:w-[460px] bg-white rounded-[20px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
+    >
+      <div className="w-full aspect-video" style={{ background: bg }} />
+      <div className="px-5 py-4 border-t border-border">
+        <p className="alt text-[13px] md:text-[15px] text-text font-semibold leading-snug">{label}</p>
+      </div>
+    </Motion.div>
+  )
+}
+
+const faqs = [
+  {
+    q: 'Does the shampoo actually work?',
+    a: '91% natural origin formula. Worked with labs. Tested by 1,000+ customers.',
+    bullets: ['Curly hair', 'Straight hair', 'Colored hair', 'Oily hair', 'Anti-dandruff', 'Universal'],
+  },
+  {
+    q: 'What happens when shampoo runs out?',
+    a: 'Perfect ratio designed through testing. When 200ml shampoo is finished, minimal soap remains. No waste.',
+  },
+  {
+    q: 'How does shipping work?',
+    a: 'Recyclable cardboard box with climate-proof inner layer. Tested −20°C to +40°C. Ships worldwide. Arrives safe — no melting, no leaking.',
+  },
+  {
+    q: 'Can I keep it in the shower?',
+    a: 'Yes. Soap dissolves from friction, not just water. We reinforced it — stronger than traditional soap. Designed specifically for shower storage.',
+  },
+  {
+    q: 'Is this like that other product that scammed people?',
+    a: 'We know about that. We\'re different.',
+    bullets: ['Backed by one of Lithuania\'s wealthiest investors', 'Legally binding delivery contract signed', 'Already shipped 1,000+', 'Real company, real product, real commitment'],
+  },
+]
+
 function App() {
   const [showCarousel, setShowCarousel] = useState(false)
   const longCarousel = useMemo(
     () => [...carouselCards, ...carouselCards],
     [],
   )
+
+  const [openFaq, setOpenFaq] = useState(0)
+
+  const stackSectionRef = useRef(null)
+  const { scrollYProgress: stackProgress } = useScroll({
+    target: stackSectionRef,
+    offset: ['start start', 'end end'],
+  })
+
+  // Stack card Y entry — slide up from well below the viewport
+  const sc1y = useTransform(stackProgress, [0.05, 0.22], [1100, 0])
+  const sc2y = useTransform(stackProgress, [0.22, 0.39], [1100, 0])
+  const sc3y = useTransform(stackProgress, [0.39, 0.56], [1100, 0])
+  const sc4y = useTransform(stackProgress, [0.56, 0.73], [1100, 0])
+  // Stack card scale — cumulative shrink as cards pile on top
+  const sc0scale = useTransform(stackProgress, [0.10, 0.22, 0.39, 0.56, 0.73], [1, 0.96, 0.92, 0.88, 0.85])
+  const sc1scale = useTransform(stackProgress, [0.22, 0.39, 0.56, 0.73], [1, 0.96, 0.92, 0.88])
+  const sc2scale = useTransform(stackProgress, [0.39, 0.56, 0.73], [1, 0.96, 0.92])
+  const sc3scale = useTransform(stackProgress, [0.56, 0.73], [1, 0.96])
+
+  const perspectiveSectionRef = useRef(null)
+  const { scrollYProgress: pProgress } = useScroll({
+    target: perspectiveSectionRef,
+    offset: ['start end', 'end start'],
+  })
+  // Far images (top, smaller) → biggest Y range = fastest = furthest depth
+  const img1Y = useTransform(pProgress, [0, 1], [200, -320])
+  const img2Y = useTransform(pProgress, [0, 1], [160, -260])
+  // Near images (bottom, larger) → slower than top but still prominent
+  const img3Y = useTransform(pProgress, [0, 1], [110, -180])
+  const img4Y = useTransform(pProgress, [0, 1], [130, -200])
 
   useEffect(() => {
     const isTouchDevice = () =>
@@ -299,11 +377,275 @@ className="flex items-center justify-center w-full">
           </div>
         </section>
 
-        <section className="h-[200vh] w-full flex items-center justify-center">
-          MATAIII
+        <section
+          ref={perspectiveSectionRef}
+          className="relative w-full min-h-screen lg:min-h-[120vh] lg:overflow-hidden flex items-center justify-center"
+        >
+          {/* Desktop: top-left — spread wide apart */}
+          <Motion.figure
+            style={{ y: img1Y }}
+            className="hidden lg:block absolute top-[26%] left-[11%] w-[138px] aspect-4/5 rounded-[16px] overflow-hidden m-0 -rotate-12"
+          >
+            <img src={`${baseUrl}images/geltonas.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
+          </Motion.figure>
+
+          {/* Desktop: top-right — spread wide apart */}
+          <Motion.figure
+            style={{ y: img2Y }}
+            className="hidden lg:block absolute top-[18%] right-[10%] w-[145px] aspect-4/5 rounded-[16px] overflow-hidden m-0 rotate-9"
+          >
+            <img src={`${baseUrl}images/melynas.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
+          </Motion.figure>
+
+          {/* Desktop: bottom-left — closer together near center */}
+          <Motion.figure
+            style={{ y: img3Y }}
+            className="hidden lg:block absolute top-[63%] left-[24%] w-[215px] aspect-3/4 rounded-[16px] overflow-hidden m-0 -rotate-5"
+          >
+            <img src={`${baseUrl}images/zalias.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
+          </Motion.figure>
+
+          {/* Desktop: bottom-right — closer together near center */}
+          <Motion.figure
+            style={{ y: img4Y }}
+            className="hidden lg:block absolute top-[67%] right-[23%] w-[200px] aspect-3/4 rounded-[16px] overflow-hidden m-0 rotate-7"
+          >
+            <img src={`${baseUrl}images/raudonas.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
+          </Motion.figure>
+
+          {/* Mobile: top-left — high up, big tilt */}
+          <Motion.figure
+            style={{ y: img1Y }}
+            className="lg:hidden absolute top-[2%] left-[-2%] w-[145px] aspect-3/4 rounded-[16px] overflow-hidden m-0 z-20 -rotate-6"
+          >
+            <img src={`${baseUrl}images/melynas.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
+          </Motion.figure>
+
+          {/* Mobile: top-right — lower and more tilted */}
+          <Motion.figure
+            style={{ y: img2Y }}
+            className="lg:hidden absolute top-[14%] right-[-2%] w-[118px] aspect-3/4 rounded-[16px] overflow-hidden m-0 z-20 rotate-12"
+          >
+            <img src={`${baseUrl}images/zalias.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
+          </Motion.figure>
+
+          {/* Mobile: bottom-left — near bottom edge */}
+          <Motion.figure
+            style={{ y: img3Y }}
+            className="lg:hidden absolute bottom-[2%] left-[0%] w-[150px] aspect-3/4 rounded-[16px] overflow-hidden m-0 z-20 rotate-6"
+          >
+            <img src={`${baseUrl}images/geltonas.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
+          </Motion.figure>
+
+          {/* Mobile: bottom-right — higher from bottom, opposite tilt */}
+          <Motion.figure
+            style={{ y: img4Y }}
+            className="lg:hidden absolute bottom-[13%] right-[-1%] w-[125px] aspect-3/4 rounded-[16px] overflow-hidden m-0 z-20 -rotate-12"
+          >
+            <img src={`${baseUrl}images/raudonas.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
+          </Motion.figure>
+
+          {/* Center content */}
+          <div className="relative z-10 text-center max-w-[420px]">
+            <h2 className="title text-[32px]   md:text-[36px] leading-[1.08] tracking-[-0.04em]! mb-[8px]">
+              WHAT IF THE BOTTLE WAS THE PRODUCT?
+            </h2>
+            <p className="alt text-[15px] md:text-[16px] text-alt! mb-8">
+              Zero waste. Nothing left.
+            </p>
+            <button className="px-8 py-[10px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out">
+              Join the waitlist
+            </button>
+          </div>
         </section>
 
 
+
+        {/* SECTION 3: THE SOLUTION */}
+        <section className="w-full max-w-[940px] px-4 md:px-10 pt-[32px] md:pt-[48px] pb-[48px] md:pb-[80px]">
+
+          {/* Header */}
+          <div className="flex flex-col items-center text-center mb-[56px] md:mb-[72px]">
+            <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-5">
+              The Solution
+            </span>
+            <h2 className="title text-[32px] md:text-[44px] lg:text-[52px] leading-[1.06] tracking-[-0.04em]! mb-4 max-w-[560px]">
+              How Sapone Works
+            </h2>
+            <p className="alt text-[15px] md:text-[16px] text-alt! max-w-[360px] leading-relaxed">
+              One bar. Two functions. Zero waste left behind.
+            </p>
+          </div>
+
+          {/* 3-step visual */}
+          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mb-[56px] md:mb-[72px]">
+
+            {/* Connecting line — desktop only */}
+            <div className="hidden md:block absolute top-[52px] left-[calc(33.3%+12px)] right-[calc(33.3%+12px)] h-px bg-border z-0" />
+
+            {/* Step 1 */}
+            <article className="relative z-10 flex flex-col bg-white/70 border border-border rounded-[16px] p-6 md:p-7">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="w-9 h-9 shrink-0 rounded-full bg-red/10 border border-red/20 flex items-center justify-center">
+                  <span className="title text-[15px] text-red leading-none">1</span>
+                </span>
+                <div className="h-px flex-1 bg-border md:hidden" />
+              </div>
+              <h3 className="title text-[19px] md:text-[21px] leading-[1.15] tracking-[-0.02em] mb-2">
+                Lather on hands & body
+              </h3>
+              <p className="alt text-[13px] md:text-[14px] text-alt leading-relaxed">
+                Use it exactly like a regular soap bar. The rich lather cleanses your skin as usual.
+              </p>
+            </article>
+
+            {/* Step 2 */}
+            <article className="relative z-10 flex flex-col bg-white/70 border border-border rounded-[16px] p-6 md:p-7">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="w-9 h-9 shrink-0 rounded-full bg-red/10 border border-red/20 flex items-center justify-center">
+                  <span className="title text-[15px] text-red leading-none">2</span>
+                </span>
+                <div className="h-px flex-1 bg-border md:hidden" />
+              </div>
+              <h3 className="title text-[19px] md:text-[21px] leading-[1.15] tracking-[-0.02em] mb-2">
+                Shampoo reveals inside
+              </h3>
+              <p className="alt text-[13px] md:text-[14px] text-alt leading-relaxed">
+                As the outer layer dissolves, a concentrated shampoo core is exposed — ready to use.
+              </p>
+            </article>
+
+            {/* Step 3 */}
+            <article className="relative z-10 flex flex-col bg-white/70 border border-border rounded-[16px] p-6 md:p-7">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="w-9 h-9 shrink-0 rounded-full bg-red/10 border border-red/20 flex items-center justify-center">
+                  <span className="title text-[15px] text-red leading-none">3</span>
+                </span>
+                <div className="h-px flex-1 bg-border md:hidden" />
+              </div>
+              <h3 className="title text-[19px] md:text-[21px] leading-[1.15] tracking-[-0.02em] mb-2">
+                Use for hair
+              </h3>
+              <p className="alt text-[13px] md:text-[14px] text-alt leading-relaxed">
+                Apply the shampoo core to your hair. Zero plastic bottles. Zero waste. Nothing left.
+              </p>
+            </article>
+          </div>
+
+          {/* Video placeholder */}
+          <div className="w-full rounded-[20px] overflow-hidden border border-border bg-white/60 aspect-video flex flex-col items-center justify-center gap-4 relative">
+            <div className="w-14 h-14 rounded-full bg-red flex items-center justify-center shadow-md">
+              {/* Play icon */}
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M6 4.5L16 10L6 15.5V4.5Z" fill="white" />
+              </svg>
+            </div>
+            <div className="text-center">
+              <p className="title text-[16px] md:text-[18px] tracking-[-0.02em] mb-1">15-second demo</p>
+              <p className="alt text-[13px] text-alt!">Soap dissolving → shampoo reveal</p>
+            </div>
+            <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_40px,rgb(0,0,0,0.015)_40px,rgb(0,0,0,0.015)_41px)] pointer-events-none" />
+          </div>
+
+        </section>
+
+        {/* SECTION 4: FAQ */}
+        <section className="w-full max-w-[740px] px-4 md:px-10 pt-[48px] md:pt-[72px] pb-[96px] md:pb-[140px]">
+
+          <div className="text-center mb-[48px] md:mb-[64px]">
+            <h2 className="title text-[32px] md:text-[46px] leading-[1.06] tracking-[-0.04em]!">
+              Your questions answered
+            </h2>
+          </div>
+
+          <div className="flex flex-col">
+            {faqs.map((faq, i) => {
+              const isOpen = openFaq === i
+              return (
+                <div key={i} className="border-t border-border last:border-b">
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : i)}
+                    className="group w-full flex items-center justify-between gap-6 py-5 text-left cursor-pointer"
+                  >
+                    <span className={`alt text-[15px] md:text-[17px] font-medium transition-colors duration-150 ${isOpen ? 'text-red' : 'text-text'} group-hover:underline decoration-border underline-offset-4`}>
+                      {faq.q}
+                    </span>
+                    <Motion.span
+                      animate={{ rotate: isOpen ? 45 : 0 }}
+                      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                      className="shrink-0 w-5 h-5 flex items-center justify-center text-red text-[22px] leading-none select-none"
+                    >
+                      +
+                    </Motion.span>
+                  </button>
+
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <Motion.div
+                        key="answer"
+                        initial={{ height: 0 }}
+                        animate={{ height: 'auto' }}
+                        exit={{ height: 0 }}
+                        transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <Motion.div
+                          initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -4, scale: 0.97 }}
+                          transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
+                          className="origin-top"
+                        >
+                          <div className="pb-5 pr-10">
+                            <p className="alt text-[13px] md:text-[14px] text-alt leading-relaxed">
+                              {faq.a}
+                            </p>
+                            {faq.bullets && (
+                              <div className="flex flex-wrap gap-2 mt-3">
+                                {faq.bullets.map((b, j) => (
+                                  <span key={j} className="alt text-[12px] text-text bg-red/6 border border-red/12 rounded-full px-3 py-1">
+                                    {b}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </Motion.div>
+                      </Motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )
+            })}
+          </div>
+
+          <div className="flex justify-center mt-[48px]">
+            <button className="px-10 py-[11px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out">
+              Join the waitlist
+            </button>
+          </div>
+
+        </section>
+
+        {/* SECTION 5: STACKING TRUST CARDS */}
+        <div ref={stackSectionRef} className="relative w-full" style={{ height: '600vh' }}>
+          <div className="sticky top-0 h-screen flex flex-col items-center pt-16 md:pt-20">
+            <div className="text-center mb-10 relative z-20">
+              <p className="alt text-[11px] uppercase tracking-widest text-alt mb-3">Why trust us</p>
+              <h2 className="title text-[28px] md:text-[40px] leading-[1.08] tracking-[-0.04em]! text-center">
+                Built to last
+              </h2>
+            </div>
+            {/* Card deck: height = aspect-video image + caption ~72px */}
+            <div className="relative w-[300px] md:w-[460px] h-[241px] md:h-[331px]">
+              <StackCard y={0}    scale={sc0scale} rotate={stackCards[0].rotate} bg={stackCards[0].bg} label={stackCards[0].label} zIndex={10} />
+              <StackCard y={sc1y} scale={sc1scale} rotate={stackCards[1].rotate} bg={stackCards[1].bg} label={stackCards[1].label} zIndex={11} />
+              <StackCard y={sc2y} scale={sc2scale} rotate={stackCards[2].rotate} bg={stackCards[2].bg} label={stackCards[2].label} zIndex={12} />
+              <StackCard y={sc3y} scale={sc3scale} rotate={stackCards[3].rotate} bg={stackCards[3].bg} label={stackCards[3].label} zIndex={13} />
+              <StackCard y={sc4y} scale={1}        rotate={stackCards[4].rotate} bg={stackCards[4].bg} label={stackCards[4].label} zIndex={14} />
+            </div>
+          </div>
+        </div>
 
       </div>
     </main>
