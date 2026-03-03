@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion as Motion, useScroll, useTransform } from 'framer-motion'
+import { Tv, Package, Globe, ShieldCheck, Leaf, Truck } from 'lucide-react'
 
 const baseUrl = import.meta.env.BASE_URL
 const carouselFiles = [
@@ -37,13 +38,13 @@ function TrustCard({ card, index, progress, range, targetScale }) {
   return (
     <div
       ref={cardRef}
-      className="h-screen flex items-center justify-center sticky top-0"
+      className="h-svh flex items-center justify-center sticky top-0"
     >
       <Motion.div
-        style={{ scale, rotate: card.rotate, top: `calc(-5vh + ${index * 25}px)` }}
-        className="relative w-[88%] max-w-[680px] rounded-[18px] overflow-hidden bg-white border border-black/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.08)] origin-top"
+        style={{ scale, rotate: card.rotate, top: `calc(-4vh + ${index * 22}px)` }}
+        className="relative w-[92%] max-w-[min(680px,90vw)] rounded-[14px] md:rounded-[18px] overflow-hidden bg-bg border border-white/10 shadow-[0_4px_32px_rgba(0,0,0,0.10)] origin-top"
       >
-        <div className="w-full aspect-video overflow-hidden">
+        <div className="w-full aspect-4/3 sm:aspect-video overflow-hidden">
           <Motion.div className="w-full h-full" style={{ scale: imageScale }}>
             <img
               src={card.image}
@@ -54,8 +55,8 @@ function TrustCard({ card, index, progress, range, targetScale }) {
             />
           </Motion.div>
         </div>
-        <div className="px-5 py-3.5 bg-white">
-          <p className="alt text-[13px] md:text-[14px] text-alt leading-snug">
+        <div className="px-4 md:px-5 py-3 md:py-4 bg-bg">
+          <p className="alt text-[14px] md:text-[16px] text-text leading-snug">
             {card.label}
           </p>
         </div>
@@ -87,6 +88,340 @@ function TrustStackSection() {
         )
       })}
     </section>
+  )
+}
+
+const keyIngredients = [
+  { name: 'Argan Oil', benefit: 'nourishes, softens' },
+  { name: 'Aloe Vera', benefit: 'hydrates, soothes scalp' },
+  { name: 'Panthenol', benefit: 'strengthens, adds shine' },
+  { name: 'Green Tea Extract', benefit: 'antioxidant protection' },
+  { name: 'Wheat Protein', benefit: 'strengthens, adds volume' },
+  { name: 'Amino Acids', benefit: 'restores elasticity' },
+]
+
+const fullIngredients = [
+  'Water (Aqua)', 'Coco-Glucoside', 'Decyl Glucoside',
+  'Sodium Cocoyl Glutamate', 'Glycerin', 'Panthenol',
+  'Argania Spinosa Kernel Oil', 'Aloe Barbadensis Leaf Juice',
+  'Camellia Sinensis Leaf Extract', 'Hydrolyzed Wheat Protein',
+  'Amino Acids Blend', 'Citric Acid',
+]
+
+function IngredientsSection() {
+  const [listOpen, setListOpen] = useState(false)
+
+  return (
+    <section className="w-full px-4 md:px-10 pt-[72px] md:pt-[112px] pb-[72px] md:pb-[120px]">
+      <div className="max-w-[980px] mx-auto">
+
+        {/* Top: left copy + right image */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 mb-[48px] md:mb-[56px] items-start">
+
+          {/* Left */}
+          <div className="flex flex-col">
+            <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-5 w-fit">
+              Ingredients
+            </span>
+            <h2 className="title text-[32px] md:text-[44px] lg:text-[52px] leading-[1.06] tracking-[-0.04em]! mb-8 max-w-[480px]">
+              91% Natural Origin Formula
+            </h2>
+            <ul className="flex flex-col gap-3.5 mb-9">
+              {keyIngredients.map(({ name, benefit }, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <span className="text-red text-[13px] mt-[2px] shrink-0 font-bold">✓</span>
+                  <p className="alt text-[14px] md:text-[15px] leading-snug">
+                    <span className="text-text font-semibold">{name}</span>
+                    <span className="text-alt"> — {benefit}</span>
+                  </p>
+                </li>
+              ))}
+            </ul>
+            <button className="w-fit px-8 py-[10px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out">
+              Join the waitlist
+            </button>
+          </div>
+
+          {/* Right: image/video placeholder */}
+          <div className="rounded-[20px] bg-white/60 border border-border min-h-[300px] lg:min-h-[420px] flex items-center justify-center">
+            <p className="alt text-[12px] text-alt/50 tracking-wide uppercase">Image / Video</p>
+          </div>
+        </div>
+
+        {/* NO cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
+          {['sulfates', 'parabens', 'microplastics'].map((label) => (
+            <article
+              key={label}
+              className="rounded-[14px] border border-border bg-white/70 px-5 py-7 flex items-center justify-center"
+            >
+              <p className="alt text-[17px] md:text-[19px] font-medium text-center tracking-[-0.01em]">
+                <span className="text-red">NO </span>
+                <span className="text-text">{label}</span>
+              </p>
+            </article>
+          ))}
+        </div>
+
+        {/* Full ingredient list — collapsible */}
+        <div className="flex flex-col items-center mt-3">
+          <button
+            onClick={() => setListOpen(!listOpen)}
+            className="flex items-center gap-1.5 alt text-[13px] text-alt hover:text-text transition-colors duration-150 cursor-pointer py-2"
+          >
+            See full ingredient list
+            <Motion.span
+              animate={{ rotate: listOpen ? 180 : 0 }}
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              className="inline-block leading-none"
+            >
+              ↓
+            </Motion.span>
+          </button>
+
+          <AnimatePresence initial={false}>
+            {listOpen && (
+              <Motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="overflow-hidden w-full"
+              >
+                <div className="flex flex-wrap gap-2 pt-4 pb-2 justify-center">
+                  {fullIngredients.map((ing) => (
+                    <span
+                      key={ing}
+                      className="alt text-[12px] text-text bg-white border border-border rounded-full px-3 py-1.5"
+                    >
+                      {ing}
+                    </span>
+                  ))}
+                </div>
+              </Motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+      </div>
+    </section>
+  )
+}
+
+function AboutSection() {
+  return (
+    <section className="w-full px-4 md:px-10 pt-[72px] md:pt-[112px] pb-[80px] md:pb-[128px]">
+      <div className="max-w-[980px] mx-auto">
+
+        <h2 className="title text-[32px] md:text-[48px] lg:text-[56px] leading-[1.06] tracking-[-0.04em]! text-center mb-12 md:mb-16">
+          Built by Teenagers.<br className="hidden md:block" /> Backed by Experts.
+        </h2>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-start">
+
+          {/* Left: image placeholder */}
+          <div className="rounded-[20px] bg-white/60 border border-border aspect-4/5 w-full flex items-center justify-center order-2 lg:order-1">
+            <p className="alt text-[12px] text-alt/50 tracking-wide uppercase">Image</p>
+          </div>
+
+          {/* Right: story */}
+          <div className="flex flex-col gap-5 order-1 lg:order-2 pt-1">
+
+            <p className="alt text-[15px] md:text-[16px] text-text leading-relaxed">
+              I'm Paulius, I'm 17, and yes — I'm a bald student who pitched a shampoo brand on{' '}
+              <span className="font-semibold text-red">Shark Tank</span>.
+            </p>
+
+            <p className="alt text-[14px] md:text-[15px] text-alt leading-relaxed">
+              It started with a school project and a haunting statistic: 91% of plastic bottles are never recycled.
+              We refused to accept that, so we looked for a 'Kinder Surprise' solution — just as Kinder combined
+              chocolate and a toy, we combined the two essentials of every bathroom: liquid shampoo protected by
+              a solid soap shell.
+            </p>
+
+            <p className="alt text-[14px] md:text-[15px] text-alt leading-relaxed">
+              We started with $300 and failed 22 times. On the 23rd prototype, we finally cracked the code. We
+              sold at local markets, convinced our parents to help us scale with a $1,000 loan, and obsessively
+              refined the quality until it was salon-grade.
+            </p>
+
+            <p className="alt text-[14px] md:text-[15px] text-alt leading-relaxed">
+              We took that confidence to{' '}
+              <span className="font-semibold text-text">Shark Tank</span>, walked away with an investment, and
+              now we're backed by world-class laboratories. We aren't just making a 'green' product — we're making
+              the future of hair care. Sustainable, high-performance, and completely plastic-free.
+            </p>
+
+            <p className="alt text-[15px] md:text-[16px] text-text font-semibold leading-relaxed">
+              We're taking Sapone global.
+            </p>
+
+            <div className="pt-2">
+              <button className="px-8 py-[10px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out">
+                Join the waitlist
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+  )
+}
+
+function FinalCtaSection() {
+  return (
+    <section className="w-full bg-white px-4 md:px-10 py-[72px] md:py-[112px]">
+      <div className="max-w-[640px] mx-auto flex flex-col items-center text-center">
+
+        <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-5 w-fit">
+          Limited Early Access
+        </span>
+
+        <h2 className="title text-[36px] md:text-[54px] leading-[1.04] tracking-[-0.04em]! mb-3">
+          Launching March 17th
+        </h2>
+        <p className="alt text-[15px] text-alt mb-10 max-w-[340px] leading-snug">
+          First 500 backers only. After that, price increases.
+        </p>
+
+        {/* Price row */}
+        <div className="w-full rounded-[18px] bg-[#484854] p-6 md:p-8 mb-7 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12">
+          <div className="flex flex-col items-center">
+            <span className="alt text-[10px] uppercase tracking-widest text-white/40 mb-1">Early Bird</span>
+            <div className="flex items-end gap-1.5">
+              <span className="title text-[60px] leading-none tracking-[-0.04em] text-white">€12</span>
+              <span className="alt text-[12px] text-white/40 mb-2">/ bar</span>
+            </div>
+            <span className="alt text-[11px] text-white/35 mt-1">Save 40%</span>
+          </div>
+
+          <div className="h-px w-14 bg-white/10 sm:hidden" />
+          <div className="hidden sm:block w-px h-14 bg-white/10" />
+
+          <div className="flex flex-col items-center">
+            <span className="alt text-[10px] uppercase tracking-widest text-white/40 mb-1">Regular</span>
+            <span className="title text-[60px] leading-none tracking-[-0.04em] text-white/15 line-through">€17</span>
+            <span className="alt text-[11px] text-white/30 mt-1">after launch</span>
+          </div>
+        </div>
+
+        <p className="alt text-[13px] text-alt mb-5">
+          Join <span className="font-semibold text-text">847+ people</span> already on the waitlist
+        </p>
+
+        <div className="w-full flex flex-col sm:flex-row gap-2 mb-8">
+          <input
+            type="email"
+            placeholder="your@email.com"
+            className="flex-1 px-4 py-[13px] rounded-[12px] border border-border bg-bg alt text-[15px] text-text outline-none focus:border-red/40 transition-colors duration-150 placeholder:text-alt/40"
+          />
+          <button className="px-7 py-[13px] bg-red text-white! alt text-[15px] font-medium rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out whitespace-nowrap">
+            Get Early Access
+          </button>
+        </div>
+
+        {/* Benefit grid */}
+        <div className="w-full grid grid-cols-2 gap-2">
+          {[
+            'Launch day notification',
+            'Exclusive early bird pricing',
+            'Behind-the-scenes updates',
+            'First access to new scents',
+          ].map((benefit) => (
+            <div key={benefit} className="flex items-center gap-2.5 px-4 py-3 rounded-[12px] border border-border bg-bg/60">
+              <span className="text-red text-[12px] font-bold shrink-0">✓</span>
+              <span className="alt text-[12px] md:text-[13px] text-text text-left leading-snug">{benefit}</span>
+            </div>
+          ))}
+        </div>
+
+      </div>
+    </section>
+  )
+}
+
+const footerBadges = [
+  { Icon: Tv,          label: 'As Seen on Shark Tank' },
+  { Icon: Package,     label: '1,000+ Bottles Sold' },
+  { Icon: Globe,       label: 'Loved Across Europe' },
+  { Icon: ShieldCheck, label: 'Legally Guaranteed Delivery' },
+  { Icon: Leaf,        label: '91% Natural Ingredients' },
+  { Icon: Truck,       label: 'Ships Worldwide' },
+]
+
+function SiteFooter() {
+  const footerRef = useRef(null)
+  const { scrollYProgress } = useScroll({
+    target: footerRef,
+    offset: ['start end', 'end end'],
+  })
+
+  const bottle0Y = useTransform(scrollYProgress, [0, 1], [160, -60])
+  const bottle1Y = useTransform(scrollYProgress, [0, 1], [220, -20])
+  const bottle2Y = useTransform(scrollYProgress, [0, 1], [180, -40])
+  const bottle3Y = useTransform(scrollYProgress, [0, 1], [140, -70])
+
+  return (
+    <footer ref={footerRef} className="w-full bg-[#862737] overflow-hidden relative">
+
+      {/* Watermark — sits behind the badge grid, top-aligned to the content start */}
+      <div className="absolute inset-x-0 top-0 pointer-events-none select-none flex justify-center overflow-hidden pt-16 md:pt-24">
+        <span className="title leading-none whitespace-nowrap text-white/5" style={{ fontSize: 'clamp(110px, 28vw, 320px)' }}>
+          Sapone
+        </span>
+      </div>
+
+      {/* Badge grid */}
+      <div className="relative z-5 px-4 md:px-10 pt-16 md:pt-24 pb-10 md:pb-[260px] max-w-[860px] mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {footerBadges.map(({ Icon, label }, i) => (
+            <Motion.div
+              key={label}
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-10px' }}
+              transition={{ duration: 0.35, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}
+              className="flex items-center gap-3.5 px-4 py-4 rounded-[13px] border border-white/10 bg-white/10 backdrop-blur-sm"
+            >
+              <Icon size={18} className="text-white/70 shrink-0" strokeWidth={1.6} />
+              <span className="alt text-[15px] md:text-[16px] text-white font-medium leading-snug">{label}</span>
+            </Motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Bottles — desktop only, in front of badges, behind bottom bar */}
+      <div className="hidden md:block absolute inset-x-0 top-0 bottom-[57px] pointer-events-none select-none z-15" aria-hidden="true">
+        <Motion.div style={{ y: bottle0Y, rotate: -13 }} className="absolute left-[1%] bottom-0 w-[170px] lg:w-[210px]">
+          <img src={`${baseUrl}images/raudonas.webp`} alt="" className="w-full h-auto object-contain drop-shadow-[0_32px_56px_rgba(0,0,0,0.55)]" loading="lazy" />
+        </Motion.div>
+        <Motion.div style={{ y: bottle1Y, rotate: 8 }} className="absolute left-[20%] bottom-0 w-[148px] lg:w-[185px]">
+          <img src={`${baseUrl}images/geltonas.webp`} alt="" className="w-full h-auto object-contain drop-shadow-[0_32px_56px_rgba(0,0,0,0.55)]" loading="lazy" />
+        </Motion.div>
+        <Motion.div style={{ y: bottle2Y, rotate: -6 }} className="absolute right-[20%] bottom-0 w-[148px] lg:w-[185px]">
+          <img src={`${baseUrl}images/zalias.webp`} alt="" className="w-full h-auto object-contain drop-shadow-[0_32px_56px_rgba(0,0,0,0.55)]" loading="lazy" />
+        </Motion.div>
+        <Motion.div style={{ y: bottle3Y, rotate: 12 }} className="absolute right-[1%] bottom-0 w-[170px] lg:w-[210px]">
+          <img src={`${baseUrl}images/melynas.webp`} alt="" className="w-full h-auto object-contain drop-shadow-[0_32px_56px_rgba(0,0,0,0.55)]" loading="lazy" />
+        </Motion.div>
+      </div>
+
+      {/* Bottom bar — frosted glass so bottles bleed through */}
+      <div className="relative z-20 bg-white/5 backdrop-blur-md border-t border-white/10 px-5 md:px-10 py-5">
+        <div className="max-w-[860px] mx-auto flex flex-row items-center justify-between">
+          <span className="alt text-[14px] md:text-[15px] text-white/65">© Sapone 2026</span>
+          <a
+            href="mailto:hello@sapone.eu"
+            className="alt text-[14px] md:text-[15px] text-white/65 hover:text-white transition-colors duration-150"
+          >
+            hello@sapone.eu
+          </a>
+        </div>
+      </div>
+
+    </footer>
   )
 }
 
@@ -225,9 +560,9 @@ function App() {
       >
         <span className="live-dot" aria-hidden="true" />
         
-        <p className="text-[14px] alt text-text !ml-[12px]">Launching March 17th.</p>
+        <p className="text-[14px] alt text-text ml-[12px]!">Launching March 17th.</p>
         <a className="flex ml-[8px] items-center cursor-pointer justify-center flex-row hover:opacity-80 gap-0.5">
-          <p className="text-[14px] alt !text-red underline">Notify me</p>
+          <p className="text-[14px] alt text-red! underline">Notify me</p>
           <img src={`${baseUrl}icons/arrow.svg`} alt="arrow-right" className="size-4"></img>
         </a>
       </Motion.div>
@@ -236,7 +571,7 @@ function App() {
         initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         transition={{ duration: 0.55, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-        className="text-4xl md:text-4xl lg:text-5xl title text-center !tracking-[-0.04em] mb-[12px]"
+        className="text-4xl md:text-4xl lg:text-5xl title text-center tracking-[-0.04em]! mb-[12px]"
       >
         SHAMPOO IN SOAP PACKAGING
       </Motion.h1>
@@ -245,7 +580,7 @@ function App() {
         initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         transition={{ duration: 0.55, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-        className="text-[16px] md:text-[18px] alt !text-alt"
+        className="text-[16px] md:text-[18px] alt text-alt!"
       >
         Zero Plastic. Premium Quality. Zero waste.
       </Motion.p>
@@ -271,7 +606,7 @@ transition={{ duration: 0.55, delay: 0.35, ease: [0.22, 1, 0.36,1] }}
 className="flex items-center justify-center w-full">
       <button
          
-        className="max-w-[320px] w-full h-fit px-[16px] py-[8px] bg-red !text-white rounded-[12px] alt cursor-pointer hover:bg-red/90 transition-all duration-50 ease-out"
+        className="max-w-[320px] w-full h-fit px-[16px] py-[8px] bg-red text-white! rounded-[12px] alt cursor-pointer hover:bg-red/90 transition-all duration-50 ease-out"
       >
         Join the waitlist!
       </button>
@@ -281,7 +616,7 @@ className="flex items-center justify-center w-full">
       initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
       animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
       transition={{ duration: 0.55, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="alt !text-alt/80 text-center text-[14px] mt-[8px]">Get early bird access - 40% off for first 500!</Motion.p>
+      className="alt text-alt/80! text-center text-[14px] mt-[8px]">Get early bird access - 40% off for first 500!</Motion.p>
 
     </div>
 
@@ -503,8 +838,8 @@ className="flex items-center justify-center w-full">
             <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-5">
               The Solution
             </span>
-            <h2 className="title text-[32px] md:text-[44px] lg:text-[52px] leading-[1.06] tracking-[-0.04em]! mb-4 max-w-[560px]">
-              How Sapone Works
+            <h2 className="title text-[32px] md:text-[42px] lg:text-[52px] leading-[1.06] tracking-[-0.04em]! mb-4 max-w-[560px] capitalize!">
+              HOW SAPONE WORKS
             </h2>
             <p className="alt text-[15px] md:text-[16px] text-alt! max-w-[360px] leading-relaxed">
               One bar. Two functions. Zero waste left behind.
@@ -665,6 +1000,18 @@ className="flex items-center justify-center w-full">
 
       {/* SECTION 5: STACKING TRUST CARDS — outside overflow wrapper so sticky works */}
       <TrustStackSection />
+
+      {/* SECTION 6: INGREDIENTS */}
+      <IngredientsSection />
+
+      {/* SECTION 7: ABOUT */}
+      <AboutSection />
+
+      {/* SECTION 8: FINAL CTA */}
+      <FinalCtaSection />
+
+      {/* FOOTER */}
+      <SiteFooter />
 
     </main>
   )
