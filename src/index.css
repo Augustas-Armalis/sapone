@@ -31,7 +31,7 @@ html,
 body {
   margin: 0;
   min-width: 0;
-  overflow-x: hidden;
+  overflow-x: clip;
   background: var(--bg);
   color: var(--text);
   letter-spacing: -0.02em;
@@ -66,7 +66,7 @@ body {
 }
 
 #root {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .title {

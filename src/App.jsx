@@ -18,24 +18,75 @@ const carouselCards = carouselFiles.map(({ file, width, height }) => ({
 }))
 
 const stackCards = [
-  { bg: 'linear-gradient(135deg, #ccdce8 0%, #a8c0d4 100%)', label: "Backed by one of Lithuania's wealthiest investors", rotate: -1.5 },
-  { bg: 'linear-gradient(135deg, #e8cece 0%, #c49090 100%)', label: 'Shark Tank vetted',                                  rotate:  1 },
-  { bg: 'linear-gradient(135deg, #e8e4c4 0%, #d4c878 100%)', label: 'Already shipped 1,000+ units successfully',           rotate: -1 },
-  { bg: 'linear-gradient(135deg, #cce0cc 0%, #90b890 100%)', label: 'Real company, real product, real commitment',         rotate:  1.5 },
-  { bg: 'linear-gradient(135deg, #e8cece 0%, #c49090 100%)', label: 'Legally binding delivery contract signed',            rotate: -0.5 },
+  { image: `${baseUrl}cards/01.webp`, label: "Backed by one of Lithuania's wealthiest investors", rotate: -1.2 },
+  { image: `${baseUrl}cards/02.webp`, label: 'Shark Tank vetted and publicly validated', rotate: 1.1 },
+  { image: `${baseUrl}cards/03.webp`, label: 'Already shipped 1,000+ units successfully', rotate: -1 },
+  { image: `${baseUrl}cards/04.webp`, label: 'Real company, real product, real commitment', rotate: 1.4 },
+  { image: `${baseUrl}cards/05.webp`, label: 'Legally binding delivery contract signed', rotate: -0.8 },
 ]
 
-function StackCard({ y, scale, rotate, bg, label, zIndex }) {
+function TrustCard({ card, index, progress, range, targetScale }) {
+  const cardRef = useRef(null)
+  const { scrollYProgress: cardProgress } = useScroll({
+    target: cardRef,
+    offset: ['start end', 'start start'],
+  })
+  const imageScale = useTransform(cardProgress, [0, 1], [2, 1])
+  const scale = useTransform(progress, range, [1, targetScale])
+
   return (
-    <Motion.div
-      style={{ y, scale, rotate, zIndex }}
-      className="absolute top-0 left-0 right-0 mx-auto w-[300px] md:w-[460px] bg-white rounded-[20px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
+    <div
+      ref={cardRef}
+      className="h-screen flex items-center justify-center sticky top-0"
     >
-      <div className="w-full aspect-video" style={{ background: bg }} />
-      <div className="px-5 py-4 border-t border-border">
-        <p className="alt text-[13px] md:text-[15px] text-text font-semibold leading-snug">{label}</p>
-      </div>
-    </Motion.div>
+      <Motion.div
+        style={{ scale, rotate: card.rotate, top: `calc(-5vh + ${index * 25}px)` }}
+        className="relative w-[88%] max-w-[680px] rounded-[18px] overflow-hidden bg-white border border-black/[0.06] shadow-[0_4px_24px_rgba(0,0,0,0.08)] origin-top"
+      >
+        <div className="w-full aspect-video overflow-hidden">
+          <Motion.div className="w-full h-full" style={{ scale: imageScale }}>
+            <img
+              src={card.image}
+              alt={card.label}
+              className="size-full object-cover"
+              loading="lazy"
+              decoding="async"
+            />
+          </Motion.div>
+        </div>
+        <div className="px-5 py-3.5 bg-white">
+          <p className="alt text-[13px] md:text-[14px] text-alt leading-snug">
+            {card.label}
+          </p>
+        </div>
+      </Motion.div>
+    </div>
+  )
+}
+
+function TrustStackSection() {
+  const sectionRef = useRef(null)
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end end'],
+  })
+
+  return (
+    <section ref={sectionRef} className="w-full">
+      {stackCards.map((card, index) => {
+        const targetScale = 1 - (stackCards.length - index) * 0.05
+        return (
+          <TrustCard
+            key={index}
+            card={card}
+            index={index}
+            progress={scrollYProgress}
+            range={[index * (1 / stackCards.length), 1]}
+            targetScale={targetScale}
+          />
+        )
+      })}
+    </section>
   )
 }
 
@@ -72,23 +123,6 @@ function App() {
   )
 
   const [openFaq, setOpenFaq] = useState(0)
-
-  const stackSectionRef = useRef(null)
-  const { scrollYProgress: stackProgress } = useScroll({
-    target: stackSectionRef,
-    offset: ['start start', 'end end'],
-  })
-
-  // Stack card Y entry — slide up from well below the viewport
-  const sc1y = useTransform(stackProgress, [0.05, 0.22], [1100, 0])
-  const sc2y = useTransform(stackProgress, [0.22, 0.39], [1100, 0])
-  const sc3y = useTransform(stackProgress, [0.39, 0.56], [1100, 0])
-  const sc4y = useTransform(stackProgress, [0.56, 0.73], [1100, 0])
-  // Stack card scale — cumulative shrink as cards pile on top
-  const sc0scale = useTransform(stackProgress, [0.10, 0.22, 0.39, 0.56, 0.73], [1, 0.96, 0.92, 0.88, 0.85])
-  const sc1scale = useTransform(stackProgress, [0.22, 0.39, 0.56, 0.73], [1, 0.96, 0.92, 0.88])
-  const sc2scale = useTransform(stackProgress, [0.39, 0.56, 0.73], [1, 0.96, 0.92])
-  const sc3scale = useTransform(stackProgress, [0.56, 0.73], [1, 0.96])
 
   const perspectiveSectionRef = useRef(null)
   const { scrollYProgress: pProgress } = useScroll({
@@ -169,9 +203,9 @@ function App() {
   }, [])
 
   return (
-    <main className="relative isolate min-h-screen overflow-x-hidden">
+    <main className="relative isolate min-h-screen">
       <div className="grain" aria-hidden="true" />
-      <div className="relative z-10 flex items-center justify-start flex-col h-fit px-[10px] md:px-0">
+      <div className="relative z-10 flex items-center justify-start flex-col h-fit px-[10px] md:px-0 overflow-x-clip">
 
 
 
@@ -379,7 +413,7 @@ className="flex items-center justify-center w-full">
 
         <section
           ref={perspectiveSectionRef}
-          className="relative w-full min-h-screen lg:min-h-[120vh] lg:overflow-hidden flex items-center justify-center"
+          className="relative w-full min-h-screen lg:min-h-[70vh] flex items-center justify-center"
         >
           {/* Desktop: top-left — spread wide apart */}
           <Motion.figure
@@ -627,27 +661,11 @@ className="flex items-center justify-center w-full">
 
         </section>
 
-        {/* SECTION 5: STACKING TRUST CARDS */}
-        <div ref={stackSectionRef} className="relative w-full" style={{ height: '600vh' }}>
-          <div className="sticky top-0 h-screen flex flex-col items-center pt-16 md:pt-20">
-            <div className="text-center mb-10 relative z-20">
-              <p className="alt text-[11px] uppercase tracking-widest text-alt mb-3">Why trust us</p>
-              <h2 className="title text-[28px] md:text-[40px] leading-[1.08] tracking-[-0.04em]! text-center">
-                Built to last
-              </h2>
-            </div>
-            {/* Card deck: height = aspect-video image + caption ~72px */}
-            <div className="relative w-[300px] md:w-[460px] h-[241px] md:h-[331px]">
-              <StackCard y={0}    scale={sc0scale} rotate={stackCards[0].rotate} bg={stackCards[0].bg} label={stackCards[0].label} zIndex={10} />
-              <StackCard y={sc1y} scale={sc1scale} rotate={stackCards[1].rotate} bg={stackCards[1].bg} label={stackCards[1].label} zIndex={11} />
-              <StackCard y={sc2y} scale={sc2scale} rotate={stackCards[2].rotate} bg={stackCards[2].bg} label={stackCards[2].label} zIndex={12} />
-              <StackCard y={sc3y} scale={sc3scale} rotate={stackCards[3].rotate} bg={stackCards[3].bg} label={stackCards[3].label} zIndex={13} />
-              <StackCard y={sc4y} scale={1}        rotate={stackCards[4].rotate} bg={stackCards[4].bg} label={stackCards[4].label} zIndex={14} />
-            </div>
-          </div>
-        </div>
-
       </div>
+
+      {/* SECTION 5: STACKING TRUST CARDS — outside overflow wrapper so sticky works */}
+      <TrustStackSection />
+
     </main>
   )
 }
