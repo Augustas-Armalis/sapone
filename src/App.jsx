@@ -416,7 +416,7 @@ function SiteFooter() {
             href="mailto:hello@sapone.eu"
             className="alt text-[14px] md:text-[15px] text-white/65 hover:text-white transition-colors duration-150"
           >
-            hello@sapone.eu
+            hello@sapone.store
           </a>
         </div>
       </div>
