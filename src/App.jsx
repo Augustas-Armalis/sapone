@@ -3,6 +3,8 @@ import { AnimatePresence, motion as Motion, useScroll, useTransform } from 'fram
 import { Tv, Package, Globe, ShieldCheck, Leaf, Truck } from 'lucide-react'
 
 const baseUrl = import.meta.env.BASE_URL
+const SAPONE_LAUNCH_DATE = '20260317'
+const SAPONE_LAUNCH_EVENT_URL = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Sapone Launch')}&dates=${SAPONE_LAUNCH_DATE}/${'20260318'}&details=${encodeURIComponent('Sapone officially launches today.')}&location=${encodeURIComponent('Online')}`
 
 const MAILERLITE_API_KEY = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI0IiwianRpIjoiN2I1OWQ0Y2Q2NmNmNmI3YTExYWNmZTAzMGNkM2NjYmVmYTQ4MDExYjI3OGI0NDA5MDExYTk0NzI4YjZiODBkMmJiMzNlNmE4ODE4NGRhYmYiLCJpYXQiOjE3NzI2MTIzNjUuMTc4OTYsIm5iZiI6MTc3MjYxMjM2NS4xNzg5NjMsImV4cCI6NDkyODI4NTk2NS4xNzI1ODYsInN1YiI6IjIxNzY2ODkiLCJzY29wZXMiOltdfQ.RNaemqn2z2_-rBzjPqqZmQq1V9PPziqBEe9lOG6c6BtqIxsdALu4HtFBVGw74vHI1BeOwizZX6pUSEIEQPqpO8n7Jg5HNJeaasc6JcPFAZgUv4Pvg0emkaouf_H8AT9RUZSJSo1fQ7thTy_YrzFqUfTmuSYPvGbuymj1phk1WZlle6Bp50Oqw9ZL8wpxTGotO_b15NrauThExmhcKU4_JpmmEdJsgbGMj_qaWIPmqMvNSm9iKh0J4N_eq9dyC6SDWlJVE6pruCKllyWT3SrjiyXuaU7EfckFL8EZL06JS7PTKlJ8JtVoHljf_rj0eAXKpjkaC5TziCdCCZAZ6fHEFxEFikI6vu-VarBmg8l_vFR9Hipnszy-c8VvyJootir6elhdv788X23_3qcqfyHzepSCXv3N8srvSKDZjJt-b-8uOXoMjfL5YeuqYFjDa-j4xZKyUSVhPxWhKHnZL7QudYnCovhXdX2BoPcpo5MSwTgCMEExDx25G9B8iM8LGpYg-tmKQJlDpmSk7n7S34ifBwL7v2D8Jxxf0X5deLJr8B0dGoU4ovyyCMa4Cl-jgRXxrRDMy377wJwlv49ZqRXG0vN-3TFr4aETtTN0Ep_Z6BSAxNCLRphe7qu61LhJ5dLSfbDyDv8aiqsSm3RDU2S4QjT6WVRUbs8ozonfkTx_acA'
 const MAILERLITE_GROUP_ID = '180952494130595440'
@@ -22,27 +24,37 @@ async function subscribeToMailerLite(email) {
     throw new Error(data.message || 'Subscription failed. Please try again.')
   }
 }
-const carouselFiles = [
-  { file: '18.webp', width: 720, height: 720 },
-  { file: '3 (1).webp', width: 720, height: 1368 },
-  { file: '3.webp', width: 720, height: 754 },
-  { file: 'ad-abe53a88 - 2026-02-03_10-50-40 - 1.webp', width: 720, height: 1290 },
-  { file: 'ad-abe53baf - 2026-02-03_10-55-32 - 1.webp', width: 720, height: 964 },
-  { file: 'ad-abe54228 - 2026-02-03_11-24-28 - 1.webp', width: 720, height: 964 },
-  { file: 'ad-abe54459 - 2026-02-03_11-30-53 - 1.webp', width: 720, height: 964 },
-]
+const carouselFiles = Array.from({ length: 20 }, (_, i) => ({
+  file: `${String(i + 1).padStart(2, '0')}.webp`,
+  width: 720,
+  height: 960,
+}))
 const carouselCards = carouselFiles.map(({ file, width, height }) => ({
   src: encodeURI(`${baseUrl}scroller/${file}`),
   width,
   height,
 }))
 
+function Reveal({ children, delay = 0, className }) {
+  return (
+    <Motion.div
+      initial={{ opacity: 0, y: 22, filter: 'blur(8px)' }}
+      whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      viewport={{ once: true, margin: '-48px' }}
+      transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }}
+      className={className}
+    >
+      {children}
+    </Motion.div>
+  )
+}
+
 const stackCards = [
-  { image: `${baseUrl}cards/01.webp`, label: "Backed by one of Lithuania's wealthiest investors", rotate: -1.2 },
-  { image: `${baseUrl}cards/02.webp`, label: 'Shark Tank vetted and publicly validated', rotate: 1.1 },
-  { image: `${baseUrl}cards/03.webp`, label: 'Already shipped 1,000+ units successfully', rotate: -1 },
-  { image: `${baseUrl}cards/04.webp`, label: 'Real company, real product, real commitment', rotate: 1.4 },
-  { image: `${baseUrl}cards/05.webp`, label: 'Legally binding delivery contract signed', rotate: -0.8 },
+  { image: `${baseUrl}cards/01.webp`, label: "Backed by one of Lithuania's wealthiest investors", rotate: -1.2, Icon: Globe },
+  { image: `${baseUrl}cards/02.webp`, label: 'Shark Tank vetted and publicly validated', rotate: 1.1, Icon: Tv },
+  { image: `${baseUrl}cards/03.webp`, label: 'Already shipped 1,000+ units successfully', rotate: -1, Icon: Truck },
+  { image: `${baseUrl}cards/04.webp`, label: 'Real company, real product, real commitment', rotate: 1.4, Icon: ShieldCheck },
+  { image: `${baseUrl}cards/05.webp`, label: 'Legally binding delivery contract signed', rotate: -0.8, Icon: Package },
 ]
 
 function TrustCard({ card, index, progress, range, targetScale }) {
@@ -51,7 +63,7 @@ function TrustCard({ card, index, progress, range, targetScale }) {
     target: cardRef,
     offset: ['start end', 'start start'],
   })
-  const imageScale = useTransform(cardProgress, [0, 1], [2, 1])
+  const imageScale = useTransform(cardProgress, [0, 1], [1.18, 1])
   const scale = useTransform(progress, range, [1, targetScale])
 
   return (
@@ -74,7 +86,8 @@ function TrustCard({ card, index, progress, range, targetScale }) {
             />
           </Motion.div>
         </div>
-        <div className="px-4 md:px-5 py-3 md:py-4 bg-bg">
+        <div className="px-4 md:px-5 py-3 md:py-4 bg-bg flex items-start gap-3">
+          <card.Icon size={16} className="text-red shrink-0 mt-[2px]" strokeWidth={1.8} />
           <p className="alt text-[14px] md:text-[16px] text-text leading-snug">
             {card.label}
           </p>
@@ -131,21 +144,21 @@ function IngredientsSection() {
   const [listOpen, setListOpen] = useState(false)
 
   return (
-    <section className="w-full px-4 md:px-10 pt-[72px] md:pt-[112px] pb-[72px] md:pb-[120px]">
+    <section className="w-full px-4 md:px-10 pt-[72px] md:pt-[112px] pb-[72px] md:pb-[92px]">
       <div className="max-w-[980px] mx-auto">
 
         {/* Top: left copy + right image */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 mb-[48px] md:mb-[56px] items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-5 items-stretch">
 
           {/* Left */}
-          <div className="flex flex-col">
+          <Reveal className="flex flex-col">
             <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-5 w-fit">
               Ingredients
             </span>
-            <h2 className="title text-[32px] md:text-[44px] lg:text-[52px] leading-[1.06] tracking-[-0.04em]! mb-8 max-w-[480px]">
+            <h2 className="title text-[24px] md:text-[36px] leading-[1.06] tracking-[-0.04em]! mb-8 max-w-[480px] uppercase">
               91% Natural Origin Formula
             </h2>
-            <ul className="flex flex-col gap-3.5 mb-9">
+            <ul className="flex flex-col gap-3.5 mb-9 flex-1">
               {keyIngredients.map(({ name, benefit }, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <span className="text-red text-[13px] mt-[2px] shrink-0 font-bold">✓</span>
@@ -159,42 +172,44 @@ function IngredientsSection() {
             <button className="w-fit px-8 py-[10px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out">
               Join the waitlist
             </button>
-          </div>
+          </Reveal>
 
-          {/* Right: image/video placeholder */}
-          <div className="rounded-[20px] bg-white/60 border border-border min-h-[300px] lg:min-h-[420px] flex items-center justify-center">
+          {/* Right: image/video placeholder — full height */}
+          <Reveal delay={0.12} className="rounded-[20px] bg-white/60 border border-border flex items-center justify-center min-h-[320px]">
             <p className="alt text-[12px] text-alt/50 tracking-wide uppercase">Image / Video</p>
-          </div>
+          </Reveal>
         </div>
 
-        {/* NO cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5">
-          {['sulfates', 'parabens', 'microplastics'].map((label) => (
-            <article
-              key={label}
-              className="rounded-[14px] border border-border bg-white/70 px-5 py-7 flex items-center justify-center"
-            >
-              <p className="alt text-[17px] md:text-[19px] font-medium text-center tracking-[-0.01em]">
-                <span className="text-red">NO </span>
-                <span className="text-text">{label}</span>
-              </p>
-            </article>
+        {/* NO row — 3 equal columns */}
+        <Reveal delay={0.08} className="grid grid-cols-3 gap-2.5 mt-8 mb-5">
+          {['Sulfates', 'Parabens', 'Microplastics'].map((label) => (
+            <div key={label} className="flex flex-col items-center justify-center gap-1.5 rounded-[12px] border border-border bg-white/60 px-3 py-3.5 text-center">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <circle cx="8" cy="8" r="7" stroke="var(--red)" strokeWidth="1.3"/>
+                <path d="M5 5L11 11M11 5L5 11" stroke="var(--red)" strokeWidth="1.3" strokeLinecap="round"/>
+              </svg>
+              <span className="alt text-[12px] md:text-[13px] font-medium text-text leading-tight">
+                <span className="text-red">NO </span>{label}
+              </span>
+            </div>
           ))}
-        </div>
+        </Reveal>
 
         {/* Full ingredient list — collapsible */}
-        <div className="flex flex-col items-center mt-3">
+        <Reveal delay={0.1} className="flex flex-col items-center mt-3">
           <button
             onClick={() => setListOpen(!listOpen)}
             className="flex items-center gap-1.5 alt text-[13px] text-alt hover:text-text transition-colors duration-150 cursor-pointer py-2"
           >
             See full ingredient list
             <Motion.span
-              animate={{ rotate: listOpen ? 180 : 0 }}
+              animate={{ rotate: listOpen ? 90 : 0 }}
               transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-              className="inline-block leading-none"
+              className="inline-flex"
             >
-              ↓
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M5 3L9 7L5 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </Motion.span>
           </button>
 
@@ -220,7 +235,7 @@ function IngredientsSection() {
               </Motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </Reveal>
 
       </div>
     </section>
@@ -232,58 +247,217 @@ function AboutSection() {
     <section className="w-full px-4 md:px-10 pt-[72px] md:pt-[112px] pb-[80px] md:pb-[128px]">
       <div className="max-w-[980px] mx-auto">
 
-        <h2 className="title text-[32px] md:text-[48px] lg:text-[56px] leading-[1.06] tracking-[-0.04em]! text-center mb-12 md:mb-16">
-          Built by Teenagers.<br className="hidden md:block" /> Backed by Experts.
-        </h2>
+        <Reveal className="flex justify-center mb-5">
+          <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1">
+            The Story
+          </span>
+        </Reveal>
+        <Reveal delay={0.08}>
+          <h2 className="title text-[24px] md:text-[36px] leading-[1.06] tracking-[-0.04em]! text-center mb-12 md:mb-16 uppercase">
+            Built by Teenagers.<br className="hidden md:block" /> Backed by Experts.
+          </h2>
+        </Reveal>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-stretch">
 
-          {/* Left: image placeholder */}
-          <div className="rounded-[20px] bg-white/60 border border-border aspect-4/5 w-full flex items-center justify-center order-2 lg:order-1">
+          {/* Left: image placeholder — full height of right column */}
+          <Reveal delay={0.14} className="rounded-[20px] bg-white/60 border border-border w-full flex items-center justify-center order-2 lg:order-1 min-h-[320px]">
             <p className="alt text-[12px] text-alt/50 tracking-wide uppercase">Image</p>
-          </div>
+          </Reveal>
 
           {/* Right: story */}
           <div className="flex flex-col gap-5 order-1 lg:order-2 pt-1">
 
-            <p className="alt text-[15px] md:text-[16px] text-text leading-relaxed">
-              I'm Paulius, I'm 17, and yes — I'm a bald student who pitched a shampoo brand on{' '}
-              <span className="font-semibold text-red">Shark Tank</span>.
-            </p>
+            <Reveal>
+              <p className="alt text-[15px] md:text-[16px] text-text leading-relaxed">
+                I'm Paulius, I'm 17, and yes — I'm a bald student who pitched a shampoo brand on{' '}
+                <span className="font-semibold text-red">Shark Tank</span>.
+              </p>
+            </Reveal>
 
-            <p className="alt text-[14px] md:text-[15px] text-alt leading-relaxed">
-              It started with a school project and a haunting statistic: 91% of plastic bottles are never recycled.
-              We refused to accept that, so we looked for a 'Kinder Surprise' solution — just as Kinder combined
-              chocolate and a toy, we combined the two essentials of every bathroom: liquid shampoo protected by
-              a solid soap shell.
-            </p>
+            <Reveal delay={0.07}>
+              <p className="alt text-[14px] md:text-[15px] text-alt leading-relaxed">
+                It started with a school project and a haunting statistic: 91% of plastic bottles are never recycled.
+                We refused to accept that, so we looked for a 'Kinder Surprise' solution — just as Kinder combined
+                chocolate and a toy, we combined the two essentials of every bathroom: liquid shampoo protected by
+                a solid soap shell.
+              </p>
+            </Reveal>
 
-            <p className="alt text-[14px] md:text-[15px] text-alt leading-relaxed">
-              We started with $300 and failed 22 times. On the 23rd prototype, we finally cracked the code. We
-              sold at local markets, convinced our parents to help us scale with a $1,000 loan, and obsessively
-              refined the quality until it was salon-grade.
-            </p>
+            <Reveal delay={0.1}>
+              <p className="alt text-[14px] md:text-[15px] text-alt leading-relaxed">
+                We started with $300 and failed 22 times. On the 23rd prototype, we finally cracked the code. We
+                sold at local markets, convinced our parents to help us scale with a $1,000 loan, and obsessively
+                refined the quality until it was salon-grade.
+              </p>
+            </Reveal>
 
-            <p className="alt text-[14px] md:text-[15px] text-alt leading-relaxed">
-              We took that confidence to{' '}
-              <span className="font-semibold text-text">Shark Tank</span>, walked away with an investment, and
-              now we're backed by world-class laboratories. We aren't just making a 'green' product — we're making
-              the future of hair care. Sustainable, high-performance, and completely plastic-free.
-            </p>
+            <Reveal delay={0.13}>
+              <p className="alt text-[14px] md:text-[15px] text-alt leading-relaxed">
+                We took that confidence to{' '}
+                <span className="font-semibold text-text">Shark Tank</span>, walked away with an investment, and
+                now we're backed by world-class laboratories. We aren't just making a 'green' product — we're making
+                the future of hair care. Sustainable, high-performance, and completely plastic-free.
+              </p>
+            </Reveal>
 
-            <p className="alt text-[15px] md:text-[16px] text-text font-semibold leading-relaxed">
-              We're taking Sapone global.
-            </p>
+            <Reveal delay={0.16}>
+              <p className="alt text-[15px] md:text-[16px] text-text font-semibold leading-relaxed">
+                We're taking Sapone global.
+              </p>
+            </Reveal>
 
-            <div className="pt-2">
-              <button className="px-8 py-[10px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out">
-                Join the waitlist
-              </button>
-            </div>
+            <Reveal delay={0.18}>
+              <div className="pt-2">
+                <button className="px-8 py-[10px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out">
+                  Join the waitlist
+                </button>
+              </div>
+            </Reveal>
 
           </div>
         </div>
 
+      </div>
+    </section>
+  )
+}
+
+const PROBLEM_ITEMS = [
+  {
+    stat: '552M',
+    unit: 'bottles / year',
+    headline: '552 million shampoo bottles',
+    desc: 'sent to landfill every year in the US alone.',
+    img: null,
+  },
+  {
+    stat: '450',
+    unit: 'years',
+    headline: '450 years to decompose',
+    desc: 'One bottle used for 5 minutes. Polluting for 450 years.',
+    img: null,
+  },
+  {
+    stat: '91%',
+    unit: 'never recycled',
+    headline: '91% of plastic is never recycled',
+    desc: 'Nearly all plastic bottles end up in landfills or the ocean.',
+    img: null,
+  },
+  {
+    stat: '480',
+    unit: 'bottles lifetime',
+    headline: '480 bottles in your lifetime',
+    desc: 'Just from shampoo alone — before counting everything else.',
+    img: null,
+  },
+]
+
+function ProblemSection() {
+  const [active, setActive] = useState(0)
+
+  useEffect(() => {
+    const t = setInterval(() => setActive(p => (p + 1) % PROBLEM_ITEMS.length), 3000)
+    return () => clearInterval(t)
+  }, [])
+
+  return (
+    <section className="w-full px-4 md:px-10 mt-[72px] md:mt-[128px] mb-[64px] md:mb-[64px]">
+      <div className="max-w-[1000px] mx-auto">
+        {/* Left/Right grid */}
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-stretch">
+
+          {/* LEFT */}
+          <div className="flex-1 min-w-0 flex flex-col">
+            <Reveal className="self-center lg:self-start">
+              <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-4 w-fit">
+                The Problem
+              </span>
+            </Reveal>
+            <Reveal delay={0.07}>
+              <h2 className="title text-[22px] md:text-[28px] lg:text-[34px] uppercase tracking-[-0.04em]! leading-[1.05] mb-6 text-center lg:text-left">
+                Your bathroom is<br />drowning the planet.
+              </h2>
+            </Reveal>
+
+            {/* Cards with vertical progress bar on left */}
+            <div className="flex flex-col gap-2 flex-1">
+              {PROBLEM_ITEMS.map((item, i) => (
+                <Reveal key={i} delay={0.14 + i * 0.08} className="flex items-stretch gap-2.5">
+                  {/* Vertical progress track */}
+                  <button
+                    onClick={() => setActive(i)}
+                    className="w-[3px] shrink-0 rounded-full overflow-hidden bg-border cursor-pointer"
+                    aria-label={`Go to stat ${i + 1}`}
+                  >
+                    <Motion.div
+                      className="w-full bg-red rounded-full origin-top"
+                      style={{ height: '100%' }}
+                      initial={{ scaleY: 0 }}
+                      animate={{ scaleY: active === i ? 1 : 0 }}
+                      transition={active === i ? { duration: 3, ease: 'linear' } : { duration: 0.15 }}
+                    />
+                  </button>
+                  {/* Card */}
+                  <button
+                    onClick={() => setActive(i)}
+                    className={`flex-1 text-left rounded-[14px] px-5 py-4 border transition-all duration-300 cursor-pointer ${
+                      active === i
+                        ? 'bg-[#1b1b1f] border-[#1b1b1f]'
+                        : 'bg-white/60 border-border hover:border-[#1b1b1f]/20 hover:bg-white'
+                    }`}
+                  >
+                    <div className="flex items-baseline gap-2.5">
+                      <span className={`title text-[28px] leading-none tracking-[-0.04em] transition-colors duration-300 ${active === i ? 'text-[#f7f4ed]' : 'text-red'}`}>
+                        {item.stat}
+                      </span>
+                      <span className={`alt text-[11px] uppercase tracking-[0.06em] font-medium transition-colors duration-300 ${active === i ? 'text-white/50' : 'text-alt'}`}>
+                        {item.unit}
+                      </span>
+                    </div>
+                    <p className={`alt text-[13px] leading-snug mt-1 transition-colors duration-300 ${active === i ? 'text-white/70' : 'text-alt'}`}>
+                      {item.desc}
+                    </p>
+                  </button>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+
+          {/* RIGHT: image — full height matching left column */}
+          <Reveal delay={0.15} className="w-full lg:w-[400px] xl:w-[440px] shrink-0">
+            <div className="relative w-full h-full min-h-[340px] lg:min-h-0 rounded-[20px] overflow-hidden bg-[#e8e4da]">
+              <AnimatePresence mode="wait">
+                <Motion.div
+                  key={active}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="absolute inset-0 flex items-center justify-center"
+                >
+                  {/* Stat as giant watermark — replace with real image later */}
+                  <span className="title leading-none tracking-[-0.05em] text-[#1b1b1f]/[0.08] select-none" style={{ fontSize: 'clamp(100px, 18vw, 160px)' }}>
+                    {PROBLEM_ITEMS[active].stat}
+                  </span>
+                </Motion.div>
+              </AnimatePresence>
+
+              {/* Active indicator dots */}
+              <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5">
+                {PROBLEM_ITEMS.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActive(i)}
+                    className={`rounded-full transition-all duration-300 cursor-pointer ${active === i ? 'w-4 h-1.5 bg-[#1b1b1f]' : 'w-1.5 h-1.5 bg-[#1b1b1f]/20'}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </Reveal>
+
+        </div>
       </div>
     </section>
   )
@@ -383,82 +557,78 @@ function FinalCtaSection({ onSuccess }) {
   }
 
   return (
-    <section id="final-cta" className="w-full bg-white px-4 md:px-10 py-[72px] md:py-[112px]">
-      <div className="max-w-[640px] mx-auto flex flex-col items-center text-center">
+    <section id="final-cta" className="w-full bg-[#27262b] px-4 md:px-10 py-[80px] md:py-[120px]">
+      <div className="max-w-[500px] mx-auto">
 
-        <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-5 w-fit">
-          Limited Early Access
-        </span>
+        {/* Header */}
+        <Reveal className="text-center mb-10">
+          <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-[#e8637a] bg-[#862737]/20 border border-[#862737]/30 rounded-full px-3 py-1 mb-5 w-fit">
+            Limited Early Access
+          </span>
+          <h2 className="title text-[24px] md:text-[36px] leading-[1.04] tracking-[-0.04em]! uppercase text-white">
+            Launching March 17th
+          </h2>
+        </Reveal>
 
-        <h2 className="title text-[36px] md:text-[54px] leading-[1.04] tracking-[-0.04em]! mb-3">
-          Launching March 17th
-        </h2>
-        <p className="alt text-[15px] text-alt mb-10 max-w-[340px] leading-snug">
-          First 500 backers only. After that, price increases.
-        </p>
+        {/* Inner card — slightly lighter */}
+        <Reveal delay={0.1} className="rounded-[22px] bg-white/6 border border-white/8 px-7 py-8 md:px-10 md:py-10">
 
-        {/* Price row */}
-        <div className="w-full rounded-[18px] bg-[#484854] p-6 md:p-8 mb-7 flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12">
-          <div className="flex flex-col items-center">
-            <span className="alt text-[10px] uppercase tracking-widest text-white/40 mb-1">Early Bird</span>
-            <div className="flex items-end gap-1.5">
-              <span className="title text-[60px] leading-none tracking-[-0.04em] text-white">€12</span>
-              <span className="alt text-[12px] text-white/40 mb-2">/ bar</span>
+          {/* Price box */}
+          <div className="rounded-[14px] bg-white/9 border border-white/10 px-5 py-4 mb-6 flex items-center justify-between gap-4">
+            <div>
+              <div className="flex items-baseline gap-2.5 mb-0.5">
+                <span className="title text-[44px] leading-none tracking-[-0.04em] text-white">€12</span>
+                <span className="alt text-[13px] text-white/40 line-through">€17</span>
+              </div>
+              <p className="alt text-[12px] text-white/40 leading-snug">Per bottle — early bird price</p>
             </div>
-            <span className="alt text-[11px] text-white/35 mt-1">Save 40%</span>
+            <span className="alt text-[12px] text-[#e8637a] font-semibold bg-[#862737]/25 border border-[#862737]/35 rounded-full px-3 py-1.5 whitespace-nowrap shrink-0">Save 40%</span>
           </div>
+          <p className="alt text-[12px] text-white/35 mb-5 leading-snug">
+            First 500 backers only. Price increases after launch.
+          </p>
 
-          <div className="h-px w-14 bg-white/10 sm:hidden" />
-          <div className="hidden sm:block w-px h-14 bg-white/10" />
+          <p className="alt text-[13px] text-white/50 mb-4">
+            Join <span className="font-semibold text-white/80">847+ people</span> already on the waitlist
+          </p>
 
-          <div className="flex flex-col items-center">
-            <span className="alt text-[10px] uppercase tracking-widest text-white/40 mb-1">Regular</span>
-            <span className="title text-[60px] leading-none tracking-[-0.04em] text-white/15 line-through">€17</span>
-            <span className="alt text-[11px] text-white/30 mt-1">after launch</span>
-          </div>
-        </div>
+          <form className="flex flex-col gap-2.5 mb-6" onSubmit={handleSubmit}>
+            <input
+              type="email"
+              placeholder="your@email.com"
+              value={ctaEmail}
+              onChange={(e) => setCtaEmail(e.target.value)}
+              required
+              className="w-full h-fit px-[16px] py-[11px] alt bg-white/8 border border-white/12 rounded-[12px] hover:border-white/20 transition-all duration-150 ease-out focus:outline-none focus:border-white/25 text-[15px] text-white placeholder:text-white/30"
+            />
+            <button
+              type="submit"
+              disabled={ctaSubmitting}
+              className="w-full h-fit px-[16px] py-[11px] bg-[#862737] text-white! rounded-[12px] alt text-[15px] cursor-pointer hover:bg-[#9e2f42] transition-all duration-150 ease-out disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {ctaSubmitting ? 'Joining...' : 'Get Early Access'}
+            </button>
+          </form>
 
-        <p className="alt text-[13px] text-alt mb-5">
-          Join <span className="font-semibold text-text">847+ people</span> already on the waitlist
-        </p>
+          {ctaError && (
+            <p className="alt text-[13px] mb-4 text-center text-[#e8637a]">{ctaError}</p>
+          )}
 
-        <form className="w-full flex flex-col sm:flex-row gap-2 mb-2" onSubmit={handleSubmit}>
-          <input
-            type="email"
-            placeholder="your@email.com"
-            value={ctaEmail}
-            onChange={(e) => setCtaEmail(e.target.value)}
-            required
-            className="flex-1 px-4 py-[13px] rounded-[12px] border border-border bg-bg alt text-[15px] text-text outline-none focus:border-red/40 transition-colors duration-150 placeholder:text-alt/40"
-          />
-          <button
-            type="submit"
-            disabled={ctaSubmitting}
-            className="px-7 py-[13px] bg-red text-white! alt text-[15px] font-medium rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
-          >
-            {ctaSubmitting ? 'Joining...' : 'Get Early Access'}
-          </button>
-        </form>
-        {ctaError && (
-          <p className="alt text-[13px] mb-6 text-center" style={{ color: 'var(--red)' }}>{ctaError}</p>
-        )}
-        {!ctaError && <div className="mb-6" />}
+          <ul className="flex flex-col gap-2.5 border-t border-white/8 pt-5">
+            {[
+              'Launch day notification (March 17th)',
+              'Exclusive early bird pricing',
+              'Behind-the-scenes updates',
+              'First access to new scents',
+            ].map((benefit) => (
+              <li key={benefit} className="flex items-start gap-2.5">
+                <span className="text-[#e8637a] text-[13px] font-bold shrink-0 mt-px">✓</span>
+                <span className="alt text-[13px] text-white/55 leading-snug">{benefit}</span>
+              </li>
+            ))}
+          </ul>
 
-        {/* Benefit grid */}
-        <div className="w-full grid grid-cols-2 gap-2">
-          {[
-            'Launch day notification',
-            'Exclusive early bird pricing',
-            'Behind-the-scenes updates',
-            'First access to new scents',
-          ].map((benefit) => (
-            <div key={benefit} className="flex items-center gap-2.5 px-4 py-3 rounded-[12px] border border-border bg-bg/60">
-              <span className="text-red text-[12px] font-bold shrink-0">✓</span>
-              <span className="alt text-[12px] md:text-[13px] text-text text-left leading-snug">{benefit}</span>
-            </div>
-          ))}
-        </div>
-
+        </Reveal>
       </div>
     </section>
   )
@@ -702,7 +872,13 @@ function App() {
         <span className="live-dot" aria-hidden="true" />
         
         <p className="text-[14px] alt text-text ml-[12px]!">Launching March 17th.</p>
-        <a className="flex ml-[8px] items-center cursor-pointer justify-center flex-row hover:opacity-80 gap-0.5">
+        <a
+          href={SAPONE_LAUNCH_EVENT_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Add Sapone launch to Google Calendar"
+          className="flex ml-[8px] items-center cursor-pointer justify-center flex-row hover:opacity-80 gap-0.5"
+        >
           <p className="text-[14px] alt text-red! underline">Notify me</p>
           <img src={`${baseUrl}icons/arrow.svg`} alt="arrow-right" className="size-4"></img>
         </a>
@@ -810,7 +986,7 @@ function App() {
         <Motion.section
           initial={{ opacity: 0, y: 6, filter: 'blur(6px)' }}
           animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-          transition={{ duration: 0.55, delay: 0.38, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.55, delay: 0.23, ease: [0.22, 1, 0.36, 1] }}
           className="w-[calc(100%+20px)] -mx-[10px] md:w-full md:mx-0"
         >
           <div className="carousel-track-wide py-2">
@@ -839,66 +1015,7 @@ function App() {
 
 
 
-        <section className="w-full max-w-[980px] px-0 md:px-10 mt-[60px] md:mt-[128px] mb-[64px] md:mb-[120px]">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
-            <article className="bg-white/70 border border-border rounded-[14px] p-5 md:p-6">
-              <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-2.5 py-1 mb-3">
-                Problem 1
-              </span>
-              <h2 className="title text-[19px] md:text-[21px] leading-[1.2] tracking-[-0.02em] mb-3">
-                Your family&apos;s plastic legacy
-              </h2>
-              <p className="alt text-[13px] md:text-[14px] text-[#111] mb-3">
-                24 bottles/year × 91% never recycled = 480 bottles in landfills over 20 years.
-              </p>
-              <p className="alt text-[13px] md:text-[14px] text-alt leading-normal mb-4">
-                Every “just one bottle” choice compounds into long-term waste and quiet guilt.
-              </p>
-              <p className="alt text-[13px] md:text-[14px] font-medium text-[#111]">
-                <span className="text-red">Sapone solution:</span> Zero bottles. Zero guilt. Zero plastic
-                legacy.
-              </p>
-            </article>
-
-            <article className="bg-white/70 border border-border rounded-[14px] p-5 md:p-6">
-              <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-2.5 py-1 mb-3">
-                Problem 2
-              </span>
-              <h2 className="title text-[19px] md:text-[21px] leading-[1.2] tracking-[-0.02em] mb-3">
-                Your bathroom is a plastic graveyard
-              </h2>
-              <p className="alt text-[13px] md:text-[14px] text-[#111] mb-3">
-                7-12 bottles cluttering your shower. €96 wasted on packaging you throw away.
-              </p>
-              <p className="alt text-[13px] md:text-[14px] text-alt leading-normal mb-4">
-                Visual clutter adds stress while promised recycling becomes bin-bound habit.
-              </p>
-              <p className="alt text-[13px] md:text-[14px] font-medium text-[#111]">
-                <span className="text-red">Sapone solution:</span> One product. Clean counter. Actual
-                minimalism.
-              </p>
-            </article>
-
-            <article className="bg-white/70 border border-border rounded-[14px] p-5 md:p-6">
-              <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-2.5 py-1 mb-3">
-                Problem 3
-              </span>
-              <h2 className="title text-[19px] md:text-[21px] leading-[1.2] tracking-[-0.02em] mb-3">
-                Zero emotion, zero ritual
-              </h2>
-              <p className="alt text-[13px] md:text-[14px] text-[#111] mb-3">
-                Mindless consumption. No connection. Just buy-use-throw-repeat.
-              </p>
-              <p className="alt text-[13px] md:text-[14px] text-alt leading-normal mb-4">
-                Disposable products turn self-care into routine autopilot with no meaning.
-              </p>
-              <p className="alt text-[13px] md:text-[14px] font-medium text-[#111]">
-                <span className="text-red">Sapone solution:</span> Beautiful product. Proud choice. Ritual
-                restored.
-              </p>
-            </article>
-          </div>
-        </section>
+        <ProblemSection />
 
         <section
           ref={perspectiveSectionRef}
@@ -969,7 +1086,7 @@ function App() {
           </Motion.figure>
 
           {/* Center content */}
-          <div className="relative z-10 text-center max-w-[420px]">
+          <Reveal className="relative z-10 text-center max-w-[420px]">
             <h2 className="title text-[32px]   md:text-[36px] leading-[1.08] tracking-[-0.04em]! mb-[8px]">
               WHAT IF THE BOTTLE WAS THE PRODUCT?
             </h2>
@@ -979,113 +1096,94 @@ function App() {
             <button className="px-8 py-[10px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out">
               Join the waitlist
             </button>
-          </div>
+          </Reveal>
         </section>
 
 
 
         {/* SECTION 3: THE SOLUTION */}
-        <section className="w-full max-w-[940px] px-4 md:px-10 pt-[32px] md:pt-[48px] pb-[48px] md:pb-[80px]">
+        <section className="w-full max-w-[1100px] px-4 md:px-10 pt-[32px] md:pt-[142px] pb-[72px] md:pb-[112px]">
 
           {/* Header */}
-          <div className="flex flex-col items-center text-center mb-[56px] md:mb-[72px]">
+          <Reveal className="flex flex-col items-center text-center mb-[48px] md:mb-[64px]">
             <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-5">
               The Solution
             </span>
-            <h2 className="title text-[32px] md:text-[42px] lg:text-[52px] leading-[1.06] tracking-[-0.04em]! mb-4 max-w-[560px] capitalize!">
+            <h2 className="title text-[24px] md:text-[36px] leading-[1.06] tracking-[-0.04em]! mb-4 max-w-[560px] uppercase">
               HOW SAPONE WORKS
             </h2>
             <p className="alt text-[15px] md:text-[16px] text-alt! max-w-[360px] leading-relaxed">
               One bar. Two functions. Zero waste left behind.
             </p>
-          </div>
+          </Reveal>
 
-          {/* 3-step visual */}
-          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mb-[56px] md:mb-[72px]">
-
-            {/* Connecting line — desktop only */}
-            <div className="hidden md:block absolute top-[52px] left-[calc(33.3%+12px)] right-[calc(33.3%+12px)] h-px bg-border z-0" />
-
-            {/* Step 1 */}
-            <article className="relative z-10 flex flex-col bg-white/70 border border-border rounded-[16px] p-6 md:p-7">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="w-9 h-9 shrink-0 rounded-full bg-red/10 border border-red/20 flex items-center justify-center">
-                  <span className="title text-[15px] text-red leading-none">1</span>
-                </span>
-                <div className="h-px flex-1 bg-border md:hidden" />
-              </div>
-              <h3 className="title text-[19px] md:text-[21px] leading-[1.15] tracking-[-0.02em] mb-2">
-                Lather on hands & body
-              </h3>
-              <p className="alt text-[13px] md:text-[14px] text-alt leading-relaxed">
-                Use it exactly like a regular soap bar. The rich lather cleanses your skin as usual.
-              </p>
-            </article>
-
-            {/* Step 2 */}
-            <article className="relative z-10 flex flex-col bg-white/70 border border-border rounded-[16px] p-6 md:p-7">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="w-9 h-9 shrink-0 rounded-full bg-red/10 border border-red/20 flex items-center justify-center">
-                  <span className="title text-[15px] text-red leading-none">2</span>
-                </span>
-                <div className="h-px flex-1 bg-border md:hidden" />
-              </div>
-              <h3 className="title text-[19px] md:text-[21px] leading-[1.15] tracking-[-0.02em] mb-2">
-                Shampoo reveals inside
-              </h3>
-              <p className="alt text-[13px] md:text-[14px] text-alt leading-relaxed">
-                As the outer layer dissolves, a concentrated shampoo core is exposed — ready to use.
-              </p>
-            </article>
-
-            {/* Step 3 */}
-            <article className="relative z-10 flex flex-col bg-white/70 border border-border rounded-[16px] p-6 md:p-7">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="w-9 h-9 shrink-0 rounded-full bg-red/10 border border-red/20 flex items-center justify-center">
-                  <span className="title text-[15px] text-red leading-none">3</span>
-                </span>
-                <div className="h-px flex-1 bg-border md:hidden" />
-              </div>
-              <h3 className="title text-[19px] md:text-[21px] leading-[1.15] tracking-[-0.02em] mb-2">
-                Use for hair
-              </h3>
-              <p className="alt text-[13px] md:text-[14px] text-alt leading-relaxed">
-                Apply the shampoo core to your hair. Zero plastic bottles. Zero waste. Nothing left.
-              </p>
-            </article>
-          </div>
-
-          {/* Video placeholder */}
-          <div className="w-full rounded-[20px] overflow-hidden border border-border bg-white/60 aspect-video flex flex-col items-center justify-center gap-4 relative">
-            <div className="w-14 h-14 rounded-full bg-red flex items-center justify-center shadow-md">
-              {/* Play icon */}
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M6 4.5L16 10L6 15.5V4.5Z" fill="white" />
-              </svg>
-            </div>
-            <div className="text-center">
-              <p className="title text-[16px] md:text-[18px] tracking-[-0.02em] mb-1">15-second demo</p>
-              <p className="alt text-[13px] text-alt!">Soap dissolving → shampoo reveal</p>
-            </div>
-            <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_40px,rgb(0,0,0,0.015)_40px,rgb(0,0,0,0.015)_41px)] pointer-events-none" />
+          {/* 3-step cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
+            {[
+              {
+                n: '1',
+                title: 'Lather on body first',
+                desc: 'Use it exactly like regular soap. The outer layer works up a rich lather to wash your body.',
+                delay: 0,
+              },
+              {
+                n: '2',
+                title: 'Soap dissolves, shampoo reveals',
+                desc: 'As the outer layer wears down with use, a concentrated shampoo core is naturally exposed.',
+                delay: 0.08,
+              },
+              {
+                n: '3',
+                title: 'Apply to hair. Done.',
+                desc: 'Work the shampoo core through your hair. Zero plastic bottles. Zero waste. Nothing left.',
+                delay: 0.16,
+              },
+            ].map(({ n, title, desc, delay }) => (
+              <Reveal key={n} delay={delay} className="flex flex-col">
+              <article className="flex flex-col bg-white/80 border border-border rounded-[20px] overflow-hidden h-full">
+                {/* Media area */}
+                <div className="relative w-full aspect-[3/2] bg-[#ece8e0] flex items-center justify-center border-b border-border overflow-hidden">
+                  <span className="title text-[80px] leading-none tracking-[-0.04em] text-[#1b1b1f]/[0.06] select-none">{n}</span>
+                  <p className="absolute alt text-[11px] text-alt/35 uppercase tracking-widest select-none">Image / Video</p>
+                  {/* Step badge */}
+                  <div className="absolute top-3.5 left-3.5 flex items-center border border-red gap-1 bg-[#862737]/70 backdrop-blur-sm rounded-full px-2.5 py-1">
+                    <span className="alt text-[11px] font-semibold text-white/80 uppercase tracking-[0.06em]">Step</span>
+                    <span className="alt text-[12px] font-bold text-white">{n}</span>
+                  </div>
+                </div>
+                {/* Content */}
+                <div className="p-5 flex flex-col flex-1">
+                  <h3 className="title text-[18px] md:text-[20px] leading-[1.15] tracking-[-0.02em] mb-2.5 uppercase">
+                    {title}
+                  </h3>
+                  <p className="alt text-[14px] !text-alt leading-relaxed flex-1">
+                    {desc}
+                  </p>
+                </div>
+              </article>
+              </Reveal>
+            ))}
           </div>
 
         </section>
 
         {/* SECTION 4: FAQ */}
-        <section className="w-full max-w-[740px] px-4 md:px-10 pt-[48px] md:pt-[72px] pb-[96px] md:pb-[140px]">
+        <section className="w-full max-w-[740px] px-4 md:px-10 pt-[48px] md:pt-[72px] pb-[96px] md:pb-[128px]">
 
-          <div className="text-center mb-[48px] md:mb-[64px]">
-            <h2 className="title text-[32px] md:text-[46px] leading-[1.06] tracking-[-0.04em]!">
+          <Reveal className="flex flex-col items-center text-center mb-[48px] md:mb-[64px]">
+            <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-5">
+              FAQ
+            </span>
+            <h2 className="title text-[24px] md:text-[36px] leading-[1.06] tracking-[-0.04em]! uppercase">
               Your questions answered
             </h2>
-          </div>
+          </Reveal>
 
           <div className="flex flex-col">
             {faqs.map((faq, i) => {
               const isOpen = openFaq === i
               return (
-                <div key={i} className="border-t border-border last:border-b">
+                <Reveal key={i} delay={i * 0.06} className="border-t border-border last:border-b">
                   <button
                     onClick={() => setOpenFaq(isOpen ? null : i)}
                     className="group w-full flex items-center justify-between gap-6 py-5 text-left cursor-pointer"
@@ -1137,7 +1235,7 @@ function App() {
                       </Motion.div>
                     )}
                   </AnimatePresence>
-                </div>
+                </Reveal>
               )
             })}
           </div>
