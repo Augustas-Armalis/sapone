@@ -3,6 +3,25 @@ import { AnimatePresence, motion as Motion, useScroll, useTransform } from 'fram
 import { Tv, Package, Globe, ShieldCheck, Leaf, Truck } from 'lucide-react'
 
 const baseUrl = import.meta.env.BASE_URL
+
+const MAILERLITE_API_KEY = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI0IiwianRpIjoiN2I1OWQ0Y2Q2NmNmNmI3YTExYWNmZTAzMGNkM2NjYmVmYTQ4MDExYjI3OGI0NDA5MDExYTk0NzI4YjZiODBkMmJiMzNlNmE4ODE4NGRhYmYiLCJpYXQiOjE3NzI2MTIzNjUuMTc4OTYsIm5iZiI6MTc3MjYxMjM2NS4xNzg5NjMsImV4cCI6NDkyODI4NTk2NS4xNzI1ODYsInN1YiI6IjIxNzY2ODkiLCJzY29wZXMiOltdfQ.RNaemqn2z2_-rBzjPqqZmQq1V9PPziqBEe9lOG6c6BtqIxsdALu4HtFBVGw74vHI1BeOwizZX6pUSEIEQPqpO8n7Jg5HNJeaasc6JcPFAZgUv4Pvg0emkaouf_H8AT9RUZSJSo1fQ7thTy_YrzFqUfTmuSYPvGbuymj1phk1WZlle6Bp50Oqw9ZL8wpxTGotO_b15NrauThExmhcKU4_JpmmEdJsgbGMj_qaWIPmqMvNSm9iKh0J4N_eq9dyC6SDWlJVE6pruCKllyWT3SrjiyXuaU7EfckFL8EZL06JS7PTKlJ8JtVoHljf_rj0eAXKpjkaC5TziCdCCZAZ6fHEFxEFikI6vu-VarBmg8l_vFR9Hipnszy-c8VvyJootir6elhdv788X23_3qcqfyHzepSCXv3N8srvSKDZjJt-b-8uOXoMjfL5YeuqYFjDa-j4xZKyUSVhPxWhKHnZL7QudYnCovhXdX2BoPcpo5MSwTgCMEExDx25G9B8iM8LGpYg-tmKQJlDpmSk7n7S34ifBwL7v2D8Jxxf0X5deLJr8B0dGoU4ovyyCMa4Cl-jgRXxrRDMy377wJwlv49ZqRXG0vN-3TFr4aETtTN0Ep_Z6BSAxNCLRphe7qu61LhJ5dLSfbDyDv8aiqsSm3RDU2S4QjT6WVRUbs8ozonfkTx_acA'
+const MAILERLITE_GROUP_ID = '180952494130595440'
+
+async function subscribeToMailerLite(email) {
+  const res = await fetch('https://connect.mailerlite.com/api/subscribers', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${MAILERLITE_API_KEY}`,
+      'Accept': 'application/json',
+    },
+    body: JSON.stringify({ email, groups: [MAILERLITE_GROUP_ID] }),
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.message || 'Subscription failed. Please try again.')
+  }
+}
 const carouselFiles = [
   { file: '18.webp', width: 720, height: 720 },
   { file: '3 (1).webp', width: 720, height: 1368 },
@@ -270,9 +289,101 @@ function AboutSection() {
   )
 }
 
-function FinalCtaSection() {
+const SUCCESS_GIFS = [
+  'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif',
+  'https://media.giphy.com/media/g9582DNuQppxC/giphy.gif',
+  'https://media.giphy.com/media/kyLYXonQYYfwYDIeZl/giphy.gif',
+]
+
+function SuccessOverlay() {
+  const gif = SUCCESS_GIFS[new Date().getDay() % SUCCESS_GIFS.length]
+
+  const bottles = [
+    { src: `${baseUrl}images/raudonas.webp`, style: { top: '8%', left: '4%' }, rotate: -18, floatDur: 3.2 },
+    { src: `${baseUrl}images/geltonas.webp`, style: { top: '8%', right: '4%' }, rotate: 18, floatDur: 3.8 },
+    { src: `${baseUrl}images/melynas.webp`, style: { bottom: '8%', left: '4%' }, rotate: -12, floatDur: 4.1 },
+    { src: `${baseUrl}images/zalias.webp`, style: { bottom: '8%', right: '4%' }, rotate: 12, floatDur: 3.5 },
+  ]
+
   return (
-    <section className="w-full bg-white px-4 md:px-10 py-[72px] md:py-[112px]">
+    <Motion.div
+      key="success-overlay"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden"
+      style={{ backgroundColor: 'var(--bg)' }}
+    >
+      <div className="grain" aria-hidden="true" />
+
+      {bottles.map(({ src, style, rotate, floatDur }, i) => (
+        <Motion.img
+          key={i}
+          src={src}
+          alt=""
+          aria-hidden="true"
+          initial={{ opacity: 0, scale: 0.55 }}
+          animate={{ opacity: 1, scale: 1, rotate, y: [0, -18, 0] }}
+          transition={{
+            opacity: { duration: 0.5, delay: 0.08 + i * 0.07 },
+            scale: { duration: 0.65, delay: 0.08 + i * 0.07, ease: [0.22, 1, 0.36, 1] },
+            rotate: { duration: 0.65, delay: 0.08 + i * 0.07 },
+            y: { duration: floatDur, delay: 0.6 + i * 0.15, repeat: Infinity, ease: 'easeInOut' },
+          }}
+          className="absolute w-[78px] md:w-[130px] pointer-events-none select-none"
+          style={{ ...style, filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.10))' }}
+        />
+      ))}
+
+      <Motion.div
+        initial={{ opacity: 0, y: 28, filter: 'blur(12px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        transition={{ duration: 0.65, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-10 flex flex-col items-center text-center px-8"
+      >
+        <div
+          className="w-[180px] h-[180px] md:w-[220px] md:h-[220px] rounded-[22px] overflow-hidden mb-7 border border-border"
+          style={{ boxShadow: '0 10px 48px rgba(0,0,0,0.09)' }}
+        >
+          <img src={gif} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+        </div>
+
+        <h1 className="title text-[38px] md:text-[42px] tracking-[-0.04em] leading-none mb-3 uppercase">
+          You're in!
+        </h1>
+        <p className="alt text-[16px] text-alt max-w-[260px] leading-snug">
+          We'll reach out on{' '}
+          <span className="font-medium" style={{ color: 'var(--red)' }}>March 17th</span>{' '}
+          with your early bird deal.
+        </p>
+      </Motion.div>
+    </Motion.div>
+  )
+}
+
+function FinalCtaSection({ onSuccess }) {
+  const [ctaEmail, setCtaEmail] = useState('')
+  const [ctaSubmitting, setCtaSubmitting] = useState(false)
+  const [ctaError, setCtaError] = useState('')
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (ctaSubmitting) return
+    setCtaError('')
+    setCtaSubmitting(true)
+    try {
+      await subscribeToMailerLite(ctaEmail)
+      onSuccess()
+    } catch (err) {
+      setCtaError(err.message || 'Something went wrong. Please try again.')
+    } finally {
+      setCtaSubmitting(false)
+    }
+  }
+
+  return (
+    <section id="final-cta" className="w-full bg-white px-4 md:px-10 py-[72px] md:py-[112px]">
       <div className="max-w-[640px] mx-auto flex flex-col items-center text-center">
 
         <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-5 w-fit">
@@ -311,16 +422,27 @@ function FinalCtaSection() {
           Join <span className="font-semibold text-text">847+ people</span> already on the waitlist
         </p>
 
-        <div className="w-full flex flex-col sm:flex-row gap-2 mb-8">
+        <form className="w-full flex flex-col sm:flex-row gap-2 mb-2" onSubmit={handleSubmit}>
           <input
             type="email"
             placeholder="your@email.com"
+            value={ctaEmail}
+            onChange={(e) => setCtaEmail(e.target.value)}
+            required
             className="flex-1 px-4 py-[13px] rounded-[12px] border border-border bg-bg alt text-[15px] text-text outline-none focus:border-red/40 transition-colors duration-150 placeholder:text-alt/40"
           />
-          <button className="px-7 py-[13px] bg-red text-white! alt text-[15px] font-medium rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out whitespace-nowrap">
-            Get Early Access
+          <button
+            type="submit"
+            disabled={ctaSubmitting}
+            className="px-7 py-[13px] bg-red text-white! alt text-[15px] font-medium rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {ctaSubmitting ? 'Joining...' : 'Get Early Access'}
           </button>
-        </div>
+        </form>
+        {ctaError && (
+          <p className="alt text-[13px] mb-6 text-center" style={{ color: 'var(--red)' }}>{ctaError}</p>
+        )}
+        {!ctaError && <div className="mb-6" />}
 
         {/* Benefit grid */}
         <div className="w-full grid grid-cols-2 gap-2">
@@ -458,6 +580,25 @@ function App() {
   )
 
   const [openFaq, setOpenFaq] = useState(0)
+  const [submitted, setSubmitted] = useState(false)
+  const [heroEmail, setHeroEmail] = useState('')
+  const [heroSubmitting, setHeroSubmitting] = useState(false)
+  const [heroError, setHeroError] = useState('')
+
+  const handleHeroSubmit = async (e) => {
+    e.preventDefault()
+    if (heroSubmitting) return
+    setHeroError('')
+    setHeroSubmitting(true)
+    try {
+      await subscribeToMailerLite(heroEmail)
+      setSubmitted(true)
+    } catch (err) {
+      setHeroError(err.message || 'Something went wrong. Please try again.')
+    } finally {
+      setHeroSubmitting(false)
+    }
+  }
 
   const perspectiveSectionRef = useRef(null)
   const { scrollYProgress: pProgress } = useScroll({
@@ -588,37 +729,50 @@ function App() {
 
 
 
-    <div className="flex items-center w-full justify-center flex-col mb-[72px] md:mb-[112px]">
-
+    <form
+      className="flex items-center w-full justify-center flex-col mb-[72px] md:mb-[112px]"
+      onSubmit={handleHeroSubmit}
+    >
       <Motion.input
         initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         transition={{ duration: 0.55, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
         type="email"
         placeholder="Enter your email"
+        value={heroEmail}
+        onChange={(e) => setHeroEmail(e.target.value)}
+        required
         className="max-w-[320px] w-full h-fit px-[16px] py-[8px] alt bg-white border border-border rounded-[12px] hover:border-red/30 transition-all duration-150 ease-out focus:outline-red focus:ring-0 focus:border-red/30 mb-[12px]"
       />
 
-<Motion.div
-initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
-animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-transition={{ duration: 0.55, delay: 0.35, ease: [0.22, 1, 0.36,1] }}
-className="flex items-center justify-center w-full">
-      <button
-         
-        className="max-w-[320px] w-full h-fit px-[16px] py-[8px] bg-red text-white! rounded-[12px] alt cursor-pointer hover:bg-red/90 transition-all duration-50 ease-out"
+      <Motion.div
+        initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        transition={{ duration: 0.55, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        className="flex items-center justify-center w-full"
       >
-        Join the waitlist!
-      </button>
+        <button
+          type="submit"
+          disabled={heroSubmitting}
+          className="max-w-[320px] w-full h-fit px-[16px] py-[8px] bg-red text-white! rounded-[12px] alt cursor-pointer hover:bg-red/90 transition-all duration-50 ease-out disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {heroSubmitting ? 'Joining...' : 'Join the waitlist!'}
+        </button>
       </Motion.div>
 
-      <Motion.p
-      initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
-      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      transition={{ duration: 0.55, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="alt text-alt/80! text-center text-[14px] mt-[8px]">Get early bird access - 40% off for first 500!</Motion.p>
+      {heroError && (
+        <p className="alt text-[13px] mt-2 text-center max-w-[320px]" style={{ color: 'var(--red)' }}>{heroError}</p>
+      )}
 
-    </div>
+      <Motion.p
+        initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        transition={{ duration: 0.55, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        className="alt text-alt/80! text-center text-[14px] mt-[8px]"
+      >
+        Get early bird access - 40% off for first 500!
+      </Motion.p>
+    </form>
 
 
     <Motion.section
@@ -989,7 +1143,10 @@ className="flex items-center justify-center w-full">
           </div>
 
           <div className="flex justify-center mt-[48px]">
-            <button className="px-10 py-[11px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out">
+            <button
+              onClick={() => document.getElementById('final-cta')?.scrollIntoView({ behavior: 'smooth' })}
+              className="px-10 py-[11px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out"
+            >
               Join the waitlist
             </button>
           </div>
@@ -1008,10 +1165,14 @@ className="flex items-center justify-center w-full">
       <AboutSection />
 
       {/* SECTION 8: FINAL CTA */}
-      <FinalCtaSection />
+      <FinalCtaSection onSuccess={() => setSubmitted(true)} />
 
       {/* FOOTER */}
       <SiteFooter />
+
+      <AnimatePresence>
+        {submitted && <SuccessOverlay />}
+      </AnimatePresence>
 
     </main>
   )
