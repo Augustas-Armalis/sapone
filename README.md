@@ -32,6 +32,15 @@ You can deploy in two ways:
 npm run deploy
 ```
 
+### One-time GitHub Pages setting (important)
+
+In your GitHub repo settings, set **Pages source** to one of these:
+
+- **GitHub Actions** (recommended, uses `.github/workflows/deploy.yml`), or
+- **Deploy from a branch** -> `gh-pages` / `/ (root)` (works with `npm run deploy`).
+
+If Pages is set to `main` root, it will serve `/src/main.jsx` directly and break with a MIME error (`text/jsx`).
+
 ## Single-page app entry
 
 The one-page UI lives in:
