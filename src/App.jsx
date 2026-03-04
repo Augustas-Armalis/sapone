@@ -920,7 +920,7 @@ function App() {
         required
         className="max-w-[320px] w-full h-fit px-[16px] py-[8px] alt bg-white border border-border rounded-[12px] hover:border-red/30 transition-all duration-150 ease-out focus:outline-red focus:ring-0 focus:border-red/30 mb-[12px]"
       />
-      
+
 
       <Motion.div
         initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
@@ -987,7 +987,7 @@ function App() {
         <Motion.section
           initial={{ opacity: 0, y: 6, filter: 'blur(6px)' }}
           animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-          transition={{ duration: 0.55, delay: 0.23, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.55, delay: 0.38, ease: [0.22, 1, 0.36, 1] }}
           className="w-[calc(100%+20px)] -mx-[10px] md:w-full md:mx-0"
         >
           <div className="carousel-track-wide py-2">
