@@ -963,6 +963,7 @@ function App() {
             <p className="alt text-[19px] leading-[1.06] tracking-[-0.02em] text-red md:text-[20px]">847+</p>
             <p className="alt mt-0.5 text-[11px] text-alt/80">Signed up</p>
           </article>
+          
           <article className="rounded-[12px] border border-border bg-white/80 px-3 py-2 md:px-3.5 md:py-2">
             <p className="alt text-[19px] leading-[1.06] tracking-[-0.02em] text-red md:text-[20px]">Shark Tank</p>
             <p className="alt mt-0.5 text-[11px] text-alt/80">Featured</p>
