@@ -41,6 +41,30 @@ body {
   background-color: var(--bg);
 }
 
+body.scroll-locked {
+  overflow: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 14px;
+}
+
+::-webkit-scrollbar-track {
+  background: #27262B;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--red);
+  border: 3px solid #27262B;
+  width: 50px;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #87313F;
+}
+
 .grain {
   position: fixed;
   inset: 0;

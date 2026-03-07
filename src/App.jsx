@@ -3,6 +3,9 @@ import { AnimatePresence, motion as Motion, useScroll, useTransform } from 'fram
 import { Tv, Package, Globe, ShieldCheck, Leaf, Truck } from 'lucide-react'
 
 const baseUrl = import.meta.env.BASE_URL
+
+// Module-level lenis ref so modals can pause scroll
+let globalLenis = null
 const SAPONE_LAUNCH_DATE = '20260317'
 const SAPONE_LAUNCH_EVENT_URL = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Sapone Launch')}&dates=${SAPONE_LAUNCH_DATE}/${'20260318'}&details=${encodeURIComponent('Sapone officially launches today.')}&location=${encodeURIComponent('Online')}`
 
@@ -35,6 +38,10 @@ const carouselCards = carouselFiles.map(({ file, width, height }) => ({
   height,
 }))
 
+function scrollToCta() {
+  document.getElementById('final-cta')?.scrollIntoView({ behavior: 'smooth' })
+}
+
 function Reveal({ children, delay = 0, className }) {
   return (
     <Motion.div
@@ -51,7 +58,6 @@ function Reveal({ children, delay = 0, className }) {
 
 const stackCards = [
   { image: `${baseUrl}cards/01.webp`, label: "Backed by one of Lithuania's wealthiest investors", rotate: -1.2, Icon: Globe },
-  { image: `${baseUrl}cards/02.webp`, label: 'Shark Tank vetted and publicly validated', rotate: 1.1, Icon: Tv },
   { image: `${baseUrl}cards/03.webp`, label: 'Already shipped 1,000+ units successfully', rotate: -1, Icon: Truck },
   { image: `${baseUrl}cards/04.webp`, label: 'Real company, real product, real commitment', rotate: 1.4, Icon: ShieldCheck },
   { image: `${baseUrl}cards/05.webp`, label: 'Legally binding delivery contract signed', rotate: -0.8, Icon: Package },
@@ -124,31 +130,42 @@ function TrustStackSection() {
 }
 
 const keyIngredients = [
-  { name: 'Argan Oil', benefit: 'nourishes, softens' },
-  { name: 'Aloe Vera', benefit: 'hydrates, soothes scalp' },
-  { name: 'Panthenol', benefit: 'strengthens, adds shine' },
-  { name: 'Green Tea Extract', benefit: 'antioxidant protection' },
-  { name: 'Wheat Protein', benefit: 'strengthens, adds volume' },
-  { name: 'Amino Acids', benefit: 'restores elasticity' },
+  { name: 'Argan Oil', benefit: 'shine & softness' },
+  { name: 'Panthenol B5', benefit: 'strengthens, adds elasticity' },
+  { name: 'Aloe Vera', benefit: 'soothes & hydrates scalp' },
+  { name: 'Amino Acids', benefit: 'restores & protects fiber' },
 ]
 
-const fullIngredients = [
-  'Water (Aqua)', 'Coco-Glucoside', 'Decyl Glucoside',
-  'Sodium Cocoyl Glutamate', 'Glycerin', 'Panthenol',
-  'Argania Spinosa Kernel Oil', 'Aloe Barbadensis Leaf Juice',
-  'Camellia Sinensis Leaf Extract', 'Hydrolyzed Wheat Protein',
-  'Amino Acids Blend', 'Citric Acid',
-]
+function IngredientsSection({ onVip }) {
+  const sectionRef = useRef(null)
+  const triggered = useRef(false)
 
-function IngredientsSection() {
-  const [listOpen, setListOpen] = useState(false)
+  useEffect(() => {
+    const el = sectionRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !triggered.current) {
+          triggered.current = true
+          onVip()
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.3 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [onVip])
 
+  function goToIngredients() {
+    window.history.pushState(null, '', '/ingredients')
+    window.dispatchEvent(new PopStateEvent('popstate'))
+  }
   return (
-    <section className="w-full px-4 md:px-10 pt-[72px] md:pt-[112px] pb-[72px] md:pb-[92px]">
+    <section ref={sectionRef} className="w-full px-4 md:px-10 pt-[72px] md:pt-[112px] pb-[72px] md:pb-[92px]">
       <div className="max-w-[980px] mx-auto">
 
-        {/* Top: left copy + right image */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-5 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-8 items-stretch">
 
           {/* Left */}
           <Reveal className="flex flex-col">
@@ -156,7 +173,7 @@ function IngredientsSection() {
               Ingredients
             </span>
             <h2 className="title text-[24px] md:text-[36px] leading-[1.06] tracking-[-0.04em]! mb-8 max-w-[480px] uppercase">
-              91% Natural Origin Formula
+              What's inside matters most.
             </h2>
             <ul className="flex flex-col gap-3.5 mb-9 flex-1">
               {keyIngredients.map(({ name, benefit }, i) => (
@@ -169,19 +186,19 @@ function IngredientsSection() {
                 </li>
               ))}
             </ul>
-            <button className="w-fit px-8 py-[10px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out">
+            <button onClick={scrollToCta} className="w-fit px-8 py-[10px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out">
               Join the waitlist
             </button>
           </Reveal>
 
-          {/* Right: image/video placeholder — full height */}
+          {/* Right: image/video placeholder */}
           <Reveal delay={0.12} className="rounded-[20px] bg-white/60 border border-border flex items-center justify-center min-h-[320px]">
             <p className="alt text-[12px] text-alt/50 tracking-wide uppercase">Image / Video</p>
           </Reveal>
         </div>
 
-        {/* NO row — 3 equal columns */}
-        <Reveal delay={0.08} className="grid grid-cols-3 gap-2.5 mt-8 mb-5">
+        {/* NO row */}
+        <Reveal delay={0.08} className="grid grid-cols-3 gap-2.5 mb-6">
           {['Sulfates', 'Parabens', 'Microplastics'].map((label) => (
             <div key={label} className="flex flex-col items-center justify-center gap-1.5 rounded-[12px] border border-border bg-white/60 px-3 py-3.5 text-center">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -195,52 +212,23 @@ function IngredientsSection() {
           ))}
         </Reveal>
 
-        {/* Full ingredient list — collapsible */}
-        <Reveal delay={0.1} className="flex flex-col items-center mt-3">
+        <Reveal delay={0.1} className="flex justify-center">
           <button
-            onClick={() => setListOpen(!listOpen)}
-            className="flex items-center gap-1.5 alt text-[13px] text-alt hover:text-text transition-colors duration-150 cursor-pointer py-2"
+            onClick={goToIngredients}
+            className="flex items-center gap-1.5 alt text-[13px] text-alt hover:text-text transition-colors duration-150 cursor-pointer py-2 underline underline-offset-4 decoration-border"
           >
             See full ingredient list
-            <Motion.span
-              animate={{ rotate: listOpen ? 90 : 0 }}
-              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-              className="inline-flex"
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                <path d="M5 3L9 7L5 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </Motion.span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M5 3L9 7L5 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </button>
-
-          <AnimatePresence initial={false}>
-            {listOpen && (
-              <Motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                className="overflow-hidden w-full"
-              >
-                <div className="flex flex-wrap gap-2 pt-4 pb-2 justify-center">
-                  {fullIngredients.map((ing) => (
-                    <span
-                      key={ing}
-                      className="alt text-[12px] text-text bg-white border border-border rounded-full px-3 py-1.5"
-                    >
-                      {ing}
-                    </span>
-                  ))}
-                </div>
-              </Motion.div>
-            )}
-          </AnimatePresence>
         </Reveal>
 
       </div>
     </section>
   )
 }
+
 
 function AboutSection() {
   return (
@@ -309,7 +297,7 @@ function AboutSection() {
 
             <Reveal delay={0.18}>
               <div className="pt-2">
-                <button className="px-8 py-[10px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out">
+                <button onClick={scrollToCta} className="px-8 py-[10px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out">
                   Join the waitlist
                 </button>
               </div>
@@ -349,7 +337,7 @@ const PROBLEM_ITEMS = [
     stat: '480',
     unit: 'bottles lifetime',
     headline: '480 bottles in your lifetime',
-    desc: 'Just from shampoo alone — before counting everything else.',
+    desc: 'The brands filling your shower have known for decades. They chose profit over the planet.',
     img: null,
   },
 ]
@@ -469,8 +457,17 @@ const SUCCESS_GIFS = [
   'https://media.giphy.com/media/kyLYXonQYYfwYDIeZl/giphy.gif',
 ]
 
-function SuccessOverlay() {
+function SuccessOverlay({ onBack }) {
   const gif = SUCCESS_GIFS[new Date().getDay() % SUCCESS_GIFS.length]
+
+  useEffect(() => {
+    globalLenis?.stop()
+    document.body.classList.add('scroll-locked')
+    return () => {
+      globalLenis?.start()
+      document.body.classList.remove('scroll-locked')
+    }
+  }, [])
 
   const bottles = [
     { src: `${baseUrl}images/raudonas.webp`, style: { top: '8%', left: '4%' }, rotate: -18, floatDur: 3.2 },
@@ -531,12 +528,19 @@ function SuccessOverlay() {
           <span className="font-medium" style={{ color: 'var(--red)' }}>March 17th</span>{' '}
           with your early bird deal.
         </p>
+
+        <button
+          onClick={onBack}
+          className="alt mt-8 text-[13px] text-alt underline underline-offset-2 opacity-60 hover:opacity-100 transition-opacity"
+        >
+          ← Back
+        </button>
       </Motion.div>
     </Motion.div>
   )
 }
 
-function FinalCtaSection({ onSuccess }) {
+function FinalCtaSection({ onSuccess, onVip }) {
   const [ctaEmail, setCtaEmail] = useState('')
   const [ctaSubmitting, setCtaSubmitting] = useState(false)
   const [ctaError, setCtaError] = useState('')
@@ -601,13 +605,22 @@ function FinalCtaSection({ onSuccess }) {
               required
               className="w-full h-fit px-[16px] py-[11px] alt bg-white/8 border border-white/12 rounded-[12px] hover:border-white/20 transition-all duration-150 ease-out focus:outline-none focus:border-white/25 text-[15px] text-white placeholder:text-white/30"
             />
-            <button
-              type="submit"
-              disabled={ctaSubmitting}
-              className="w-full h-fit px-[16px] py-[11px] bg-[#862737] text-white! rounded-[12px] alt text-[15px] cursor-pointer hover:bg-[#9e2f42] transition-all duration-150 ease-out disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {ctaSubmitting ? 'Joining...' : 'Get Early Access'}
-            </button>
+            <div className="flex gap-2.5">
+              <button
+                type="submit"
+                disabled={ctaSubmitting}
+                className="flex-1 h-fit px-[16px] py-[11px] bg-[#862737] text-white! rounded-[12px] alt text-[15px] cursor-pointer hover:bg-[#9e2f42] transition-all duration-150 ease-out disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {ctaSubmitting ? 'Joining...' : 'Join the waitlist'}
+              </button>
+              <button
+                type="button"
+                onClick={onVip}
+                className="flex-1 h-fit px-[16px] py-[11px] bg-white text-[#1b1b1f]! rounded-[12px] alt text-[15px] cursor-pointer hover:bg-white/90 transition-all duration-150 ease-out"
+              >
+                Become VIP
+              </button>
+            </div>
           </form>
 
           {ctaError && (
@@ -644,6 +657,7 @@ const footerBadges = [
 ]
 
 function SiteFooter() {
+  const [copied, setCopied] = useState(false)
   const footerRef = useRef(null)
   const { scrollYProgress } = useScroll({
     target: footerRef,
@@ -704,12 +718,16 @@ function SiteFooter() {
       <div className="relative z-20 bg-white/5 backdrop-blur-md border-t border-white/10 px-5 md:px-10 py-5">
         <div className="max-w-[860px] mx-auto flex flex-row items-center justify-between">
           <span className="alt text-[14px] md:text-[15px] text-white/65">© Sapone 2026</span>
-          <a
-            href="mailto:hello@sapone.eu"
-            className="alt text-[14px] md:text-[15px] text-white/65 hover:text-white transition-colors duration-150"
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText('hello@sapone.store')
+              setCopied(true)
+              setTimeout(() => setCopied(false), 2000)
+            }}
+            className="alt text-[14px] md:text-[15px] text-white/65 hover:text-white transition-colors duration-150 cursor-pointer"
           >
-            hello@sapone.store
-          </a>
+            {copied ? 'Copied!' : 'hello@sapone.store'}
+          </button>
         </div>
       </div>
 
@@ -736,11 +754,236 @@ const faqs = [
     a: 'Yes. Soap dissolves from friction, not just water. We reinforced it — stronger than traditional soap. Designed specifically for shower storage.',
   },
   {
+    q: "Won't it get slippery in the shower?",
+    a: "Fair question. The bar is compact, shaped for grip, and textured to hold under running water, your fingers wrap around it naturally. Tested by real customers and lab-validated.",
+  },
+  {
     q: 'Is this like that other product that scammed people?',
     a: 'We know about that. We\'re different.',
     bullets: ['Backed by one of Lithuania\'s wealthiest investors', 'Legally binding delivery contract signed', 'Already shipped 1,000+', 'Real company, real product, real commitment'],
   },
 ]
+
+const VIP_PERKS = [
+  {
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <rect x="1" y="5" width="14" height="9" rx="2" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M5 5V4a3 3 0 0 1 6 0v1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+        <circle cx="8" cy="9.5" r="1.2" fill="currentColor"/>
+      </svg>
+    ),
+    title: 'Free Soap Dish',
+    desc: 'A premium soap dish — yours with your first order. Keeps your bar perfectly dry between uses.',
+  },
+  {
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M8 1.5L9.8 5.8L14.5 6.3L11.2 9.4L12.1 14L8 11.7L3.9 14L4.8 9.4L1.5 6.3L6.2 5.8L8 1.5Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+      </svg>
+    ),
+    title: 'The Surprise Perk',
+    desc: 'Every 50th backer is randomly upgraded — order doubled, free tier, mystery color, or a free year subscription.',
+  },
+  {
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M14 8c0 3.314-2.686 6-6 6a5.97 5.97 0 0 1-3.5-1.127L2 13.5l.627-2.5A5.97 5.97 0 0 1 2 8c0-3.314 2.686-6 6-6s6 2.686 6 6Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+        <path d="M5.5 8h5M5.5 6h3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+      </svg>
+    ),
+    title: 'Private WhatsApp Community',
+    desc: 'Direct line to the founders. Early previews, votes on scents and colors, behind-the-scenes updates.',
+  },
+  {
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M8 1v4M8 11v4M1 8h4M11 8h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+        <circle cx="8" cy="8" r="3" stroke="currentColor" strokeWidth="1.4"/>
+      </svg>
+    ),
+    title: 'First Access to the Kickstarter',
+    desc: 'Hours before the public — and at early backer pricing.',
+  },
+]
+
+function VipModal({ onClose }) {
+  const [email, setEmail] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [done, setDone] = useState(false)
+  const [error, setError] = useState('')
+  const [openPerk, setOpenPerk] = useState(null)
+
+  useEffect(() => {
+    globalLenis?.stop()
+    document.body.classList.add('scroll-locked')
+    return () => {
+      globalLenis?.start()
+      document.body.classList.remove('scroll-locked')
+    }
+  }, [])
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    if (submitting) return
+    setError('')
+    setSubmitting(true)
+    try {
+      await subscribeToMailerLite(email)
+      setDone(true)
+    } catch (err) {
+      setError(err.message || 'Something went wrong. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <Motion.div
+      key="vip-modal"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6"
+      style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}
+      onClick={onClose}
+    >
+      <Motion.div
+        initial={{ opacity: 0, y: 24, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 24, scale: 0.97 }}
+        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+        className="relative w-full max-w-[620px] max-h-[90svh] overflow-y-auto rounded-[24px] border border-border"
+        style={{ backgroundColor: 'var(--bg)', scrollbarWidth: 'none', overscrollBehavior: 'contain' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full border border-border text-alt hover:text-text transition-colors cursor-pointer"
+          aria-label="Close"
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 2L12 12M12 2L2 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+        </button>
+
+        <div className="p-6 md:p-8">
+          {done ? (
+            /* Success state */
+            <div className="flex flex-col items-center text-center py-8">
+              <div className="w-12 h-12 rounded-full bg-red/10 border border-red/20 flex items-center justify-center mb-5">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M4 10.5l4 4 8-8" stroke="var(--red)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <h3 className="title text-[22px] md:text-[26px] leading-[1.06] tracking-[-0.03em]! uppercase mb-2">You're in.</h3>
+              <p className="alt text-[14px] text-alt leading-relaxed max-w-[340px]">
+                Welcome to the inner circle. We'll reach out before the Kickstarter goes live — you'll be first.
+              </p>
+              <button
+                onClick={onClose}
+                className="mt-6 px-8 py-[11px] bg-red text-white! alt text-[14px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out"
+              >
+                Close
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* Header */}
+              <div className="mb-6 pr-8">
+                <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-4">
+                  €1 · Early Believer Access
+                </span>
+                <h2 className="title text-[22px] md:text-[28px] leading-[1.06] tracking-[-0.04em]! uppercase mb-2">
+                  One coffee.<br />A lifetime of bragging rights.
+                </h2>
+                <p className="alt text-[13px] text-alt leading-relaxed">
+                  You're not just joining a waitlist. You're one of the first people to back a Shark Tank-funded brand before it hits global shelves.
+                </p>
+              </div>
+
+              {/* Perks — accordion on mobile, 2-col cards on sm+ */}
+              <div className="mb-6">
+                {/* Mobile: accordion */}
+                <div className="sm:hidden flex flex-col border border-border rounded-[14px] overflow-hidden divide-y divide-border">
+                  {VIP_PERKS.map(({ icon, title, desc }, i) => (
+                    <div key={title}>
+                      <button
+                        type="button"
+                        onClick={() => setOpenPerk(openPerk === i ? null : i)}
+                        className="w-full flex items-center gap-3 px-4 py-3.5 text-left cursor-pointer bg-white/60"
+                      >
+                        <span className="shrink-0 text-red">{icon}</span>
+                        <span className="alt text-[13px] font-semibold text-text flex-1">{title}</span>
+                        <svg
+                          width="14" height="14" viewBox="0 0 14 14" fill="none"
+                          className={`shrink-0 text-alt transition-transform duration-200 ${openPerk === i ? 'rotate-180' : ''}`}
+                        >
+                          <path d="M2 5l5 5 5-5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                      <AnimatePresence initial={false}>
+                        {openPerk === i && (
+                          <Motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                            className="overflow-hidden bg-white/60"
+                          >
+                            <p className="alt text-[12px] text-alt leading-relaxed px-4 pt-3 pb-4">{desc}</p>
+                          </Motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop: 2-col cards */}
+                <div className="hidden sm:grid sm:grid-cols-2 gap-2.5">
+                  {VIP_PERKS.map(({ icon, title, desc }) => (
+                    <div key={title} className="flex gap-3 rounded-[14px] border border-border bg-white/60 px-4 py-3.5">
+                      <span className="shrink-0 mt-px text-red">{icon}</span>
+                      <div>
+                        <p className="alt text-[13px] font-semibold text-text mb-0.5">{title}</p>
+                        <p className="alt text-[11px] text-alt leading-snug">{desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleSubmit} className="flex flex-col gap-2.5">
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  className="w-full h-fit px-[16px] py-[11px] alt bg-white border border-border rounded-[12px] hover:border-red/30 transition-all duration-150 ease-out focus:outline-none focus:border-red/30 text-[15px] text-text placeholder:text-alt/40"
+                />
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full h-fit px-[16px] py-[11px] bg-[#27262b] text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-[#333138] transition-all duration-150 ease-out disabled:opacity-60"
+                >
+                  {submitting ? 'Claiming...' : 'Claim My €1 VIP Spot →'}
+                </button>
+                {error && <p className="alt text-[12px] text-red">{error}</p>}
+                <p className="alt text-[11px] text-alt text-center">
+                  Limited spots. No payment needed now.
+                </p>
+              </form>
+            </>
+          )}
+        </div>
+      </Motion.div>
+    </Motion.div>
+  )
+}
 
 function App() {
   const [showCarousel, setShowCarousel] = useState(false)
@@ -751,6 +994,7 @@ function App() {
 
   const [openFaq, setOpenFaq] = useState(0)
   const [submitted, setSubmitted] = useState(false)
+  const [showVip, setShowVip] = useState(false)
   const [heroEmail, setHeroEmail] = useState('')
   const [heroSubmitting, setHeroSubmitting] = useState(false)
   const [heroError, setHeroError] = useState('')
@@ -806,6 +1050,7 @@ function App() {
         gestureOrientation: 'vertical',
         lerp: 0.1,
       })
+      globalLenis = lenis
 
       const raf = (time) => {
         lenis.raf(time)
@@ -821,6 +1066,7 @@ function App() {
       destroyed = true
       cancelAnimationFrame(frameId)
       lenis?.destroy()
+      globalLenis = null
     }
   }, [])
 
@@ -918,37 +1164,55 @@ function App() {
         value={heroEmail}
         onChange={(e) => setHeroEmail(e.target.value)}
         required
-        className="max-w-[320px] w-full h-fit px-[16px] py-[8px] alt bg-white border border-border rounded-[12px] hover:border-red/30 transition-all duration-150 ease-out focus:outline-red focus:ring-0 focus:border-red/30 mb-[12px]"
+        className="max-w-[480px] w-full h-fit px-[16px] py-[10px] alt bg-white border border-border rounded-[12px] hover:border-red/30 transition-all duration-150 ease-out focus:outline-red focus:ring-0 focus:border-red/30 mb-[10px]"
       />
-
 
       <Motion.div
         initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         transition={{ duration: 0.55, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="flex items-center justify-center w-full"
+        className="flex items-center justify-center gap-2.5 w-full max-w-[480px]"
       >
         <button
           type="submit"
           disabled={heroSubmitting}
-          className="max-w-[320px] w-full h-fit px-[16px] py-[8px] bg-red text-white! rounded-[12px] alt cursor-pointer hover:bg-red/90 transition-all duration-50 ease-out disabled:opacity-60 disabled:cursor-not-allowed"
+          className="flex-1 h-fit px-[16px] py-[10px] bg-red text-white! rounded-[12px] alt text-[15px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          {heroSubmitting ? 'Joining...' : 'Join the waitlist!'}
+          {heroSubmitting ? 'Joining...' : 'Join the waitlist'}
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowVip(true)}
+          className="flex-1 h-fit px-[16px] py-[10px] bg-[#27262b] text-white! rounded-[12px] alt text-[15px] cursor-pointer hover:bg-[#333138] transition-all duration-150 ease-out"
+        >
+          Become VIP
         </button>
       </Motion.div>
 
       {heroError && (
-        <p className="alt text-[13px] mt-2 text-center max-w-[320px]" style={{ color: 'var(--red)' }}>{heroError}</p>
+        <p className="alt text-[13px] mt-2 text-center max-w-[480px]" style={{ color: 'var(--red)' }}>{heroError}</p>
       )}
 
-      <Motion.p
+      <Motion.div
         initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         transition={{ duration: 0.55, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className="alt text-alt/80! text-center text-[14px] mt-[8px]"
+        className="flex flex-col items-center gap-0.5 mt-[10px]"
       >
-        Get early bird access - 40% off for first 500!
-      </Motion.p>
+        <p className="alt text-alt/60! text-center text-[13px]">
+          Free to join. No spam, ever.
+        </p>
+        <p className="alt text-text font-semibold text-center text-[13px]">
+          VIPs get early access + exclusive launch perks.{' '}
+          <button
+            type="button"
+            onClick={() => setShowVip(true)}
+            className="text-red underline underline-offset-2 decoration-red/40 hover:decoration-red transition-colors cursor-pointer font-semibold"
+          >
+            See what's included →
+          </button>
+        </p>
+      </Motion.div>
     </form>
 
 
@@ -1095,7 +1359,7 @@ function App() {
             <p className="alt text-[15px] md:text-[16px] text-alt! mb-8">
               Zero waste. Nothing left.
             </p>
-            <button className="px-8 py-[10px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out">
+            <button onClick={scrollToCta} className="px-8 py-[10px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out">
               Join the waitlist
             </button>
           </Reveal>
@@ -1167,6 +1431,106 @@ function App() {
             ))}
           </div>
 
+        </section>
+
+        {/* SHARK TANK SECTION */}
+        <section className="w-full">
+          <div className="max-w-[1080px] mx-auto px-4 md:px-10">
+
+            {/* ── Desktop: sticky left image + scrolling right copy ── */}
+            <div className="hidden lg:grid lg:grid-cols-[1.1fr_1fr] gap-16 py-[72px] md:py-[112px]">
+
+              {/* Left column: sticky centered — top offset = 50vh minus half the image height */}
+              <div className="self-start sticky" style={{ top: 'calc(50svh - 150px)' }}>
+                <Reveal className="w-full">
+                  <div className="relative rounded-[20px] overflow-hidden bg-[#ece8e0] border border-border aspect-video flex items-center justify-center">
+                    <p className="alt text-[11px] text-alt/35 uppercase tracking-widest select-none">Shark Tank Video / Image</p>
+                    <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-bg/90 backdrop-blur-sm border border-border rounded-full px-3.5 py-2">
+                      <Tv size={13} className="text-red shrink-0" strokeWidth={1.8} />
+                      <span className="alt text-[12px] font-semibold text-text">Shark Tank — Season 2026</span>
+                    </div>
+                  </div>
+                </Reveal>
+              </div>
+
+              {/* Right column: scrolling copy */}
+              <Reveal delay={0.1} className="flex flex-col justify-center">
+                <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-5 w-fit">
+                  As seen on Shark Tank
+                </span>
+
+                <h2 className="title text-[26px] md:text-[36px] leading-[1.06] tracking-[-0.04em]! mb-6 uppercase">
+                  We took Sapone to Shark&nbsp;Tank at 17 — and walked out with a&nbsp;deal.
+                </h2>
+
+                <div className="flex flex-col gap-5 alt text-[14px] md:text-[15px] text-alt leading-relaxed">
+                  <p>
+                    The sharks don't hand out investments. They tear apart your margins, your formula, your market size, your competition. They've seen thousands of pitches. They know when something is real.
+                  </p>
+                  <p>
+                    We got every hard question. Why would someone switch from a bottle they've used their whole life? Can you actually scale this without losing quality?
+                    <span className="text-text font-medium"> We had an answer for every single one.</span>
+                  </p>
+                  <p>
+                    The room went quiet when we revealed the numbers —{' '}
+                    <span className="text-text font-medium">552 million bottles landfilled every year in the US alone</span>,
+                    a $700B beauty industry that has never once offered a real solution, and a product that costs less to produce, lasts longer, and performs at a premium level.
+                  </p>
+                  <blockquote className="border-l-2 border-red pl-4 italic text-text">
+                    "I've been waiting for someone to do this properly."
+                  </blockquote>
+                  <p>
+                    We closed the deal. Since then we've been backed by cosmetic chemists, certified testing labs, and sustainability specialists who helped us take the formula from great to flawless.
+                  </p>
+                  <p className="text-text font-medium">
+                    Sapone has been validated. Now it needs to be launched. This Kickstarter is the moment it goes from a Shark Tank deal to a global brand — and you're here before anyone else.
+                  </p>
+                </div>
+              </Reveal>
+
+            </div>
+
+            {/* ── Mobile: stacked ── */}
+            <div className="lg:hidden py-[72px]">
+              <div className="relative rounded-[20px] overflow-hidden bg-[#ece8e0] border border-border aspect-video flex items-center justify-center mb-8">
+                <p className="alt text-[11px] text-alt/35 uppercase tracking-widest select-none">Shark Tank Video / Image</p>
+                <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-bg/90 backdrop-blur-sm border border-border rounded-full px-3.5 py-2">
+                  <Tv size={13} className="text-red shrink-0" strokeWidth={1.8} />
+                  <span className="alt text-[12px] font-semibold text-text">Shark Tank — Season 2026</span>
+                </div>
+              </div>
+
+              <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-5 w-fit">
+                As seen on Shark Tank
+              </span>
+
+              <h2 className="title text-[26px] leading-[1.06] tracking-[-0.04em]! mb-6 uppercase">
+                We took Sapone to Shark Tank at 17 — and walked out with a deal.
+              </h2>
+
+              <div className="flex flex-col gap-5 alt text-[14px] text-alt leading-relaxed">
+                <p>
+                  The sharks don't hand out investments. They tear apart your margins, your formula, your market size, your competition. They've seen thousands of pitches. They know when something is real.
+                </p>
+                <p>
+                  We got every hard question. Why would someone switch from a bottle they've used their whole life? Can you actually scale this without losing quality?
+                  <span className="text-text font-medium"> We had an answer for every single one.</span>
+                </p>
+                <p>
+                  The room went quiet when we revealed the numbers —{' '}
+                  <span className="text-text font-medium">552 million bottles landfilled every year in the US alone</span>,
+                  a $700B beauty industry that has never once offered a real solution.
+                </p>
+                <blockquote className="border-l-2 border-red pl-4 italic text-text">
+                  "I've been waiting for someone to do this properly."
+                </blockquote>
+                <p className="text-text font-medium">
+                  Sapone has been validated. Now it needs to be launched.
+                </p>
+              </div>
+            </div>
+
+          </div>
         </section>
 
         {/* SECTION 4: FAQ */}
@@ -1244,7 +1608,7 @@ function App() {
 
           <div className="flex justify-center mt-[48px]">
             <button
-              onClick={() => document.getElementById('final-cta')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={scrollToCta}
               className="px-10 py-[11px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out"
             >
               Join the waitlist
@@ -1259,19 +1623,20 @@ function App() {
       <TrustStackSection />
 
       {/* SECTION 6: INGREDIENTS */}
-      <IngredientsSection />
+      <IngredientsSection onViewFull={() => setShowIngredients(true)} onVip={() => setShowVip(true)} />
 
       {/* SECTION 7: ABOUT */}
       <AboutSection />
 
       {/* SECTION 8: FINAL CTA */}
-      <FinalCtaSection onSuccess={() => setSubmitted(true)} />
+      <FinalCtaSection onSuccess={() => setSubmitted(true)} onVip={() => setShowVip(true)} />
 
       {/* FOOTER */}
       <SiteFooter />
 
       <AnimatePresence>
-        {submitted && <SuccessOverlay />}
+        {submitted && <SuccessOverlay onBack={() => setSubmitted(false)} />}
+        {showVip && <VipModal onClose={() => setShowVip(false)} />}
       </AnimatePresence>
 
     </main>
