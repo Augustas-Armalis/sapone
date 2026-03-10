@@ -9,22 +9,15 @@ let globalLenis = null
 const SAPONE_LAUNCH_DATE = '20260317'
 const SAPONE_LAUNCH_EVENT_URL = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Sapone Launch')}&dates=${SAPONE_LAUNCH_DATE}/${'20260318'}&details=${encodeURIComponent('Sapone officially launches today.')}&location=${encodeURIComponent('Online')}`
 
-const MAILERLITE_API_KEY = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI0IiwianRpIjoiN2I1OWQ0Y2Q2NmNmNmI3YTExYWNmZTAzMGNkM2NjYmVmYTQ4MDExYjI3OGI0NDA5MDExYTk0NzI4YjZiODBkMmJiMzNlNmE4ODE4NGRhYmYiLCJpYXQiOjE3NzI2MTIzNjUuMTc4OTYsIm5iZiI6MTc3MjYxMjM2NS4xNzg5NjMsImV4cCI6NDkyODI4NTk2NS4xNzI1ODYsInN1YiI6IjIxNzY2ODkiLCJzY29wZXMiOltdfQ.RNaemqn2z2_-rBzjPqqZmQq1V9PPziqBEe9lOG6c6BtqIxsdALu4HtFBVGw74vHI1BeOwizZX6pUSEIEQPqpO8n7Jg5HNJeaasc6JcPFAZgUv4Pvg0emkaouf_H8AT9RUZSJSo1fQ7thTy_YrzFqUfTmuSYPvGbuymj1phk1WZlle6Bp50Oqw9ZL8wpxTGotO_b15NrauThExmhcKU4_JpmmEdJsgbGMj_qaWIPmqMvNSm9iKh0J4N_eq9dyC6SDWlJVE6pruCKllyWT3SrjiyXuaU7EfckFL8EZL06JS7PTKlJ8JtVoHljf_rj0eAXKpjkaC5TziCdCCZAZ6fHEFxEFikI6vu-VarBmg8l_vFR9Hipnszy-c8VvyJootir6elhdv788X23_3qcqfyHzepSCXv3N8srvSKDZjJt-b-8uOXoMjfL5YeuqYFjDa-j4xZKyUSVhPxWhKHnZL7QudYnCovhXdX2BoPcpo5MSwTgCMEExDx25G9B8iM8LGpYg-tmKQJlDpmSk7n7S34ifBwL7v2D8Jxxf0X5deLJr8B0dGoU4ovyyCMa4Cl-jgRXxrRDMy377wJwlv49ZqRXG0vN-3TFr4aETtTN0Ep_Z6BSAxNCLRphe7qu61LhJ5dLSfbDyDv8aiqsSm3RDU2S4QjT6WVRUbs8ozonfkTx_acA'
-const MAILERLITE_GROUP_ID = '180952494130595440'
-
 async function subscribeToMailerLite(email) {
-  const res = await fetch('https://connect.mailerlite.com/api/subscribers', {
+  const res = await fetch('/api/subscribe', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${MAILERLITE_API_KEY}`,
-      'Accept': 'application/json',
-    },
-    body: JSON.stringify({ email, groups: [MAILERLITE_GROUP_ID] }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
   })
   if (!res.ok) {
     const data = await res.json().catch(() => ({}))
-    throw new Error(data.message || 'Subscription failed. Please try again.')
+    throw new Error(data.error || 'Subscription failed. Please try again.')
   }
 }
 const carouselFiles = Array.from({ length: 20 }, (_, i) => ({
@@ -836,11 +829,16 @@ function VipModal({ onClose }) {
     setError('')
     setSubmitting(true)
     try {
-      await subscribeToMailerLite(email)
-      setDone(true)
+      const res = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Something went wrong')
+      window.location.href = data.url
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
-    } finally {
       setSubmitting(false)
     }
   }
@@ -977,11 +975,11 @@ function VipModal({ onClose }) {
                   disabled={submitting}
                   className="w-full h-fit px-[16px] py-[11px] bg-[#27262b] text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-[#333138] transition-all duration-150 ease-out disabled:opacity-60"
                 >
-                  {submitting ? 'Claiming...' : 'Claim My €1 VIP Spot →'}
+                  {submitting ? 'Redirecting to payment...' : 'Claim My €1 VIP Spot →'}
                 </button>
                 {error && <p className="alt text-[12px] text-red">{error}</p>}
                 <p className="alt text-[11px] text-alt text-center">
-                  Limited spots. No payment needed now.
+                  Secure €1 · One-time · Via Stripe
                 </p>
               </form>
             </>
@@ -992,7 +990,149 @@ function VipModal({ onClose }) {
   )
 }
 
+function VipSuccess() {
+  const [status, setStatus] = useState('loading') // 'loading' | 'success' | 'error'
+  const [email, setEmail] = useState('')
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const sessionId = params.get('session_id')
+
+    if (!sessionId) {
+      setStatus('error')
+      return
+    }
+
+    fetch(`/api/confirm-vip?session_id=${encodeURIComponent(sessionId)}`)
+      .then((res) => res.json().then((data) => ({ ok: res.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok) throw new Error(data.error || 'Verification failed')
+        setEmail(data.email || '')
+        setStatus('success')
+      })
+      .catch(() => setStatus('error'))
+  }, [])
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-svh flex flex-col items-center justify-center gap-5" style={{ backgroundColor: 'var(--bg)' }}>
+        <div className="grain" aria-hidden="true" />
+        <svg
+          className="animate-spin text-red"
+          width="36"
+          height="36"
+          viewBox="0 0 36 36"
+          fill="none"
+          aria-hidden="true"
+        >
+          <circle cx="18" cy="18" r="15" stroke="currentColor" strokeWidth="2.5" strokeOpacity="0.2" />
+          <path d="M18 3a15 15 0 0 1 15 15" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+        </svg>
+        <p className="alt text-[15px] text-alt">Confirming your VIP status...</p>
+      </div>
+    )
+  }
+
+  if (status === 'error') {
+    return (
+      <div className="min-h-svh flex flex-col items-center justify-center gap-5 px-4" style={{ backgroundColor: 'var(--bg)' }}>
+        <div className="grain" aria-hidden="true" />
+        <p className="title text-[22px] uppercase">Something went wrong.</p>
+        <p className="alt text-[14px] text-alt text-center max-w-[320px]">We couldn't confirm your payment. Please contact us at hello@sapone.store.</p>
+        <a href="/" className="alt text-[14px] text-red underline underline-offset-2 mt-2">← Back to homepage</a>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-svh flex flex-col items-center justify-center px-4 py-16" style={{ backgroundColor: 'var(--bg)' }}>
+      <div className="grain" aria-hidden="true" />
+      <div className="relative z-10 w-full max-w-[560px] mx-auto flex flex-col items-center text-center">
+
+        {/* Crown icon */}
+        <Motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          className="w-[72px] h-[72px] rounded-full bg-red/8 border border-red/20 flex items-center justify-center mb-7"
+        >
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+            <path d="M6 26h24M7 14l5 7 6-9 6 9 5-7-2 12H9L7 14Z" stroke="var(--red)" strokeWidth="1.8" strokeLinejoin="round"/>
+            <circle cx="7" cy="13" r="2" fill="var(--red)"/>
+            <circle cx="18" cy="10" r="2" fill="var(--red)"/>
+            <circle cx="29" cy="13" r="2" fill="var(--red)"/>
+          </svg>
+        </Motion.div>
+
+        {/* Headline */}
+        <Motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 0.07, ease: [0.22, 1, 0.36, 1] }}
+          className="title text-[36px] md:text-[52px] leading-[1.04] tracking-[-0.04em]! uppercase mb-5"
+        >
+          You're officially VIP.
+        </Motion.h1>
+
+        {/* Email badge */}
+        {email && (
+          <Motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-white/60 px-4 py-2 mb-6"
+          >
+            <span className="w-2 h-2 rounded-full bg-red shrink-0" />
+            <span className="alt text-[13px] text-text">{email}</span>
+          </Motion.div>
+        )}
+
+        {/* Subtext */}
+        <Motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
+          className="alt text-[15px] md:text-[16px] text-alt leading-relaxed max-w-[440px] mb-10"
+        >
+          Welcome to the inner circle. You backed us before the world knew — and we won't forget that.
+        </Motion.p>
+
+        {/* Perks grid */}
+        <Motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
+          className="grid grid-cols-2 gap-2.5 w-full mb-10"
+        >
+          {VIP_PERKS.map(({ icon, title }) => (
+            <div key={title} className="flex items-center gap-3 rounded-[14px] border border-border bg-white/60 px-4 py-3.5">
+              <span className="shrink-0 text-red">{icon}</span>
+              <p className="alt text-[13px] font-semibold text-text text-left">{title}</p>
+            </div>
+          ))}
+        </Motion.div>
+
+        {/* Back button */}
+        <Motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <a
+            href="/"
+            className="inline-flex items-center justify-center px-8 py-[11px] bg-[#27262b] text-white! alt text-[15px] rounded-[12px] hover:bg-[#333138] transition-all duration-150 ease-out"
+          >
+            Back to homepage →
+          </a>
+        </Motion.div>
+
+      </div>
+    </div>
+  )
+}
+
 function App() {
+  const [page] = useState(() => window.location.pathname === '/vip-success' ? 'vip-success' : 'home')
   const [showCarousel, setShowCarousel] = useState(false)
   const longCarousel = useMemo(
     () => [...carouselCards, ...carouselCards],
@@ -1100,6 +1240,8 @@ function App() {
       window.clearTimeout(timeoutId)
     }
   }, [])
+
+  if (page === 'vip-success') return <VipSuccess />
 
   return (
     <main className="relative isolate min-h-screen">
