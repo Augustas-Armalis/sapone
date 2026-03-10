@@ -165,7 +165,7 @@ function IngredientsSection({ onVip }) {
     <section ref={sectionRef} className="w-full px-4 md:px-10 pt-[72px] md:pt-[112px] pb-[72px] md:pb-[92px]">
       <div className="max-w-[980px] mx-auto">
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-8 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
 
           {/* Left */}
           <Reveal className="flex flex-col">
@@ -175,7 +175,7 @@ function IngredientsSection({ onVip }) {
             <h2 className="title text-[24px] md:text-[36px] leading-[1.06] tracking-[-0.04em]! mb-8 max-w-[480px] uppercase">
               What's inside matters most.
             </h2>
-            <ul className="flex flex-col gap-3.5 mb-9 flex-1">
+            <ul className="flex flex-col gap-3.5 mb-8">
               {keyIngredients.map(({ name, benefit }, i) => (
                 <li key={i} className="flex items-start gap-3">
                   <span className="text-red text-[13px] mt-[2px] shrink-0 font-bold">✓</span>
@@ -186,43 +186,44 @@ function IngredientsSection({ onVip }) {
                 </li>
               ))}
             </ul>
-            <button onClick={scrollToCta} className="w-fit px-8 py-[10px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out">
+            <div className="grid grid-cols-3 gap-2.5 mb-8">
+              {['Sulfates', 'Parabens', 'Microplastics'].map((label) => (
+                <div key={label} className="flex flex-col items-center justify-center gap-1.5 rounded-[12px] border border-border bg-white/60 px-3 py-3.5 text-center">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <circle cx="8" cy="8" r="7" stroke="var(--red)" strokeWidth="1.3"/>
+                    <path d="M5 5L11 11M11 5L5 11" stroke="var(--red)" strokeWidth="1.3" strokeLinecap="round"/>
+                  </svg>
+                  <span className="alt text-[12px] md:text-[13px] font-medium text-text leading-tight">
+                    <span className="text-red">NO </span>{label}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <button onClick={scrollToCta} className="w-fit px-8 py-[10px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out mb-4">
               Join the waitlist
+            </button>
+            <button
+              onClick={goToIngredients}
+              className="flex items-center gap-1.5 alt text-[13px] text-alt hover:text-text transition-colors duration-150 cursor-pointer py-1 underline underline-offset-4 decoration-border w-fit"
+            >
+              See full ingredient list
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M5 3L9 7L5 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </button>
           </Reveal>
 
-          {/* Right: image/video placeholder */}
-          <Reveal delay={0.12} className="rounded-[20px] bg-white/60 border border-border flex items-center justify-center min-h-[320px]">
-            <p className="alt text-[12px] text-alt/50 tracking-wide uppercase">Image / Video</p>
+          {/* Right: ingredient image — matches left column height */}
+          <Reveal delay={0.12} className="relative rounded-[20px] overflow-hidden self-stretch min-h-[320px] lg:min-h-0">
+            <img
+              src={`${baseUrl}images/sudetis.webp`}
+              alt="Ingredients"
+              className="absolute inset-0 w-full h-full object-cover object-center"
+              loading="lazy"
+              decoding="async"
+            />
           </Reveal>
         </div>
-
-        {/* NO row */}
-        <Reveal delay={0.08} className="grid grid-cols-3 gap-2.5 mb-6">
-          {['Sulfates', 'Parabens', 'Microplastics'].map((label) => (
-            <div key={label} className="flex flex-col items-center justify-center gap-1.5 rounded-[12px] border border-border bg-white/60 px-3 py-3.5 text-center">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <circle cx="8" cy="8" r="7" stroke="var(--red)" strokeWidth="1.3"/>
-                <path d="M5 5L11 11M11 5L5 11" stroke="var(--red)" strokeWidth="1.3" strokeLinecap="round"/>
-              </svg>
-              <span className="alt text-[12px] md:text-[13px] font-medium text-text leading-tight">
-                <span className="text-red">NO </span>{label}
-              </span>
-            </div>
-          ))}
-        </Reveal>
-
-        <Reveal delay={0.1} className="flex justify-center">
-          <button
-            onClick={goToIngredients}
-            className="flex items-center gap-1.5 alt text-[13px] text-alt hover:text-text transition-colors duration-150 cursor-pointer py-2 underline underline-offset-4 decoration-border"
-          >
-            See full ingredient list
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path d="M5 3L9 7L5 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-        </Reveal>
 
       </div>
     </section>
@@ -248,9 +249,15 @@ function AboutSection() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-stretch">
 
-          {/* Left: image placeholder — full height of right column */}
-          <Reveal delay={0.14} className="rounded-[20px] bg-white/60 border border-border w-full flex items-center justify-center order-2 lg:order-1 min-h-[320px]">
-            <p className="alt text-[12px] text-alt/50 tracking-wide uppercase">Image</p>
+          {/* Left: story image — full height of right column */}
+          <Reveal delay={0.14} className="relative rounded-[20px] bg-white/60 border border-border w-full overflow-hidden order-2 lg:order-1 min-h-[320px] lg:min-h-0 lg:h-full lg:self-stretch">
+            <img
+              src={`${baseUrl}images/thestory.webp`}
+              alt="The story"
+              className="absolute inset-0 block w-full h-full object-cover object-top"
+              loading="lazy"
+              decoding="async"
+            />
           </Reveal>
 
           {/* Right: story */}
@@ -1444,10 +1451,18 @@ function App() {
               <div className="self-start sticky" style={{ top: 'calc(50svh - 150px)' }}>
                 <Reveal className="w-full">
                   <div className="relative rounded-[20px] overflow-hidden bg-[#ece8e0] border border-border aspect-video flex items-center justify-center">
-                    <p className="alt text-[11px] text-alt/35 uppercase tracking-widest select-none">Shark Tank Video / Image</p>
+                    <video
+                      className="absolute inset-0 w-full h-full object-cover"
+                      src={`${baseUrl}video/sharktank.mp4`}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      preload="metadata"
+                    />
                     <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-bg/90 backdrop-blur-sm border border-border rounded-full px-3.5 py-2">
                       <Tv size={13} className="text-red shrink-0" strokeWidth={1.8} />
-                      <span className="alt text-[12px] font-semibold text-text">Shark Tank — Season 2026</span>
+                      <span className="alt text-[12px] font-semibold text-text">Shark Tank — Season 2025</span>
                     </div>
                   </div>
                 </Reveal>
@@ -1493,10 +1508,18 @@ function App() {
             {/* ── Mobile: stacked ── */}
             <div className="lg:hidden py-[72px]">
               <div className="relative rounded-[20px] overflow-hidden bg-[#ece8e0] border border-border aspect-video flex items-center justify-center mb-8">
-                <p className="alt text-[11px] text-alt/35 uppercase tracking-widest select-none">Shark Tank Video / Image</p>
+                <video
+                  className="absolute inset-0 w-full h-full object-cover"
+                  src={`${baseUrl}video/sharktank.mp4`}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="metadata"
+                />
                 <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-bg/90 backdrop-blur-sm border border-border rounded-full px-3.5 py-2">
                   <Tv size={13} className="text-red shrink-0" strokeWidth={1.8} />
-                  <span className="alt text-[12px] font-semibold text-text">Shark Tank — Season 2026</span>
+                  <span className="alt text-[12px] font-semibold text-text">Shark Tank — Season 2025</span>
                 </div>
               </div>
 
