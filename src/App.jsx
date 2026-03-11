@@ -20,7 +20,7 @@ async function subscribeToMailerLite(email) {
     throw new Error(data.error || 'Subscription failed. Please try again.')
   }
 }
-const carouselFiles = Array.from({ length: 20 }, (_, i) => ({
+const carouselFiles = Array.from({ length: 12 }, (_, i) => ({
   file: `${String(i + 1).padStart(2, '0')}.webp`,
   width: 720,
   height: 960,
@@ -30,6 +30,50 @@ const carouselCards = carouselFiles.map(({ file, width, height }) => ({
   width,
   height,
 }))
+const WAITLIST_BASE_COUNT = 847
+const WAITLIST_STORAGE_KEY = 'sapone_waitlist_count_v1'
+
+function usePersistentWaitlistCounter() {
+  const [waitlistCount, setWaitlistCount] = useState(WAITLIST_BASE_COUNT)
+  const waitlistTimerRef = useRef(null)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+
+    let cancelled = false
+    const storedRaw = window.localStorage.getItem(WAITLIST_STORAGE_KEY)
+    const storedCount = Number.parseInt(storedRaw || '', 10)
+    if (Number.isFinite(storedCount) && storedCount >= WAITLIST_BASE_COUNT) {
+      setWaitlistCount(storedCount)
+    } else {
+      window.localStorage.setItem(WAITLIST_STORAGE_KEY, String(WAITLIST_BASE_COUNT))
+    }
+
+    const queueNextIncrement = () => {
+      const delayMs = 2000 + Math.floor(Math.random() * 6001)
+      waitlistTimerRef.current = window.setTimeout(() => {
+        if (cancelled) return
+        setWaitlistCount(prev => {
+          const next = prev + 1
+          window.localStorage.setItem(WAITLIST_STORAGE_KEY, String(next))
+          return next
+        })
+        queueNextIncrement()
+      }, delayMs)
+    }
+
+    queueNextIncrement()
+
+    return () => {
+      cancelled = true
+      if (waitlistTimerRef.current) {
+        window.clearTimeout(waitlistTimerRef.current)
+      }
+    }
+  }, [])
+
+  return waitlistCount
+}
 
 function scrollToCta() {
   document.getElementById('final-cta')?.scrollIntoView({ behavior: 'smooth' })
@@ -317,28 +361,28 @@ const PROBLEM_ITEMS = [
     unit: 'bottles / year',
     headline: '552 million shampoo bottles',
     desc: 'sent to landfill every year in the US alone.',
-    img: null,
+    img: `${baseUrl}images/111.webp`,
   },
   {
     stat: '450',
     unit: 'years',
     headline: '450 years to decompose',
     desc: 'One bottle used for 5 minutes. Polluting for 450 years.',
-    img: null,
+    img: `${baseUrl}images/222.webp`,
   },
   {
     stat: '91%',
     unit: 'never recycled',
     headline: '91% of plastic is never recycled',
     desc: 'Nearly all plastic bottles end up in landfills or the ocean.',
-    img: null,
+    img: `${baseUrl}images/333.webp`,
   },
   {
     stat: '480',
     unit: 'bottles lifetime',
     headline: '480 bottles in your lifetime',
     desc: 'The brands filling your shower have known for decades. They chose profit over the planet.',
-    img: null,
+    img: `${baseUrl}images/444.webp`,
   },
 ]
 
@@ -423,12 +467,13 @@ function ProblemSection() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.25 }}
-                  className="absolute inset-0 flex items-center justify-center"
+                  className="absolute inset-0"
                 >
-                  {/* Stat as giant watermark — replace with real image later */}
-                  <span className="title leading-none tracking-[-0.05em] text-[#1b1b1f]/[0.08] select-none" style={{ fontSize: 'clamp(100px, 18vw, 160px)' }}>
-                    {PROBLEM_ITEMS[active].stat}
-                  </span>
+                  <img
+                    src={PROBLEM_ITEMS[active].img}
+                    alt={PROBLEM_ITEMS[active].headline}
+                    className="w-full h-full object-cover object-center"
+                  />
                 </Motion.div>
               </AnimatePresence>
 
@@ -540,7 +585,7 @@ function SuccessOverlay({ onBack }) {
   )
 }
 
-function FinalCtaSection({ onSuccess, onVip }) {
+function FinalCtaSection({ onSuccess, onVip, waitlistCount }) {
   const [ctaEmail, setCtaEmail] = useState('')
   const [ctaSubmitting, setCtaSubmitting] = useState(false)
   const [ctaError, setCtaError] = useState('')
@@ -593,7 +638,7 @@ function FinalCtaSection({ onSuccess, onVip }) {
           </p>
 
           <p className="alt text-[13px] text-white/50 mb-4">
-            Join <span className="font-semibold text-white/80">847+ people</span> already on the waitlist
+            Join <span className="font-semibold text-white/80">{waitlistCount.toLocaleString()}+ people</span> already on the waitlist
           </p>
 
           <form className="flex flex-col gap-2.5 mb-6" onSubmit={handleSubmit}>
@@ -1145,6 +1190,7 @@ function App() {
   const [heroEmail, setHeroEmail] = useState('')
   const [heroSubmitting, setHeroSubmitting] = useState(false)
   const [heroError, setHeroError] = useState('')
+  const waitlistCount = usePersistentWaitlistCounter()
 
   const handleHeroSubmit = async (e) => {
     e.preventDefault()
@@ -1373,7 +1419,7 @@ function App() {
     >
       <div className="mx-auto grid w-full max-w-[820px] grid-cols-2 gap-1 md:grid-cols-4 md:gap-1">
           <article className="rounded-[12px] border border-border bg-white/80 px-3 py-2 md:px-3.5 md:py-2">
-            <p className="alt text-[19px] leading-[1.06] tracking-[-0.02em] text-red md:text-[20px]">847+</p>
+            <p className="alt text-[19px] leading-[1.06] tracking-[-0.02em] text-red md:text-[20px]">{waitlistCount.toLocaleString()}+</p>
             <p className="alt mt-0.5 text-[11px] text-alt/80">Signed up</p>
           </article>
           
@@ -1537,20 +1583,20 @@ function App() {
             {[
               {
                 n: '1',
-                title: 'Lather on body first',
-                desc: 'Use it exactly like regular soap. The outer layer works up a rich lather to wash your body.',
+                title: 'WASH YOUR HAIR',
+                desc: 'Start with the shampoo core. Work it through wet hair exactly like a regular shampoo — rich lather, full clean.',
                 delay: 0,
               },
               {
                 n: '2',
-                title: 'Soap dissolves, shampoo reveals',
-                desc: 'As the outer layer wears down with use, a concentrated shampoo core is naturally exposed.',
+                title: 'WASH YOUR BODY',
+                desc: 'The outer soap layer is right there. No second product needed. Lather up and wash your body with the same bar.',
                 delay: 0.08,
               },
               {
                 n: '3',
-                title: 'Apply to hair. Done.',
-                desc: 'Work the shampoo core through your hair. Zero plastic bottles. Zero waste. Nothing left.',
+                title: 'NOTHING LEFT BEHIND',
+                desc: "As the shampoo core is used up, only a tiny sliver of soap remains — and then that's gone too. No bottle. No waste. Nothing left behind.",
                 delay: 0.16,
               },
             ].map(({ n, title, desc, delay }) => (
@@ -1794,7 +1840,7 @@ function App() {
       <AboutSection />
 
       {/* SECTION 8: FINAL CTA */}
-      <FinalCtaSection onSuccess={() => setSubmitted(true)} onVip={() => setShowVip(true)} />
+      <FinalCtaSection onSuccess={() => setSubmitted(true)} onVip={() => setShowVip(true)} waitlistCount={waitlistCount} />
 
       {/* FOOTER */}
       <SiteFooter />
