@@ -1,11 +1,11 @@
-import { StrictMode, useState, useEffect } from 'react'
+import { StrictMode, useState, useEffect, lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
-import IngredientsPage from './IngredientsPage.jsx'
+
+const IngredientsPage = lazy(() => import('./IngredientsPage.jsx'))
 
 function getInitialPath() {
-  // Handle GitHub Pages 404 redirect: /?p=/some/path
   const params = new URLSearchParams(window.location.search)
   const redirectPath = params.get('p')
   if (redirectPath) {
@@ -25,7 +25,11 @@ function Router() {
   }, [])
 
   if (path === '/ingredients' || path === '/ingredients/') {
-    return <IngredientsPage />
+    return (
+      <Suspense fallback={null}>
+        <IngredientsPage />
+      </Suspense>
+    )
   }
   return <App />
 }

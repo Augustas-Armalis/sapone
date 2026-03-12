@@ -4,7 +4,6 @@ import { Tv, Package, Globe, ShieldCheck, Leaf, Truck } from 'lucide-react'
 
 const baseUrl = import.meta.env.BASE_URL
 
-// Module-level lenis ref so modals can pause scroll
 let globalLenis = null
 const SAPONE_LAUNCH_DATE = '20260317'
 const SAPONE_LAUNCH_EVENT_URL = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Sapone Launch')}&dates=${SAPONE_LAUNCH_DATE}/${'20260318'}&details=${encodeURIComponent('Sapone officially launches today.')}&location=${encodeURIComponent('Online')}`
@@ -251,7 +250,7 @@ function IngredientsSection({ onVip }) {
           </Reveal>
 
           {/* Right: ingredient image — matches left column height */}
-          <Reveal delay={0.12} className="relative rounded-[20px] overflow-hidden self-stretch min-h-[320px] lg:min-h-0">
+          <Reveal delay={0.12} className="relative rounded-[20px] overflow-hidden  border border-border self-stretch min-h-[320px] lg:min-h-0">
             <img
               src={`${baseUrl}images/sudetis.webp`}
               alt="Ingredients"
@@ -473,6 +472,7 @@ function ProblemSection() {
                     src={PROBLEM_ITEMS[active].img}
                     alt={PROBLEM_ITEMS[active].headline}
                     className="w-full h-full object-cover object-center"
+                    decoding="async"
                   />
                 </Motion.div>
               </AnimatePresence>
@@ -743,23 +743,23 @@ function SiteFooter() {
         </div>
       </div>
 
-      {/* Bottles — desktop only, in front of badges, behind bottom bar */}
+
       <div className="hidden md:block absolute inset-x-0 top-0 bottom-[57px] pointer-events-none select-none z-15" aria-hidden="true">
         <Motion.div style={{ y: bottle0Y, rotate: -13 }} className="absolute left-[1%] bottom-0 w-[170px] lg:w-[210px]">
-          <img src={`${baseUrl}images/raudonas.webp`} alt="" className="w-full h-auto object-contain drop-shadow-[0_32px_56px_rgba(0,0,0,0.55)]" loading="lazy" />
+          <img src={`${baseUrl}images/raudonas.webp`} alt="" className="w-full h-auto object-contain" loading="lazy" />
         </Motion.div>
         <Motion.div style={{ y: bottle1Y, rotate: 8 }} className="absolute left-[20%] bottom-0 w-[148px] lg:w-[185px]">
-          <img src={`${baseUrl}images/geltonas.webp`} alt="" className="w-full h-auto object-contain drop-shadow-[0_32px_56px_rgba(0,0,0,0.55)]" loading="lazy" />
+          <img src={`${baseUrl}images/geltonas.webp`} alt="" className="w-full h-auto object-contain" loading="lazy" />
         </Motion.div>
         <Motion.div style={{ y: bottle2Y, rotate: -6 }} className="absolute right-[20%] bottom-0 w-[148px] lg:w-[185px]">
-          <img src={`${baseUrl}images/zalias.webp`} alt="" className="w-full h-auto object-contain drop-shadow-[0_32px_56px_rgba(0,0,0,0.55)]" loading="lazy" />
+          <img src={`${baseUrl}images/zalias.webp`} alt="" className="w-full h-auto object-contain" loading="lazy" />
         </Motion.div>
         <Motion.div style={{ y: bottle3Y, rotate: 12 }} className="absolute right-[1%] bottom-0 w-[170px] lg:w-[210px]">
-          <img src={`${baseUrl}images/melynas.webp`} alt="" className="w-full h-auto object-contain drop-shadow-[0_32px_56px_rgba(0,0,0,0.55)]" loading="lazy" />
+          <img src={`${baseUrl}images/melynas.webp`} alt="" className="w-full h-auto object-contain" loading="lazy" />
         </Motion.div>
       </div>
 
-      {/* Bottom bar — frosted glass so bottles bleed through */}
+
       <div className="relative z-20 bg-white/5 backdrop-blur-md border-t border-white/10 px-5 md:px-10 py-5">
         <div className="max-w-[860px] mx-auto flex flex-row items-center justify-between">
           <span className="alt text-[14px] md:text-[15px] text-white/65">© Sapone 2026</span>
@@ -1340,7 +1340,7 @@ function App() {
         transition={{ duration: 0.55, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
         className="text-[16px] md:text-[18px] alt text-alt!"
       >
-        Zero Plastic. Premium Quality. Zero waste.
+        Zero Plastic. 95% Natural. Zero waste.
       </Motion.p>
     </div>
 
@@ -1398,13 +1398,13 @@ function App() {
           Free to join. No spam, ever.
         </p>
         <p className="alt text-text font-semibold text-center text-[13px]">
-          VIPs get early access + exclusive launch perks.{' '}
+        Only 500 spots · Free soap dish · Early access · Direct line to the founders.{' '}
           <button
             type="button"
             onClick={() => setShowVip(true)}
             className="text-red underline underline-offset-2 decoration-red/40 hover:decoration-red transition-colors cursor-pointer font-semibold"
           >
-            See what's included →
+            Claim yours →
           </button>
         </p>
       </Motion.div>
@@ -1424,12 +1424,12 @@ function App() {
           </article>
           
           <article className="rounded-[12px] border border-border bg-white/80 px-3 py-2 md:px-3.5 md:py-2">
-            <p className="alt text-[19px] leading-[1.06] tracking-[-0.02em] text-red md:text-[20px]">Shark Tank</p>
-            <p className="alt mt-0.5 text-[11px] text-alt/80">Featured</p>
+            <p className="alt text-[19px] leading-[1.06] tracking-[-0.02em] text-red md:text-[20px] ">SHARK TANK</p>
+            <p className="alt mt-0.5 text-[11px] text-alt/80">Featured on</p>
           </article>
           <article className="rounded-[12px] border border-border bg-white/80 px-3 py-2 md:px-3.5 md:py-2">
             <p className="alt text-[19px] leading-[1.06] tracking-[-0.02em] text-red md:text-[20px]">1000+</p>
-            <p className="alt mt-0.5 text-[11px] text-alt/80">Sold</p>
+            <p className="alt mt-0.5 text-[11px] text-alt/80">Pieces sold</p>
           </article>
           <article className="rounded-[12px] border border-border bg-white/80 px-3 py-2 md:px-3.5 md:py-2">
             <p className="alt text-[19px] leading-[1.06] tracking-[-0.02em] text-red md:text-[20px]">Loved in Europe</p>
@@ -1472,9 +1472,31 @@ function App() {
         <div className="w-[calc(100%+20px)] -mx-[10px] h-[340px] md:w-full md:mx-0" aria-hidden="true" />
       )}
 
-
-
-
+      <div className="flex items-center gap-3 mt-4 mb-10">
+        <span className="text-[13px] alt text-muted-foreground tracking-wide">Follow us:</span>
+        <a
+          href="https://www.instagram.com/sapone_global/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram"
+          className="text-red opacity-100 hover:opacity-50 transition-opacity duration-150"
+        >
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+          </svg>
+        </a>
+        <a
+          href="https://www.tiktok.com/@sapone_global"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="TikTok"
+          className="text-red opacity-100 hover:opacity-50 transition-opacity duration-150"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/>
+          </svg>
+        </a>
+      </div>
 
         <ProblemSection />
 
@@ -1679,8 +1701,8 @@ function App() {
                     <span className="text-text font-medium">552 million bottles landfilled every year in the US alone</span>,
                     a $700B beauty industry that has never once offered a real solution, and a product that costs less to produce, lasts longer, and performs at a premium level.
                   </p>
-                  <blockquote className="border-l-2 border-red pl-4 italic text-text">
-                    "I've been waiting for someone to do this properly."
+                  <blockquote className="border-l-2 border-red pl-4 text-text">
+                    You're one of the first people to back a Shark Tank-funded brand before it hits global shelves.
                   </blockquote>
                   <p>
                     We closed the deal. Since then we've been backed by cosmetic chemists, certified testing labs, and sustainability specialists who helped us take the formula from great to flawless.

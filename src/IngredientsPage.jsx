@@ -220,10 +220,7 @@ function IngredientsPage() {
             </p>
           </div>
 
-          {/* Hero image — full width placeholder */}
-          <div className="w-full rounded-[20px] bg-white/60 border border-border aspect-[21/7] flex items-center justify-center mb-8 overflow-hidden">
-            <p className="alt text-[11px] text-alt/35 uppercase tracking-widest select-none">Shampoo Hero Image</p>
-          </div>
+         
 
           {/* Variant tabs */}
           <div className="flex flex-wrap gap-2 mb-8">
@@ -329,10 +326,6 @@ function IngredientsPage() {
             </p>
           </div>
 
-          {/* Soap hero image */}
-          <div className="w-full rounded-[20px] bg-white/60 border border-border aspect-[21/7] flex items-center justify-center mb-8 overflow-hidden">
-            <p className="alt text-[11px] text-alt/35 uppercase tracking-widest select-none">Soap Hero Image</p>
-          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {soapIngredients.map(({ name, benefit }, i) => (
