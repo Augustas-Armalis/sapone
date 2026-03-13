@@ -23,14 +23,14 @@ export default async function handler(req, res) {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.VERCEL_PROJECT_PRODUCTION_URL ? 'https://' + process.env.VERCEL_PROJECT_PRODUCTION_URL : process.env.URL || 'http://localhost:3000'}/vip-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.VERCEL_PROJECT_PRODUCTION_URL ? 'https://' + process.env.VERCEL_PROJECT_PRODUCTION_URL : process.env.URL || 'http://localhost:3000'}/`,
+      success_url: `${process.env.SITE_URL || 'https://www.sapone.store'}/vip-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.SITE_URL || 'https://www.sapone.store'}/`,
       metadata: { email },
     })
 
     return res.status(200).json({ url: session.url })
   } catch (err) {
     console.error('Stripe error:', err.message)
-    return res.status(500).json({ error: 'Failed to create checkout session' })
+    return res.status(500).json({ error: 'Failed to create checkout session', detail: err.message })
   }
 }
