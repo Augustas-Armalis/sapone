@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion as Motion, useScroll, useTransform } from 'framer-motion'
-import { Tv, Package, Globe, ShieldCheck, Leaf, Truck } from 'lucide-react'
+import { Tv, Package, Globe, ShieldCheck, Leaf, Truck, Gift, Zap, MessageCircle, Flame } from 'lucide-react'
 
 const baseUrl = import.meta.env.BASE_URL
 
@@ -1356,19 +1356,26 @@ function App() {
         transition={{ duration: 0.55, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
         className="flex flex-col items-center gap-0.5 mt-[10px]"
       >
-        <p className="alt text-alt/60! text-center text-[13px]">
-          Free to join. No spam, ever.
-        </p>
-        <p className="alt text-text font-semibold text-center text-[13px]">
-        Only 500 spots · Free soap dish · Early access · Direct line to the founders.{' '}
-          <button
-            type="button"
-            onClick={() => setShowVip(true)}
-            className="text-red underline underline-offset-2 decoration-red/40 hover:decoration-red transition-colors cursor-pointer font-semibold"
-          >
-            Claim yours →
-          </button>
-        </p>
+        <div className="flex items-center justify-center gap-4 mt-2">
+          {[
+            { Icon: Flame, label: '500 spots only' },
+            { Icon: Gift, label: 'FREE soap dish' },
+            { Icon: Zap, label: 'Early access' },
+            { Icon: MessageCircle, label: 'Chat with founders' },
+          ].map(({ Icon, label }) => (
+            <span key={label} className="flex items-center gap-1 alt text-[11px] text-alt/60">
+              <Icon size={11} className="text-red shrink-0" strokeWidth={1.8} />
+              {label}
+            </span>
+          ))}
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowVip(true)}
+          className="alt text-[12px] text-red underline underline-offset-2 decoration-red/40 hover:decoration-red transition-colors cursor-pointer font-semibold mt-1.5"
+        >
+          Unlock VIP perks for €1 →
+        </button>
       </Motion.div>
     </form>
 

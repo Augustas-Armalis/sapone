@@ -26,12 +26,21 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-H31VG6MJ4H');
     </script>
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-cross-origin" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="rating" content="general" />
+
+    <!-- DNS prefetch / preconnect for third-party performance -->
+    <link rel="preconnect" href="https://connect.facebook.net" />
+    <link rel="preconnect" href="https://www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="https://connect.facebook.net" />
+    <link rel="dns-prefetch" href="https://www.facebook.com" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
 
     <!-- Favicons -->
     <link rel="icon" href="/seo/favicon.svg" type="image/svg+xml" />
@@ -50,13 +59,10 @@
     <title>Sapone</title>
     <meta
       name="description"
-      content="Sapone is the world's first 2-in-1 shampoo + soap bar — one product replaces 480 plastic bottles. 91% natural origin. Sulfate-free. Backed by Shark Tank investors. Launching on Kickstarter March 17. Ships to USA & Germany."
-    />
-    <meta
-      name="keywords"
-      content="solid shampoo bar, plastic free shampoo, zero waste shampoo bar, shampoo bar USA, sustainable hair care, eco friendly shampoo, Shark Tank shampoo, 2-in-1 shampoo soap bar, natural shampoo bar, sulfate free shampoo bar, shampoo bar curly hair, shampoo bar colored hair, shampoo bar oily hair, anti dandruff shampoo bar, best shampoo bar 2026, zero waste beauty, sustainable beauty USA, plastic free hair care, Kickstarter shampoo, Sapone, festes Shampoo, plastikfreies Shampoo, Zero Waste Shampoo, nachhaltiges Shampoo, festes Shampoo Deutschland, Shampoo Bar kaufen, Naturshampoo, sulfatfreies Shampoo, Kickstarter Schönheit"
+      content="The world's first 2-in-1 shampoo & soap bar. Zero plastic. 91% natural. Shark Tank backed. Join 800+ on the waitlist — launching March 17."
     />
     <meta name="author" content="Sapone" />
+    <meta name="application-name" content="Sapone" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="theme-color" content="#F7F4ED" />
 
@@ -67,37 +73,46 @@
     <link rel="alternate" hreflang="de" href="https://sapone.store/" />
     <link rel="alternate" hreflang="x-default" href="https://sapone.store/" />
 
-    <!-- Geo targeting -->
+    <!-- Geo targeting (primary: US) -->
     <meta name="geo.region" content="US" />
     <meta name="geo.placename" content="United States" />
     <meta name="ICBM" content="37.09024, -95.712891" />
 
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
+    <!-- Open Graph — product type for Meta ad catalog compatibility -->
+    <meta property="og:type" content="product" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:locale:alternate" content="de_DE" />
     <meta property="og:site_name" content="Sapone" />
-    <meta property="og:title" content="Sapone® — The 2-in-1 Shampoo Bar. Shark Tank Backed. Launching March 17." />
+    <meta property="og:title" content="Sapone — The 2-in-1 Shampoo Bar" />
     <meta
       property="og:description"
-      content="One bar replaces 480 plastic bottles. 91% natural origin formula. 6 variants for every hair type. Shark Tank backed. Zero plastic. Zero waste. Pre-order now."
+      content="One bar washes your hair and body — and leaves nothing behind. 91% natural origin, sulfate-free, zero plastic. 6 variants for every hair type. Shark Tank backed. Ships to USA & Germany."
     />
     <meta property="og:url" content="https://sapone.store/" />
-    <meta property="og:image" content="https://sapone.store/og-image.jpg" />
+    <meta property="og:image" content="https://sapone.eu/og-image.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Sapone 2-in-1 shampoo and soap bar — plastic-free, sulfate-free, Shark Tank backed" />
+
+    <!-- Product OG tags (Meta Pixel / Facebook catalog) -->
+    <meta property="product:price:amount" content="12.00" />
+    <meta property="product:price:currency" content="EUR" />
+    <meta property="product:availability" content="available for order" />
+    <meta property="product:condition" content="new" />
+    <meta property="product:brand" content="Sapone" />
+    <meta property="product:category" content="Hair Care > Shampoo Bars" />
+    <meta property="product:retailer_item_id" content="sapone-bar-001" />
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@saponestore" />
     <meta name="twitter:creator" content="@saponestore" />
-    <meta name="twitter:title" content="Sapone® — The 2-in-1 Shampoo Bar. Shark Tank Backed." />
+    <meta name="twitter:title" content="Sapone — The 2-in-1 Shampoo Bar" />
     <meta
       name="twitter:description"
-      content="One bar replaces 480 plastic bottles. 91% natural, sulfate-free, 6 hair types. Launching on Kickstarter March 17."
+      content="One bar for hair and body. Zero plastic. 91% natural. 6 variants. Shark Tank backed. Join the waitlist — launching March 17."
     />
-    <meta name="twitter:image" content="https://sapone.store/og-image.jpg" />
+    <meta name="twitter:image" content="https://sapone.eu/og-image.jpg" />
     <meta name="twitter:image:alt" content="Sapone — plastic-free 2-in-1 shampoo bar" />
 
     <!-- Schema: Organization -->
@@ -107,28 +122,62 @@
         "@type": "Organization",
         "name": "Sapone",
         "url": "https://sapone.store/",
-        "logo": "https://sapone.store/seo/favicon.png",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://sapone.store/seo/favicon.png",
+          "width": 512,
+          "height": 512
+        },
         "description": "Sapone makes the world's first 2-in-1 shampoo and soap bar — plastic-free, 91% natural origin, and backed by Shark Tank investors.",
+        "foundingDate": "2024",
         "foundingLocation": {
           "@type": "Place",
           "name": "Lithuania"
         },
-        "sameAs": []
+        "areaServed": ["US", "DE", "GB"],
+        "sameAs": [
+          "https://www.instagram.com/sapone_global/",
+          "https://www.tiktok.com/@sapone_global"
+        ]
       }
     </script>
 
-    <!-- Schema: WebSite + Sitelinks Searchbox -->
+    <!-- Schema: WebSite -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "Sapone",
         "url": "https://sapone.store/",
-        "description": "Sapone is the 2-in-1 shampoo bar that replaces 480 plastic bottles. Plastic-free, 91% natural, Shark Tank backed.",
+        "description": "Sapone is the world's first 2-in-1 shampoo and soap bar — replaces 480 plastic bottles, 91% natural, Shark Tank backed.",
+        "inLanguage": ["en-US", "de-DE"],
         "potentialAction": {
           "@type": "SearchAction",
-          "target": "https://sapone.store/?q={search_term_string}",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://sapone.store/?q={search_term_string}"
+          },
           "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+
+    <!-- Schema: WebPage -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Sapone",
+        "url": "https://sapone.store/",
+        "description": "The world's first 2-in-1 shampoo and soap bar. Zero plastic, 91% natural, Shark Tank backed. Join the waitlist — launching March 17.",
+        "inLanguage": "en-US",
+        "isPartOf": {
+          "@type": "WebSite",
+          "url": "https://sapone.store/"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Sapone"
         }
       }
     </script>
@@ -139,29 +188,51 @@
         "@context": "https://schema.org",
         "@type": "Product",
         "name": "Sapone 2-in-1 Shampoo & Soap Bar",
-        "description": "The world's first 2-in-1 shampoo and soap bar in a single package. 91% natural origin formula, sulfate-free, paraben-free, microplastic-free. Available in 6 variants: Curly, Straight, Colored, Oily, Anti-Dandruff, and Universal. One product replaces 480 plastic bottles over a lifetime.",
+        "description": "The world's first 2-in-1 shampoo and soap bar. Liquid shampoo core encased in a solid soap shell — one bar washes hair and body, leaves nothing behind. 91% natural origin formula, sulfate-free, paraben-free, microplastic-free. Available in 6 variants for every hair type. Replaces 480 plastic bottles over a lifetime.",
         "brand": {
           "@type": "Brand",
           "name": "Sapone"
         },
-        "image": "https://sapone.store/og-image.jpg",
+        "image": [
+          "https://sapone.eu/og-image.jpg"
+        ],
         "url": "https://sapone.store/",
-        "offers": {
-          "@type": "Offer",
-          "availability": "https://schema.org/PreOrder",
-          "priceCurrency": "USD",
-          "priceValidUntil": "2026-03-17",
-          "url": "https://sapone.store/",
-          "seller": {
-            "@type": "Organization",
-            "name": "Sapone"
+        "sku": "sapone-bar-001",
+        "material": "91% Natural Origin",
+        "offers": [
+          {
+            "@type": "Offer",
+            "priceCurrency": "EUR",
+            "price": "12.00",
+            "priceValidUntil": "2026-03-17",
+            "availability": "https://schema.org/PreOrder",
+            "url": "https://sapone.store/",
+            "seller": { "@type": "Organization", "name": "Sapone" },
+            "shippingDetails": {
+              "@type": "OfferShippingDetails",
+              "shippingDestination": [
+                { "@type": "DefinedRegion", "addressCountry": "US" },
+                { "@type": "DefinedRegion", "addressCountry": "DE" },
+                { "@type": "DefinedRegion", "addressCountry": "GB" }
+              ]
+            }
+          },
+          {
+            "@type": "Offer",
+            "priceCurrency": "USD",
+            "price": "13.00",
+            "priceValidUntil": "2026-03-17",
+            "availability": "https://schema.org/PreOrder",
+            "url": "https://sapone.store/",
+            "seller": { "@type": "Organization", "name": "Sapone" }
           }
-        },
+        ],
         "additionalProperty": [
           { "@type": "PropertyValue", "name": "Formula", "value": "91% Natural Origin" },
           { "@type": "PropertyValue", "name": "Free from", "value": "Sulfates, Parabens, Microplastics" },
           { "@type": "PropertyValue", "name": "Variants", "value": "Curly, Straight, Colored, Oily, Anti-Dandruff, Universal" },
-          { "@type": "PropertyValue", "name": "Backed by", "value": "Shark Tank investors" }
+          { "@type": "PropertyValue", "name": "Backed by", "value": "Shark Tank investors" },
+          { "@type": "PropertyValue", "name": "Bottles replaced", "value": "480 plastic bottles over a lifetime" }
         ]
       }
     </script>
@@ -174,34 +245,26 @@
         "mainEntity": [
           {
             "@type": "Question",
-            "name": "Does the shampoo actually work?",
+            "name": "Does Sapone shampoo actually work?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "91% natural origin formula. Worked with labs. Tested by 1,000+ customers across curly, straight, colored, oily, and sensitive hair types."
+              "text": "Yes. Sapone uses a 91% natural origin formula developed with professional cosmetic labs. Tested by 1,000+ customers across curly, straight, colored, oily, and sensitive hair types. Sulfate-free, paraben-free, and salon-grade performance."
             }
           },
           {
             "@type": "Question",
-            "name": "Won't it get slippery in the shower?",
+            "name": "What happens when the shampoo core runs out?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "The bar is compact, shaped for grip, and textured to hold under running water. Your fingers wrap around it naturally. Tested by real customers and lab-validated."
+              "text": "The ratio is precision-engineered: when the 200ml liquid shampoo core is finished, only a minimal sliver of the outer soap shell remains — and then that dissolves too. No bottle, no waste, nothing left behind."
             }
           },
           {
             "@type": "Question",
-            "name": "What happens when the shampoo runs out?",
+            "name": "How does Sapone shipping work?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Perfect ratio designed through testing. When 200ml shampoo is finished, minimal soap remains. No waste."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "How does shipping work?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Recyclable cardboard box with climate-proof inner layer. Tested −20°C to +40°C. Ships worldwide including USA and Germany. Arrives safe — no melting, no leaking."
+              "text": "Ships worldwide in a fully recyclable cardboard box with a climate-proof inner layer. Tested from −20°C to +40°C. Arrives intact — no melting, no leaking. Shipping to USA and Germany confirmed."
             }
           },
           {
@@ -209,21 +272,37 @@
             "name": "Can I keep Sapone in the shower?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes. Soap dissolves from friction, not just water. The bar is reinforced — stronger than traditional soap. Designed specifically for shower storage."
+              "text": "Yes. The bar is reinforced to dissolve from friction, not standing water — stronger than traditional soap bars. Compact shape with grip-friendly texture. Designed for shower storage."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Won't a shampoo bar get slippery?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Sapone is compact and shaped for grip. The textured surface holds under running water and your fingers wrap around it naturally. Tested by real customers and lab-validated."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is Sapone plastic-free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Completely. Sapone has zero plastic packaging — no bottle, no cap, no wrapper. The outer soap shell IS the packaging. One Sapone bar replaces approximately 480 plastic shampoo bottles over a lifetime."
             }
           }
         ]
       }
     </script>
 
-    <!-- Schema: Event (Kickstarter Launch) -->
+    <!-- Schema: Event (Launch) -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "Event",
         "name": "Sapone Kickstarter Launch",
-        "startDate": "2026-03-17",
-        "endDate": "2026-03-17",
+        "startDate": "2026-03-17T00:00:00Z",
+        "endDate": "2026-04-17T23:59:59Z",
         "eventStatus": "https://schema.org/EventScheduled",
         "eventAttendanceMode": "https://schema.org/OnlineEventAttendanceMode",
         "location": {
@@ -235,7 +314,15 @@
           "name": "Sapone",
           "url": "https://sapone.store/"
         },
-        "description": "Sapone officially launches on Kickstarter. The world's first 2-in-1 shampoo and soap bar — plastic-free, 91% natural, Shark Tank backed. Early bird deals available to waitlist subscribers."
+        "offers": {
+          "@type": "Offer",
+          "price": "12.00",
+          "priceCurrency": "EUR",
+          "availability": "https://schema.org/LimitedAvailability",
+          "url": "https://sapone.store/",
+          "validFrom": "2026-03-17T00:00:00Z"
+        },
+        "description": "Sapone officially launches on Kickstarter March 17th. The world's first 2-in-1 shampoo and soap bar — plastic-free, 91% natural origin, Shark Tank backed. Early bird pricing for first 500 backers."
       }
     </script>
   </head>
