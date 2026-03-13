@@ -203,7 +203,6 @@ function IngredientsSection({ onVip }) {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
 
-          {/* Left */}
           <Reveal className="flex flex-col">
             <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-5 w-fit">
               Ingredients
@@ -249,7 +248,6 @@ function IngredientsSection({ onVip }) {
             </button>
           </Reveal>
 
-          {/* Right: ingredient image — matches left column height */}
           <Reveal delay={0.12} className="relative rounded-[20px] overflow-hidden  border border-border self-stretch min-h-[320px] lg:min-h-0">
             <img
               src={`${baseUrl}images/sudetis.webp`}
@@ -265,7 +263,6 @@ function IngredientsSection({ onVip }) {
     </section>
   )
 }
-
 
 function AboutSection() {
   return (
@@ -285,7 +282,6 @@ function AboutSection() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-stretch">
 
-          {/* Left: story image — full height of right column */}
           <Reveal delay={0.14} className="relative rounded-[20px] bg-white/60 border border-border w-full overflow-hidden order-2 lg:order-1 min-h-[320px] lg:min-h-0 lg:h-full lg:self-stretch">
             <img
               src={`${baseUrl}images/thestory.webp`}
@@ -296,7 +292,6 @@ function AboutSection() {
             />
           </Reveal>
 
-          {/* Right: story */}
           <div className="flex flex-col gap-5 order-1 lg:order-2 pt-1">
 
             <Reveal>
@@ -396,10 +391,8 @@ function ProblemSection() {
   return (
     <section className="w-full px-4 md:px-10 mt-[72px] md:mt-[128px] mb-[64px] md:mb-[64px]">
       <div className="max-w-[1000px] mx-auto">
-        {/* Left/Right grid */}
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-stretch">
 
-          {/* LEFT */}
           <div className="flex-1 min-w-0 flex flex-col">
             <Reveal className="self-center lg:self-start">
               <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-4 w-fit">
@@ -412,11 +405,9 @@ function ProblemSection() {
               </h2>
             </Reveal>
 
-            {/* Cards with vertical progress bar on left */}
             <div className="flex flex-col gap-2 flex-1">
               {PROBLEM_ITEMS.map((item, i) => (
                 <Reveal key={i} delay={0.14 + i * 0.08} className="flex items-stretch gap-2.5">
-                  {/* Vertical progress track */}
                   <button
                     onClick={() => setActive(i)}
                     className="w-[3px] shrink-0 rounded-full overflow-hidden bg-border cursor-pointer"
@@ -430,7 +421,6 @@ function ProblemSection() {
                       transition={active === i ? { duration: 3, ease: 'linear' } : { duration: 0.15 }}
                     />
                   </button>
-                  {/* Card */}
                   <button
                     onClick={() => setActive(i)}
                     className={`flex-1 text-left rounded-[14px] px-5 py-4 border transition-all duration-300 cursor-pointer ${
@@ -456,7 +446,6 @@ function ProblemSection() {
             </div>
           </div>
 
-          {/* RIGHT: image — full height matching left column */}
           <Reveal delay={0.15} className="w-full lg:w-[400px] xl:w-[440px] shrink-0">
             <div className="relative w-full h-full min-h-[340px] lg:min-h-0 rounded-[20px] overflow-hidden bg-[#e8e4da]">
               <AnimatePresence mode="wait">
@@ -477,7 +466,6 @@ function ProblemSection() {
                 </Motion.div>
               </AnimatePresence>
 
-              {/* Active indicator dots */}
               <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5">
                 {PROBLEM_ITEMS.map((_, i) => (
                   <button
@@ -609,7 +597,6 @@ function FinalCtaSection({ onSuccess, onVip, waitlistCount }) {
     <section id="final-cta" className="w-full bg-[#27262b] px-4 md:px-10 py-[80px] md:py-[120px]">
       <div className="max-w-[500px] mx-auto">
 
-        {/* Header */}
         <Reveal className="text-center mb-10">
           <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-[#e8637a] bg-[#862737]/20 border border-[#862737]/30 rounded-full px-3 py-1 mb-5 w-fit">
             Limited Early Access
@@ -619,10 +606,8 @@ function FinalCtaSection({ onSuccess, onVip, waitlistCount }) {
           </h2>
         </Reveal>
 
-        {/* Inner card — slightly lighter */}
         <Reveal delay={0.1} className="rounded-[22px] bg-white/6 border border-white/8 px-7 py-8 md:px-10 md:py-10">
 
-          {/* Price box */}
           <div className="rounded-[14px] bg-white/9 border border-white/10 px-5 py-4 mb-6 flex items-center justify-between gap-4">
             <div>
               <div className="flex items-baseline gap-2.5 mb-0.5">
@@ -717,14 +702,12 @@ function SiteFooter() {
   return (
     <footer ref={footerRef} className="w-full bg-[#862737] overflow-hidden relative">
 
-      {/* Watermark — sits behind the badge grid, top-aligned to the content start */}
       <div className="absolute inset-x-0 top-0 pointer-events-none select-none flex justify-center overflow-hidden pt-16 md:pt-24">
         <span className="title leading-none whitespace-nowrap text-white/5" style={{ fontSize: 'clamp(110px, 28vw, 320px)' }}>
           Sapone
         </span>
       </div>
 
-      {/* Badge grid */}
       <div className="relative z-5 px-4 md:px-10 pt-16 md:pt-24 pb-10 md:pb-[260px] max-w-[860px] mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {footerBadges.map(({ Icon, label }, i) => (
@@ -743,7 +726,6 @@ function SiteFooter() {
         </div>
       </div>
 
-
       <div className="hidden md:block absolute inset-x-0 top-0 bottom-[57px] pointer-events-none select-none z-15" aria-hidden="true">
         <Motion.div style={{ y: bottle0Y, rotate: -13 }} className="absolute left-[1%] bottom-0 w-[170px] lg:w-[210px]">
           <img src={`${baseUrl}images/raudonas.webp`} alt="" className="w-full h-auto object-contain" loading="lazy" />
@@ -758,7 +740,6 @@ function SiteFooter() {
           <img src={`${baseUrl}images/melynas.webp`} alt="" className="w-full h-auto object-contain" loading="lazy" />
         </Motion.div>
       </div>
-
 
       <div className="relative z-20 bg-white/5 backdrop-blur-md border-t border-white/10 px-5 md:px-10 py-5">
         <div className="max-w-[860px] mx-auto flex flex-row items-center justify-between">
@@ -908,7 +889,6 @@ function VipModal({ onClose }) {
         style={{ backgroundColor: 'var(--bg)', scrollbarWidth: 'none', overscrollBehavior: 'contain' }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full border border-border text-alt hover:text-text transition-colors cursor-pointer"
@@ -941,7 +921,6 @@ function VipModal({ onClose }) {
             </div>
           ) : (
             <>
-              {/* Header */}
               <div className="mb-6 pr-8">
                 <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-4">
                   €1 · Early Believer Access
@@ -954,9 +933,7 @@ function VipModal({ onClose }) {
                 </p>
               </div>
 
-              {/* Perks — accordion on mobile, 2-col cards on sm+ */}
               <div className="mb-6">
-                {/* Mobile: accordion */}
                 <div className="sm:hidden flex flex-col border border-border rounded-[14px] overflow-hidden divide-y divide-border">
                   {VIP_PERKS.map(({ icon, title, desc }, i) => (
                     <div key={title}>
@@ -991,7 +968,6 @@ function VipModal({ onClose }) {
                   ))}
                 </div>
 
-                {/* Desktop: 2-col cards */}
                 <div className="hidden sm:grid sm:grid-cols-2 gap-2.5">
                   {VIP_PERKS.map(({ icon, title, desc }) => (
                     <div key={title} className="flex gap-3 rounded-[14px] border border-border bg-white/60 px-4 py-3.5">
@@ -1005,7 +981,6 @@ function VipModal({ onClose }) {
                 </div>
               </div>
 
-              {/* Form */}
               <form onSubmit={handleSubmit} className="flex flex-col gap-2.5">
                 <input
                   type="email"
@@ -1094,7 +1069,6 @@ function VipSuccess() {
       <div className="grain" aria-hidden="true" />
       <div className="relative z-10 w-full max-w-[560px] mx-auto flex flex-col items-center text-center">
 
-        {/* Crown icon */}
         <Motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1109,7 +1083,6 @@ function VipSuccess() {
           </svg>
         </Motion.div>
 
-        {/* Headline */}
         <Motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1119,7 +1092,6 @@ function VipSuccess() {
           You're officially VIP.
         </Motion.h1>
 
-        {/* Email badge */}
         {email && (
           <Motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -1132,7 +1104,6 @@ function VipSuccess() {
           </Motion.div>
         )}
 
-        {/* Subtext */}
         <Motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1142,7 +1113,6 @@ function VipSuccess() {
           Welcome to the inner circle. You backed us before the world knew — and we won't forget that.
         </Motion.p>
 
-        {/* Perks grid */}
         <Motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1157,7 +1127,6 @@ function VipSuccess() {
           ))}
         </Motion.div>
 
-        {/* Back button */}
         <Motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1212,10 +1181,8 @@ function App() {
     target: perspectiveSectionRef,
     offset: ['start end', 'end start'],
   })
-  // Far images (top, smaller) → biggest Y range = fastest = furthest depth
   const img1Y = useTransform(pProgress, [0, 1], [200, -320])
   const img2Y = useTransform(pProgress, [0, 1], [160, -260])
-  // Near images (bottom, larger) → slower than top but still prominent
   const img3Y = useTransform(pProgress, [0, 1], [110, -180])
   const img4Y = useTransform(pProgress, [0, 1], [130, -200])
 
@@ -1294,13 +1261,10 @@ function App() {
       <div className="grain" aria-hidden="true" />
       <div className="relative z-10 flex items-center justify-start flex-col h-fit px-[10px] md:px-0 overflow-x-clip">
 
-
-
     <Motion.p
         initial={{ opacity: 0, y: 0, filter: 'blur(6px)' }}
         animate={{ opacity: 1, y: 10, filter: 'blur(0px)' }}
         transition={{ duration: 0.55, delay: 0.15, ease: [0.22, 1, 0.36, 1] }} className="title text-[24px] tracking-[-0.04em] mb-[72px] md:mb-[92px]">Sapone</Motion.p>
-
 
     <div className="flex items-center justify-center flex-col mb-[40px] md:mb-[64px]">
 
@@ -1343,8 +1307,6 @@ function App() {
         Zero Plastic. 95% Natural. Zero waste.
       </Motion.p>
     </div>
-
-
 
     <form
       className="flex items-center w-full justify-center flex-col mb-[72px] md:mb-[112px]"
@@ -1410,7 +1372,6 @@ function App() {
       </Motion.div>
     </form>
 
-
     <Motion.section
       initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
       animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
@@ -1438,10 +1399,6 @@ function App() {
       </div>
     </Motion.section>
     
-
-
-
-
 
       {showCarousel ? (
         <Motion.section
@@ -1504,7 +1461,6 @@ function App() {
           ref={perspectiveSectionRef}
           className="relative w-full min-h-screen lg:min-h-[70vh] flex items-center justify-center"
         >
-          {/* Desktop: top-left — spread wide apart */}
           <Motion.figure
             style={{ y: img1Y }}
             className="hidden lg:block absolute top-[26%] left-[11%] w-[138px] aspect-4/5 rounded-[16px] overflow-hidden m-0 -rotate-12"
@@ -1512,7 +1468,6 @@ function App() {
             <img src={`${baseUrl}images/geltonas.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
           </Motion.figure>
 
-          {/* Desktop: top-right — spread wide apart */}
           <Motion.figure
             style={{ y: img2Y }}
             className="hidden lg:block absolute top-[18%] right-[10%] w-[145px] aspect-4/5 rounded-[16px] overflow-hidden m-0 rotate-9"
@@ -1520,7 +1475,6 @@ function App() {
             <img src={`${baseUrl}images/melynas.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
           </Motion.figure>
 
-          {/* Desktop: bottom-left — closer together near center */}
           <Motion.figure
             style={{ y: img3Y }}
             className="hidden lg:block absolute top-[63%] left-[24%] w-[215px] aspect-3/4 rounded-[16px] overflow-hidden m-0 -rotate-5"
@@ -1528,7 +1482,6 @@ function App() {
             <img src={`${baseUrl}images/zalias.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
           </Motion.figure>
 
-          {/* Desktop: bottom-right — closer together near center */}
           <Motion.figure
             style={{ y: img4Y }}
             className="hidden lg:block absolute top-[67%] right-[23%] w-[200px] aspect-3/4 rounded-[16px] overflow-hidden m-0 rotate-7"
@@ -1536,7 +1489,6 @@ function App() {
             <img src={`${baseUrl}images/raudonas.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
           </Motion.figure>
 
-          {/* Mobile: top-left — high up, big tilt */}
           <Motion.figure
             style={{ y: img1Y }}
             className="lg:hidden absolute top-[2%] left-[-2%] w-[145px] aspect-3/4 rounded-[16px] overflow-hidden m-0 z-20 -rotate-6"
@@ -1544,7 +1496,6 @@ function App() {
             <img src={`${baseUrl}images/melynas.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
           </Motion.figure>
 
-          {/* Mobile: top-right — lower and more tilted */}
           <Motion.figure
             style={{ y: img2Y }}
             className="lg:hidden absolute top-[14%] right-[-2%] w-[118px] aspect-3/4 rounded-[16px] overflow-hidden m-0 z-20 rotate-12"
@@ -1552,7 +1503,6 @@ function App() {
             <img src={`${baseUrl}images/zalias.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
           </Motion.figure>
 
-          {/* Mobile: bottom-left — near bottom edge */}
           <Motion.figure
             style={{ y: img3Y }}
             className="lg:hidden absolute bottom-[2%] left-[0%] w-[150px] aspect-3/4 rounded-[16px] overflow-hidden m-0 z-20 rotate-6"
@@ -1560,7 +1510,6 @@ function App() {
             <img src={`${baseUrl}images/geltonas.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
           </Motion.figure>
 
-          {/* Mobile: bottom-right — higher from bottom, opposite tilt */}
           <Motion.figure
             style={{ y: img4Y }}
             className="lg:hidden absolute bottom-[13%] right-[-1%] w-[125px] aspect-3/4 rounded-[16px] overflow-hidden m-0 z-20 -rotate-12"
@@ -1568,7 +1517,6 @@ function App() {
             <img src={`${baseUrl}images/raudonas.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
           </Motion.figure>
 
-          {/* Center content */}
           <Reveal className="relative z-10 text-center max-w-[420px]">
             <h2 className="title text-[32px]   md:text-[36px] leading-[1.08] tracking-[-0.04em]! mb-[8px]">
               WHAT IF THE BOTTLE WAS THE PRODUCT?
@@ -1582,12 +1530,8 @@ function App() {
           </Reveal>
         </section>
 
-
-
-        {/* SECTION 3: THE SOLUTION */}
         <section className="w-full max-w-[1100px] px-4 md:px-10 pt-[32px] md:pt-[142px] pb-[72px] md:pb-[112px]">
 
-          {/* Header */}
           <Reveal className="flex flex-col items-center text-center mb-[48px] md:mb-[64px]">
             <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-5">
               The Solution
@@ -1600,7 +1544,6 @@ function App() {
             </p>
           </Reveal>
 
-          {/* 3-step cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
             {[
               {
@@ -1608,33 +1551,49 @@ function App() {
                 title: 'WASH YOUR HAIR',
                 desc: 'Start with the shampoo core. Work it through wet hair exactly like a regular shampoo — rich lather, full clean.',
                 delay: 0,
+                video: '/video/step1.mp4',
               },
               {
                 n: '2',
                 title: 'WASH YOUR BODY',
                 desc: 'The outer soap layer is right there. No second product needed. Lather up and wash your body with the same bar.',
                 delay: 0.08,
+                video: '/video/step2.mp4',
               },
               {
                 n: '3',
                 title: 'NOTHING LEFT BEHIND',
                 desc: "As the shampoo core is used up, only a tiny sliver of soap remains — and then that's gone too. No bottle. No waste. Nothing left behind.",
                 delay: 0.16,
+                video: null,
               },
-            ].map(({ n, title, desc, delay }) => (
+            ].map(({ n, title, desc, delay, video }) => (
               <Reveal key={n} delay={delay} className="flex flex-col">
               <article className="flex flex-col bg-white/80 border border-border rounded-[20px] overflow-hidden h-full">
-                {/* Media area */}
-                <div className="relative w-full aspect-[3/2] bg-[#ece8e0] flex items-center justify-center border-b border-border overflow-hidden">
-                  <span className="title text-[80px] leading-none tracking-[-0.04em] text-[#1b1b1f]/[0.06] select-none">{n}</span>
-                  <p className="absolute alt text-[11px] text-alt/35 uppercase tracking-widest select-none">Image / Video</p>
-                  {/* Step badge */}
+                <div className="relative w-full aspect-square bg-[#ece8e0] flex items-center justify-center border-b border-border overflow-hidden">
+                  {video ? (
+                    <video
+                      src={video}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      disablePictureInPicture
+                      disableRemotePlayback
+                      className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                      tabIndex={-1}
+                    />
+                  ) : (
+                    <>
+                      <span className="title text-[80px] leading-none tracking-[-0.04em] text-[#1b1b1f]/[0.06] select-none">{n}</span>
+                      <p className="absolute alt text-[11px] text-alt/35 uppercase tracking-widest select-none">Image / Video</p>
+                    </>
+                  )}
                   <div className="absolute top-3.5 left-3.5 flex items-center border border-red gap-1 bg-[#862737]/70 backdrop-blur-sm rounded-full px-2.5 py-1">
                     <span className="alt text-[11px] font-semibold text-white/80 uppercase tracking-[0.06em]">Step</span>
                     <span className="alt text-[12px] font-bold text-white">{n}</span>
                   </div>
                 </div>
-                {/* Content */}
                 <div className="p-5 flex flex-col flex-1">
                   <h3 className="title text-[18px] md:text-[20px] leading-[1.15] tracking-[-0.02em] mb-2.5 uppercase">
                     {title}
@@ -1650,14 +1609,11 @@ function App() {
 
         </section>
 
-        {/* SHARK TANK SECTION */}
         <section className="w-full">
           <div className="max-w-[1080px] mx-auto px-4 md:px-10">
 
-            {/* ── Desktop: sticky left image + scrolling right copy ── */}
             <div className="hidden lg:grid lg:grid-cols-[1.1fr_1fr] gap-16 py-[72px] md:py-[112px]">
 
-              {/* Left column: sticky centered — top offset = 50vh minus half the image height */}
               <div className="self-start sticky" style={{ top: 'calc(50svh - 150px)' }}>
                 <Reveal className="w-full">
                   <div className="relative rounded-[20px] overflow-hidden bg-[#ece8e0] border border-border aspect-video flex items-center justify-center">
@@ -1678,7 +1634,6 @@ function App() {
                 </Reveal>
               </div>
 
-              {/* Right column: scrolling copy */}
               <Reveal delay={0.1} className="flex flex-col justify-center">
                 <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-5 w-fit">
                   As seen on Shark Tank
@@ -1715,7 +1670,6 @@ function App() {
 
             </div>
 
-            {/* ── Mobile: stacked ── */}
             <div className="lg:hidden py-[72px]">
               <div className="relative rounded-[20px] overflow-hidden bg-[#ece8e0] border border-border aspect-video flex items-center justify-center mb-8">
                 <video
@@ -1766,7 +1720,6 @@ function App() {
           </div>
         </section>
 
-        {/* SECTION 4: FAQ */}
         <section className="w-full max-w-[740px] px-4 md:px-10 pt-[48px] md:pt-[72px] pb-[96px] md:pb-[128px]">
 
           <Reveal className="flex flex-col items-center text-center mb-[48px] md:mb-[64px]">
@@ -1852,19 +1805,14 @@ function App() {
 
       </div>
 
-      {/* SECTION 5: STACKING TRUST CARDS — outside overflow wrapper so sticky works */}
       <TrustStackSection />
 
-      {/* SECTION 6: INGREDIENTS */}
       <IngredientsSection onViewFull={() => setShowIngredients(true)} onVip={() => setShowVip(true)} />
 
-      {/* SECTION 7: ABOUT */}
       <AboutSection />
 
-      {/* SECTION 8: FINAL CTA */}
       <FinalCtaSection onSuccess={() => setSubmitted(true)} onVip={() => setShowVip(true)} waitlistCount={waitlistCount} />
 
-      {/* FOOTER */}
       <SiteFooter />
 
       <AnimatePresence>
