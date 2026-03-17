@@ -5,8 +5,8 @@ import { Tv, Package, Globe, ShieldCheck, Leaf, Truck, Gift, Zap, MessageCircle,
 const baseUrl = import.meta.env.BASE_URL
 
 let globalLenis = null
-const SAPONE_LAUNCH_DATE = '20260317'
-const SAPONE_LAUNCH_EVENT_URL = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Sapone Launch')}&dates=${SAPONE_LAUNCH_DATE}/${'20260318'}&details=${encodeURIComponent('Sapone officially launches today.')}&location=${encodeURIComponent('Online')}`
+const SAPONE_LAUNCH_DATE = '20260407'
+const SAPONE_LAUNCH_EVENT_URL = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Sapone Launch')}&dates=${SAPONE_LAUNCH_DATE}/${'20260408'}&details=${encodeURIComponent('Sapone officially launches today.')}&location=${encodeURIComponent('Online')}`
 
 async function subscribeToMailerLite(email) {
   const res = await fetch('/api/subscribe', {
@@ -558,7 +558,7 @@ function SuccessOverlay({ onBack }) {
         </h1>
         <p className="alt text-[16px] text-alt max-w-[260px] leading-snug">
           We'll reach out on{' '}
-          <span className="font-medium" style={{ color: 'var(--red)' }}>March 17th</span>{' '}
+          <span className="font-medium" style={{ color: 'var(--red)' }}>April 7th</span>{' '}
           with your early bird deal.
         </p>
 
@@ -602,7 +602,7 @@ function FinalCtaSection({ onSuccess, onVip, waitlistCount }) {
             Limited Early Access
           </span>
           <h2 className="title text-[24px] md:text-[36px] leading-[1.04] tracking-[-0.04em]! uppercase text-white">
-            Launching March 17th
+            Launching April 7th
           </h2>
         </Reveal>
 
@@ -659,7 +659,7 @@ function FinalCtaSection({ onSuccess, onVip, waitlistCount }) {
 
           <ul className="flex flex-col gap-2.5 border-t border-white/8 pt-5">
             {[
-              'Launch day notification (March 17th)',
+              'Launch day notification (April 7th)',
               'Exclusive early bird pricing',
               'Behind-the-scenes updates',
               'First access to new scents',
@@ -1168,6 +1168,24 @@ function App() {
   const [openFaq, setOpenFaq] = useState(0)
   const [submitted, setSubmitted] = useState(false)
   const [showVip, setShowVip] = useState(false)
+  const faqSectionRef = useRef(null)
+  const vipFaqTriggered = useRef(false)
+  useEffect(() => {
+    const el = faqSectionRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !vipFaqTriggered.current) {
+          vipFaqTriggered.current = true
+          setShowVip(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.2 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
   const [heroEmail, setHeroEmail] = useState('')
   const [heroSubmitting, setHeroSubmitting] = useState(false)
   const [heroError, setHeroError] = useState('')
@@ -1288,7 +1306,7 @@ function App() {
       >
         <span className="live-dot" aria-hidden="true" />
         
-        <p className="text-[14px] alt text-text ml-[12px]!">Launching March 17th.</p>
+        <p className="text-[14px] alt text-text ml-[12px]!">Launching April 7th.</p>
         <a
           href={SAPONE_LAUNCH_EVENT_URL}
           target="_blank"
@@ -1549,6 +1567,25 @@ function App() {
           </Reveal>
         </section>
 
+        {/* ORIGINAL 3-STEP SOLUTIONS SECTION — commented out
+        <section className="w-full max-w-[1100px] px-4 md:px-10 pt-[32px] md:pt-[142px] pb-[72px] md:pb-[112px]">
+          <Reveal className="flex flex-col items-center text-center mb-[48px] md:mb-[64px]">
+            <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-5">
+              The Solution
+            </span>
+            <h2 className="title text-[24px] md:text-[36px] leading-[1.06] tracking-[-0.04em]! mb-4 max-w-[560px] uppercase">
+              HOW SAPONE WORKS
+            </h2>
+            <p className="alt text-[15px] md:text-[16px] text-alt! max-w-[360px] leading-relaxed">
+              One bar. Two functions. Zero waste left behind.
+            </p>
+          </Reveal>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
+            ...3 cards with step badges...
+          </div>
+        </section>
+        END ORIGINAL SOLUTIONS SECTION */}
+
         <section className="w-full max-w-[1100px] px-4 md:px-10 pt-[32px] md:pt-[142px] pb-[72px] md:pb-[112px]">
 
           <Reveal className="flex flex-col items-center text-center mb-[48px] md:mb-[64px]">
@@ -1563,34 +1600,24 @@ function App() {
             </p>
           </Reveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             {[
               {
-                n: '1',
                 title: 'WASH YOUR HAIR',
                 desc: 'Start with the shampoo core. Work it through wet hair exactly like a regular shampoo — rich lather, full clean.',
                 delay: 0,
                 video: '/video/step1.mp4',
               },
               {
-                n: '2',
                 title: 'WASH YOUR BODY',
                 desc: 'The outer soap layer is right there. No second product needed. Lather up and wash your body with the same bar.',
-                delay: 0.08,
+                delay: 0.1,
                 video: '/video/step2.mp4',
               },
-              {
-                n: '3',
-                title: 'NOTHING LEFT BEHIND',
-                desc: "As the shampoo core is used up, only a tiny sliver of soap remains — and then that's gone too. No bottle. No waste. Nothing left behind.",
-                delay: 0.16,
-                video: null,
-              },
-            ].map(({ n, title, desc, delay, video }) => (
-              <Reveal key={n} delay={delay} className="flex flex-col">
-              <article className="flex flex-col bg-white/80 border border-border rounded-[20px] overflow-hidden h-full">
-                <div className="relative w-full aspect-square bg-[#ece8e0] flex items-center justify-center border-b border-border overflow-hidden">
-                  {video ? (
+            ].map(({ title, desc, delay, video }) => (
+              <Reveal key={title} delay={delay} className="flex flex-col">
+                <article className="flex flex-col bg-white/80 border border-border rounded-[20px] overflow-hidden h-full">
+                  <div className="relative w-full aspect-[4/3] bg-[#ece8e0] border-b border-border overflow-hidden">
                     <video
                       src={video}
                       autoPlay
@@ -1602,26 +1629,16 @@ function App() {
                       className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                       tabIndex={-1}
                     />
-                  ) : (
-                    <>
-                      <span className="title text-[80px] leading-none tracking-[-0.04em] text-[#1b1b1f]/[0.06] select-none">{n}</span>
-                      <p className="absolute alt text-[11px] text-alt/35 uppercase tracking-widest select-none">Image / Video</p>
-                    </>
-                  )}
-                  <div className="absolute top-3.5 left-3.5 flex items-center border border-red gap-1 bg-[#862737]/70 backdrop-blur-sm rounded-full px-2.5 py-1">
-                    <span className="alt text-[11px] font-semibold text-white/80 uppercase tracking-[0.06em]">Step</span>
-                    <span className="alt text-[12px] font-bold text-white">{n}</span>
                   </div>
-                </div>
-                <div className="p-5 flex flex-col flex-1">
-                  <h3 className="title text-[18px] md:text-[20px] leading-[1.15] tracking-[-0.02em] mb-2.5 uppercase">
-                    {title}
-                  </h3>
-                  <p className="alt text-[14px] !text-alt leading-relaxed flex-1">
-                    {desc}
-                  </p>
-                </div>
-              </article>
+                  <div className="p-6 md:p-8 flex flex-col flex-1">
+                    <h3 className="title text-[20px] md:text-[24px] leading-[1.15] tracking-[-0.02em] mb-3 uppercase">
+                      {title}
+                    </h3>
+                    <p className="alt text-[14px] md:text-[15px] !text-alt leading-relaxed flex-1">
+                      {desc}
+                    </p>
+                  </div>
+                </article>
               </Reveal>
             ))}
           </div>
@@ -1739,94 +1756,94 @@ function App() {
           </div>
         </section>
 
-        <section className="w-full max-w-[740px] px-4 md:px-10 pt-[48px] md:pt-[72px] pb-[96px] md:pb-[128px]">
-
-          <Reveal className="flex flex-col items-center text-center mb-[48px] md:mb-[64px]">
-            <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-5">
-              FAQ
-            </span>
-            <h2 className="title text-[24px] md:text-[36px] leading-[1.06] tracking-[-0.04em]! uppercase">
-              Your questions answered
-            </h2>
-          </Reveal>
-
-          <div className="flex flex-col">
-            {faqs.map((faq, i) => {
-              const isOpen = openFaq === i
-              return (
-                <Reveal key={i} delay={i * 0.06} className="border-t border-border last:border-b">
-                  <button
-                    onClick={() => setOpenFaq(isOpen ? null : i)}
-                    className="group w-full flex items-center justify-between gap-6 py-5 text-left cursor-pointer"
-                  >
-                    <span className={`alt text-[15px] md:text-[17px] font-medium transition-colors duration-150 ${isOpen ? 'text-red' : 'text-text'} group-hover:underline decoration-border underline-offset-4`}>
-                      {faq.q}
-                    </span>
-                    <Motion.span
-                      animate={{ rotate: isOpen ? 45 : 0 }}
-                      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                      className="shrink-0 w-5 h-5 flex items-center justify-center text-red text-[22px] leading-none select-none"
-                    >
-                      +
-                    </Motion.span>
-                  </button>
-
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <Motion.div
-                        key="answer"
-                        initial={{ height: 0 }}
-                        animate={{ height: 'auto' }}
-                        exit={{ height: 0 }}
-                        transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
-                        className="overflow-hidden"
-                      >
-                        <Motion.div
-                          initial={{ opacity: 0, y: -6, scale: 0.97 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: -4, scale: 0.97 }}
-                          transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
-                          className="origin-top"
-                        >
-                          <div className="pb-5 pr-10">
-                            <p className="alt text-[13px] md:text-[14px] text-alt leading-relaxed">
-                              {faq.a}
-                            </p>
-                            {faq.bullets && (
-                              <div className="flex flex-wrap gap-2 mt-3">
-                                {faq.bullets.map((b, j) => (
-                                  <span key={j} className="alt text-[12px] text-text bg-red/6 border border-red/12 rounded-full px-3 py-1">
-                                    {b}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </Motion.div>
-                      </Motion.div>
-                    )}
-                  </AnimatePresence>
-                </Reveal>
-              )
-            })}
-          </div>
-
-          <div className="flex justify-center mt-[48px]">
-            <button
-              onClick={scrollToCta}
-              className="px-10 py-[11px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out"
-            >
-              Join the waitlist
-            </button>
-          </div>
-
-        </section>
-
       </div>
+
+      <IngredientsSection onViewFull={() => setShowIngredients(true)} onVip={() => {}} />
 
       <TrustStackSection />
 
-      <IngredientsSection onViewFull={() => setShowIngredients(true)} onVip={() => setShowVip(true)} />
+      <section ref={faqSectionRef} className="w-full max-w-[740px] px-4 md:px-10 pt-[48px] md:pt-[72px] pb-[96px] md:pb-[128px] mx-auto">
+
+        <Reveal className="flex flex-col items-center text-center mb-[48px] md:mb-[64px]">
+          <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-5">
+            FAQ
+          </span>
+          <h2 className="title text-[24px] md:text-[36px] leading-[1.06] tracking-[-0.04em]! uppercase">
+            Your questions answered
+          </h2>
+        </Reveal>
+
+        <div className="flex flex-col">
+          {faqs.map((faq, i) => {
+            const isOpen = openFaq === i
+            return (
+              <Reveal key={i} delay={i * 0.06} className="border-t border-border last:border-b">
+                <button
+                  onClick={() => setOpenFaq(isOpen ? null : i)}
+                  className="group w-full flex items-center justify-between gap-6 py-5 text-left cursor-pointer"
+                >
+                  <span className={`alt text-[15px] md:text-[17px] font-medium transition-colors duration-150 ${isOpen ? 'text-red' : 'text-text'} group-hover:underline decoration-border underline-offset-4`}>
+                    {faq.q}
+                  </span>
+                  <Motion.span
+                    animate={{ rotate: isOpen ? 45 : 0 }}
+                    transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                    className="shrink-0 w-5 h-5 flex items-center justify-center text-red text-[22px] leading-none select-none"
+                  >
+                    +
+                  </Motion.span>
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <Motion.div
+                      key="answer"
+                      initial={{ height: 0 }}
+                      animate={{ height: 'auto' }}
+                      exit={{ height: 0 }}
+                      transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
+                      className="overflow-hidden"
+                    >
+                      <Motion.div
+                        initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -4, scale: 0.97 }}
+                        transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
+                        className="origin-top"
+                      >
+                        <div className="pb-5 pr-10">
+                          <p className="alt text-[13px] md:text-[14px] text-alt leading-relaxed">
+                            {faq.a}
+                          </p>
+                          {faq.bullets && (
+                            <div className="flex flex-wrap gap-2 mt-3">
+                              {faq.bullets.map((b, j) => (
+                                <span key={j} className="alt text-[12px] text-text bg-red/6 border border-red/12 rounded-full px-3 py-1">
+                                  {b}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </Motion.div>
+                    </Motion.div>
+                  )}
+                </AnimatePresence>
+              </Reveal>
+            )
+          })}
+        </div>
+
+        <div className="flex justify-center mt-[48px]">
+          <button
+            onClick={scrollToCta}
+            className="px-10 py-[11px] bg-red text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out"
+          >
+            Join the waitlist
+          </button>
+        </div>
+
+      </section>
 
       <AboutSection />
 
