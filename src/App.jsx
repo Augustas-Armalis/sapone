@@ -96,79 +96,6 @@ function Reveal({ children, delay = 0, className }) {
   )
 }
 
-const stackCards = [
-  { image: `${baseUrl}cards/01.webp`, label: "Backed by one of Lithuania's wealthiest investors", rotate: -1.2, Icon: Globe },
-  { image: `${baseUrl}cards/03.webp`, label: 'Already shipped 1,000+ units successfully', rotate: -1, Icon: Truck },
-  { image: `${baseUrl}cards/04.webp`, label: 'Real company, real product, real commitment', rotate: 1.4, Icon: ShieldCheck },
-  { image: `${baseUrl}cards/05.webp`, label: 'Legally binding delivery contract signed', rotate: -0.8, Icon: Package },
-]
-
-function TrustCard({ card, index, progress, range, targetScale }) {
-  const cardRef = useRef(null)
-  const { scrollYProgress: cardProgress } = useScroll({
-    target: cardRef,
-    offset: ['start end', 'start start'],
-  })
-  const imageScale = useTransform(cardProgress, [0, 1], [1.18, 1])
-  const scale = useTransform(progress, range, [1, targetScale])
-
-  return (
-    <div
-      ref={cardRef}
-      className="h-svh flex items-center justify-center sticky top-0"
-    >
-      <Motion.div
-        style={{ scale, rotate: card.rotate, top: `calc(-4vh + ${index * 22}px)` }}
-        className="relative w-[92%] max-w-[min(680px,90vw)] rounded-[14px] md:rounded-[18px] overflow-hidden bg-bg border border-white/10 shadow-[0_4px_32px_rgba(0,0,0,0.10)] origin-top"
-      >
-        <div className="w-full aspect-4/3 sm:aspect-video overflow-hidden">
-          <Motion.div className="w-full h-full" style={{ scale: imageScale }}>
-            <img
-              src={card.image}
-              alt={card.label}
-              className="size-full object-cover"
-              loading="lazy"
-              decoding="async"
-            />
-          </Motion.div>
-        </div>
-        <div className="px-4 md:px-5 py-3 md:py-4 bg-bg flex items-start gap-3">
-          <card.Icon size={16} className="text-red shrink-0 mt-[2px]" strokeWidth={1.8} />
-          <p className="alt text-[14px] md:text-[16px] text-text leading-snug">
-            {card.label}
-          </p>
-        </div>
-      </Motion.div>
-    </div>
-  )
-}
-
-function TrustStackSection() {
-  const sectionRef = useRef(null)
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start start', 'end end'],
-  })
-
-  return (
-    <section ref={sectionRef} className="w-full">
-      {stackCards.map((card, index) => {
-        const targetScale = 1 - (stackCards.length - index) * 0.05
-        return (
-          <TrustCard
-            key={index}
-            card={card}
-            index={index}
-            progress={scrollYProgress}
-            range={[index * (1 / stackCards.length), 1]}
-            targetScale={targetScale}
-          />
-        )
-      })}
-    </section>
-  )
-}
-
 const keyIngredients = [
   { name: 'Argan Oil', benefit: 'shine & softness' },
   { name: 'Panthenol B5', benefit: 'strengthens, adds elasticity' },
@@ -2109,7 +2036,7 @@ function App() {
 
       <IngredientsSection onViewFull={() => setShowIngredients(true)} onVip={() => {}} />
 
-      <TrustStackSection />
+      <UgcWallSection />
 
       <section ref={faqSectionRef} className="w-full max-w-[740px] px-4 md:px-10 pt-[48px] md:pt-[72px] pb-[96px] md:pb-[128px] mx-auto">
 
@@ -2195,8 +2122,6 @@ function App() {
       </section>
 
       <AboutSection />
-
-      <UgcWallSection />
 
       <FinalCtaSection onSuccess={() => setSubmitted(true)} onVip={() => setShowVip(true)} waitlistCount={waitlistCount} />
 
