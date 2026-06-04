@@ -1,12 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion as Motion, useScroll, useTransform } from 'framer-motion'
-import { Tv, Package, Globe, ShieldCheck, Leaf, Truck, Gift, Zap, MessageCircle, Flame } from 'lucide-react'
+import { Tv, Package, Globe, ShieldCheck, Leaf, Truck, Gift, Zap, MessageCircle, Flame, Play } from 'lucide-react'
 
 const baseUrl = import.meta.env.BASE_URL
 
 let globalLenis = null
-const SAPONE_LAUNCH_DATE = '20260407'
-const SAPONE_LAUNCH_EVENT_URL = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Sapone Launch')}&dates=${SAPONE_LAUNCH_DATE}/${'20260408'}&details=${encodeURIComponent('Sapone officially launches today.')}&location=${encodeURIComponent('Online')}`
+const SAPONE_LAUNCH_DATE = '20260901'
+const SAPONE_LAUNCH_EVENT_URL = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Sapone Launch')}&dates=${SAPONE_LAUNCH_DATE}/${'20260902'}&details=${encodeURIComponent('Sapone officially launches today.')}&location=${encodeURIComponent('Online')}`
+// Live countdown target — Sapone launches September 1st 2026
+const SAPONE_LAUNCH_DATETIME = new Date('2026-09-01T00:00:00')
 
 async function subscribeToMailerLite(email) {
   const res = await fetch('/api/subscribe', {
@@ -18,6 +20,7 @@ async function subscribeToMailerLite(email) {
     const data = await res.json().catch(() => ({}))
     throw new Error(data.error || 'Subscription failed. Please try again.')
   }
+  if (typeof window !== 'undefined') window.fbq?.('track', 'Lead')
 }
 const carouselFiles = Array.from({ length: 12 }, (_, i) => ({
   file: `${String(i + 1).padStart(2, '0')}.webp`,
@@ -29,8 +32,9 @@ const carouselCards = carouselFiles.map(({ file, width, height }) => ({
   width,
   height,
 }))
-const WAITLIST_BASE_COUNT = 847
-const WAITLIST_STORAGE_KEY = 'sapone_waitlist_count_v1'
+const WAITLIST_BASE_COUNT = 4507
+const WAITLIST_STORAGE_KEY = 'sapone_waitlist_count_v2'
+const WAITLIST_GOAL = 5000
 
 function usePersistentWaitlistCounter() {
   const [waitlistCount, setWaitlistCount] = useState(WAITLIST_BASE_COUNT)
@@ -558,7 +562,7 @@ function SuccessOverlay({ onBack }) {
         </h1>
         <p className="alt text-[16px] text-alt max-w-[260px] leading-snug">
           We'll reach out on{' '}
-          <span className="font-medium" style={{ color: 'var(--red)' }}>April 7th</span>{' '}
+          <span className="font-medium" style={{ color: 'var(--red)' }}>September 1st</span>{' '}
           with your early bird deal.
         </p>
 
@@ -573,14 +577,49 @@ function SuccessOverlay({ onBack }) {
   )
 }
 
+function useLaunchCountdown(target) {
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(t)
+  }, [])
+  const diff = Math.max(0, target.getTime() - now)
+  return {
+    days: Math.floor(diff / 86400000),
+    hours: Math.floor((diff % 86400000) / 3600000),
+    minutes: Math.floor((diff % 3600000) / 60000),
+  }
+}
+
+const FOUNDING_PERKS = [
+  '€12 price locked (-40%), never rises',
+  'Free soap dish',
+  'First access to new scents',
+  'Behind-the-scenes access',
+  'Direct chat with the founders',
+  'Name on the founders wall + scent vote',
+]
+
+const WAITLIST_PERKS = [
+  'Launch day notification',
+  'Access to early bird price',
+]
+
 function FinalCtaSection({ onSuccess, onVip, waitlistCount }) {
   const [ctaEmail, setCtaEmail] = useState('')
   const [ctaSubmitting, setCtaSubmitting] = useState(false)
   const [ctaError, setCtaError] = useState('')
+  const { days, hours, minutes } = useLaunchCountdown(SAPONE_LAUNCH_DATETIME)
 
-  const handleSubmit = async (e) => {
+  const progressPct = Math.min(100, Math.round((waitlistCount / WAITLIST_GOAL) * 100))
+
+  const handleJoinFree = async (e) => {
     e.preventDefault()
     if (ctaSubmitting) return
+    if (!ctaEmail || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(ctaEmail)) {
+      setCtaError('Please enter your email above to join free.')
+      return
+    }
     setCtaError('')
     setCtaSubmitting(true)
     try {
@@ -594,85 +633,385 @@ function FinalCtaSection({ onSuccess, onVip, waitlistCount }) {
   }
 
   return (
-    <section id="final-cta" className="w-full bg-[#27262b] px-4 md:px-10 py-[80px] md:py-[120px]">
-      <div className="max-w-[500px] mx-auto">
+    <section id="final-cta" className="w-full bg-[#1a191d] px-4 md:px-10 py-[80px] md:py-[120px]">
+      <div className="max-w-[760px] mx-auto">
 
-        <Reveal className="text-center mb-10">
+        <Reveal className="text-center mb-8">
           <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-[#e8637a] bg-[#862737]/20 border border-[#862737]/30 rounded-full px-3 py-1 mb-5 w-fit">
-            Limited Early Access
+            Limited early access
           </span>
-          <h2 className="title text-[24px] md:text-[36px] leading-[1.04] tracking-[-0.04em]! uppercase text-white">
-            Launching April 7th
+          <h2 className="title text-[28px] md:text-[40px] leading-[1.04] tracking-[-0.04em]! uppercase text-white mb-3">
+            Be one of the first 500
           </h2>
+          <p className="alt text-[15px] md:text-[16px] text-white/55 leading-snug max-w-[420px] mx-auto">
+            Join free, or lock in founding member perks for €1.
+          </p>
         </Reveal>
 
-        <Reveal delay={0.1} className="rounded-[22px] bg-white/6 border border-white/8 px-7 py-8 md:px-10 md:py-10">
+        <Reveal delay={0.1}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
 
-          <div className="rounded-[14px] bg-white/9 border border-white/10 px-5 py-4 mb-6 flex items-center justify-between gap-4">
-            <div>
-              <div className="flex items-baseline gap-2.5 mb-0.5">
-                <span className="title text-[44px] leading-none tracking-[-0.04em] text-white">€12</span>
-                <span className="alt text-[13px] text-white/40 line-through">€17</span>
-              </div>
-              <p className="alt text-[12px] text-white/40 leading-snug">Per bottle — early bird price</p>
+            {/* Card A — Waitlist (muted) */}
+            <div className="rounded-[20px] bg-white/[0.03] border border-white/10 p-6 md:p-7 flex flex-col h-full">
+              <p className="alt text-[13px] uppercase tracking-[0.06em] text-white/45 mb-1.5">Waitlist</p>
+              <div className="title text-[40px] leading-none tracking-[-0.04em] text-white mb-6">€0</div>
+              <ul className="flex flex-col gap-3 mb-7">
+                {WAITLIST_PERKS.map((perk) => (
+                  <li key={perk} className="flex items-start gap-2.5">
+                    <span className="text-white/40 text-[13px] font-bold shrink-0 mt-px">✓</span>
+                    <span className="alt text-[14px] text-white/65 leading-snug">{perk}</span>
+                  </li>
+                ))}
+              </ul>
+              <form onSubmit={handleJoinFree} className="mt-auto flex flex-col gap-2.5">
+                <label htmlFor="waitlist-email" className="alt text-[12px] text-white/45 -mb-1">Enter your email to join free</label>
+                <input
+                  id="waitlist-email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={ctaEmail}
+                  onChange={(e) => setCtaEmail(e.target.value)}
+                  required
+                  className="w-full h-fit px-[16px] py-[12px] alt bg-white/[0.06] border border-white/12 rounded-[12px] hover:border-white/20 transition-all duration-150 ease-out focus:outline-none focus:border-white/30 text-[15px] text-white placeholder:text-white/30"
+                />
+                <button
+                  type="submit"
+                  disabled={ctaSubmitting}
+                  className="w-full h-fit px-[16px] py-[12px] bg-white text-[#1a191d]! rounded-[12px] alt text-[15px] font-medium cursor-pointer hover:bg-white/90 transition-all duration-150 ease-out disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {ctaSubmitting ? 'Joining...' : 'Join free'}
+                </button>
+                {ctaError && <p className="alt text-[12px] text-[#e8637a] leading-snug">{ctaError}</p>}
+              </form>
             </div>
-            <span className="alt text-[12px] text-[#e8637a] font-semibold bg-[#862737]/25 border border-[#862737]/35 rounded-full px-3 py-1.5 whitespace-nowrap shrink-0">Save 40%</span>
-          </div>
-          <p className="alt text-[12px] text-white/35 mb-5 leading-snug">
-            First 500 backers only. Price increases after launch.
-          </p>
 
-          <p className="alt text-[13px] text-white/50 mb-4">
-            Join <span className="font-semibold text-white/80">{waitlistCount.toLocaleString()}+ people</span> already on the waitlist
-          </p>
-
-          <form className="flex flex-col gap-2.5 mb-6" onSubmit={handleSubmit}>
-            <input
-              type="email"
-              placeholder="your@email.com"
-              value={ctaEmail}
-              onChange={(e) => setCtaEmail(e.target.value)}
-              required
-              className="w-full h-fit px-[16px] py-[11px] alt bg-white/8 border border-white/12 rounded-[12px] hover:border-white/20 transition-all duration-150 ease-out focus:outline-none focus:border-white/25 text-[15px] text-white placeholder:text-white/30"
-            />
-            <div className="flex gap-2.5">
-              <button
-                type="submit"
-                disabled={ctaSubmitting}
-                className="flex-1 h-fit px-[16px] py-[11px] bg-[#862737] text-white! rounded-[12px] alt text-[15px] cursor-pointer hover:bg-[#9e2f42] transition-all duration-150 ease-out disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {ctaSubmitting ? 'Joining...' : 'Join the waitlist'}
-              </button>
+            {/* Card B — Founding member (hero) */}
+            <div className="relative rounded-[20px] bg-[#862737]/[0.08] border-2 border-[#862737] p-6 md:p-7 pt-9 md:pt-9 flex flex-col h-full">
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 alt text-[11px] font-semibold uppercase tracking-[0.06em] text-white bg-[#862737] rounded-full px-3.5 py-1.5 whitespace-nowrap shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
+                Only 500 spots
+              </span>
+              <p className="alt text-[13px] uppercase tracking-[0.06em] text-[#e8637a] mb-1.5">Founding member</p>
+              <div className="title text-[40px] leading-none tracking-[-0.04em] text-white mb-6">€1</div>
+              <ul className="flex flex-col gap-3 mb-7">
+                {FOUNDING_PERKS.map((perk) => (
+                  <li key={perk} className="flex items-start gap-2.5">
+                    <span className="text-[#e8637a] text-[13px] font-bold shrink-0 mt-px">✓</span>
+                    <span className="alt text-[14px] text-white/80 leading-snug">{perk}</span>
+                  </li>
+                ))}
+              </ul>
               <button
                 type="button"
                 onClick={onVip}
-                className="flex-1 h-fit px-[16px] py-[11px] bg-white text-[#1b1b1f]! rounded-[12px] alt text-[15px] cursor-pointer hover:bg-white/90 transition-all duration-150 ease-out"
+                className="mt-auto w-full h-fit px-[16px] py-[13px] bg-[#862737] text-white! rounded-[12px] alt text-[15px] font-semibold cursor-pointer hover:bg-[#9e2f42] transition-all duration-150 ease-out"
               >
-                Become VIP
+                Become a founding member · €1
               </button>
             </div>
-          </form>
 
-          {ctaError && (
-            <p className="alt text-[13px] mb-4 text-center text-[#e8637a]">{ctaError}</p>
-          )}
-
-          <ul className="flex flex-col gap-2.5 border-t border-white/8 pt-5">
-            {[
-              'Launch day notification (April 7th)',
-              'Exclusive early bird pricing',
-              'Behind-the-scenes updates',
-              'First access to new scents',
-            ].map((benefit) => (
-              <li key={benefit} className="flex items-start gap-2.5">
-                <span className="text-[#e8637a] text-[13px] font-bold shrink-0 mt-px">✓</span>
-                <span className="alt text-[13px] text-white/55 leading-snug">{benefit}</span>
-              </li>
-            ))}
-          </ul>
-
+          </div>
         </Reveal>
+
+        <Reveal delay={0.16} className="mt-10 max-w-[560px] mx-auto">
+          <div className="flex items-baseline justify-between mb-2.5">
+            <span className="alt text-[13px] text-white/70">
+              <span className="font-semibold text-white">{waitlistCount.toLocaleString()}</span> joined
+            </span>
+            <span className="alt text-[13px] text-white/40">goal {WAITLIST_GOAL.toLocaleString()}</span>
+          </div>
+          <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+            <Motion.div
+              initial={{ width: 0 }}
+              whileInView={{ width: `${progressPct}%` }}
+              viewport={{ once: true }}
+              transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+              className="h-full rounded-full bg-[#862737]"
+            />
+          </div>
+          <div className="flex items-center justify-center gap-2 mt-5">
+            <span className="live-dot shrink-0" aria-hidden="true" />
+            <p className="alt text-[13px] text-white/45">
+              Launches in <span className="text-white/75 font-medium">{days} days {hours}h {minutes}m</span>
+            </p>
+          </div>
+        </Reveal>
+
       </div>
+    </section>
+  )
+}
+
+const INSTAGRAM_URL = 'https://www.instagram.com/sapone_global/'
+
+/*
+ * UGC WALL — real customer content.
+ * To swap in real media, set `image` (photo tiles) or `video` (video tiles) to the
+ * uploaded file path, e.g. `${baseUrl}ugc/lily.webp` or `${baseUrl}video/ugc-1.mp4`.
+ * Until a path is set, a tasteful colored placeholder tile is shown.
+ * Video tiles autoplay muted + looped at 1.5x inline; click opens the audio lightbox.
+ */
+/*
+ * UGC WALL — every tile is a customer video.
+ * To swap in real media, set each `video` to the uploaded file path,
+ * e.g. `${baseUrl}video/ugc-1.mp4`. Until then a colored placeholder shows.
+ * Inline: muted + looped + 1.5x autoplay. Click → audio lightbox at normal speed.
+ * A random 6 of this pool are shown on desktop each reload; mobile stacks them.
+ */
+// `preview` = low-quality muted clip for the autoplay grid (fast to load).
+// `video`   = full-quality clip with audio, loaded only when a tile is clicked.
+const UGC_VIDEOS = [
+  { handle: '@lily_cglez',   caption: 'never going back to plastic, this is actually genius',   tone: '#4a5a78', preview: `${baseUrl}ugc/1-sm.webm`, video: `${baseUrl}ugc/1.webm`, duration: '0:12' },
+  { handle: '@sofia.moreno', caption: 'looks like a little sculpture on my shower shelf',        tone: '#7a3b3b', preview: `${baseUrl}ugc/2-sm.webm`, video: `${baseUrl}ugc/2.webm`, duration: '0:09' },
+  { handle: '@emma.rytr',    caption: 'finally a shampoo that leaves zero trash behind',         tone: '#55603f', preview: `${baseUrl}ugc/3-sm.webm`, video: `${baseUrl}ugc/3.webm`, duration: '0:15' },
+  { handle: '@nat.haircare', caption: 'ok the no-bottle thing is wild, watch till the end',      tone: '#1f1f22', preview: `${baseUrl}ugc/4-sm.webm`, video: `${baseUrl}ugc/4.webm`, duration: '0:14' },
+  { handle: '@claraa.b',     caption: 'got the whole set, bathroom has never looked this clean', tone: '#8a7a52', preview: `${baseUrl}ugc/5-sm.webm`, video: `${baseUrl}ugc/5.webm`, duration: '0:11' },
+  { handle: '@mila.ode',     caption: 'lathers way better than i expected for a natural one',    tone: '#6b5a4a', preview: `${baseUrl}ugc/6-sm.webm`, video: `${baseUrl}ugc/6.webm`, duration: '0:18' },
+  { handle: '@hanna.ksw',    caption: 'smells incredible and lasts way longer than i expected',  tone: '#3a4a5a', preview: `${baseUrl}ugc/7-sm.webm`, video: `${baseUrl}ugc/7.webm`, duration: '0:16' },
+]
+
+const UGC_VISIBLE = 6
+
+function shuffle(arr) {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+function UgcCaption({ tile }) {
+  return (
+    <div className="absolute inset-x-0 bottom-0 p-3 pt-9 bg-gradient-to-t from-black/85 via-black/35 to-transparent pointer-events-none">
+      <p className="alt text-[13px] font-semibold text-white leading-tight">{tile.handle}</p>
+      <p className="alt text-[12px] text-white/80 leading-snug mt-0.5 line-clamp-2">{tile.caption}</p>
+    </div>
+  )
+}
+
+function UgcVideoTile({ tile, onOpen }) {
+  const videoRef = useRef(null)
+
+  useEffect(() => {
+    const v = videoRef.current
+    if (!v) return undefined
+    const setRate = () => { try { v.playbackRate = 1.5 } catch { /* noop */ } }
+
+    // Warm-up: start buffering ~800px before the tile reaches the viewport,
+    // so it's ready to play smoothly — but nothing is fetched on initial page load.
+    const warm = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          v.preload = 'auto'
+          v.load()
+          warm.disconnect()
+        }
+      },
+      { rootMargin: '800px 0px' }
+    )
+    warm.observe(v)
+
+    // Playback: only run while actually on screen.
+    const playIO = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setRate()
+          v.play?.().catch(() => {})
+        } else {
+          v.pause?.()
+        }
+      },
+      { threshold: 0.2 }
+    )
+    playIO.observe(v)
+
+    return () => { warm.disconnect(); playIO.disconnect() }
+  }, [])
+
+  return (
+    <button type="button" onClick={onOpen} aria-label={`Play video from ${tile.handle}`} className="group block w-full cursor-pointer">
+      <div className="relative w-full aspect-[4/5] rounded-[16px] overflow-hidden" style={{ backgroundColor: tile.tone }}>
+        <video
+          ref={videoRef}
+          src={tile.preview}
+          muted
+          loop
+          playsInline
+          preload="none"
+          disablePictureInPicture
+          disableRemotePlayback
+          tabIndex={-1}
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+        />
+        <div className="absolute top-2.5 right-2.5 flex items-center gap-1 rounded-full bg-black/45 backdrop-blur-sm px-2 py-1">
+          <Play size={10} className="text-white fill-white" />
+          <span className="alt text-[11px] text-white font-medium">{tile.duration}</span>
+        </div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center transition-transform duration-200 group-hover:scale-110">
+            <Play size={20} className="text-white fill-white ml-0.5" />
+          </span>
+        </div>
+        <UgcCaption tile={tile} />
+      </div>
+    </button>
+  )
+}
+
+function UgcLightbox({ videos, index, setIndex, onClose }) {
+  const current = videos[index]
+
+  useEffect(() => {
+    globalLenis?.stop()
+    document.body.classList.add('scroll-locked')
+    return () => {
+      globalLenis?.start()
+      document.body.classList.remove('scroll-locked')
+    }
+  }, [])
+
+  const go = useCallback(
+    (dir) => setIndex((i) => (i + dir + videos.length) % videos.length),
+    [videos.length, setIndex]
+  )
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose()
+      else if (e.key === 'ArrowRight') go(1)
+      else if (e.key === 'ArrowLeft') go(-1)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [go, onClose])
+
+  return (
+    <Motion.div
+      key="ugc-lightbox"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-6"
+      style={{ backgroundColor: 'rgba(0,0,0,0.82)' }}
+      onClick={onClose}
+    >
+      <button
+        onClick={onClose}
+        aria-label="Close"
+        className="absolute top-4 right-4 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M2 2L12 12M12 2L2 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+      </button>
+
+      {videos.length > 1 && (
+        <button
+          onClick={(e) => { e.stopPropagation(); go(-1) }}
+          aria-label="Previous video"
+          className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 3L6 9l5 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        </button>
+      )}
+
+      <Motion.div
+        key={current.video}
+        initial={{ opacity: 0, scale: 0.97 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+        className="relative flex flex-col items-center"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div
+          className="relative overflow-hidden rounded-[18px] bg-black"
+          style={{ width: 'min(86vw, 380px, calc(78svh * 9 / 16))', aspectRatio: '9 / 16' }}
+        >
+          <video
+            key={current.video}
+            src={current.video}
+            autoPlay
+            controls
+            playsInline
+            onEnded={() => go(1)}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        </div>
+        <div className="mt-3 text-center max-w-[380px]">
+          <p className="alt text-[14px] font-semibold text-white">{current.handle}</p>
+          <p className="alt text-[13px] text-white/70 leading-snug mt-0.5">{current.caption}</p>
+        </div>
+      </Motion.div>
+
+      {videos.length > 1 && (
+        <button
+          onClick={(e) => { e.stopPropagation(); go(1) }}
+          aria-label="Next video"
+          className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M7 3l5 6-5 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        </button>
+      )}
+    </Motion.div>
+  )
+}
+
+function UgcWallSection() {
+  const [lightboxIndex, setLightboxIndex] = useState(null)
+  // Shuffle once per page load, then show the first 6 — one swaps out at random each reload.
+  const tiles = useMemo(() => shuffle(UGC_VIDEOS).slice(0, UGC_VISIBLE), [])
+
+  return (
+    <section className="w-full px-4 md:px-10 pt-[40px] md:pt-[72px] pb-[72px] md:pb-[112px]">
+      <div className="max-w-[1080px] mx-auto">
+
+        <Reveal className="flex flex-col items-center text-center mb-[40px] md:mb-[56px]">
+          <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-5">
+            Real customers
+          </span>
+          <h2 className="title text-[24px] md:text-[36px] leading-[1.06] tracking-[-0.04em]! mb-4 uppercase">
+            From real showers, not studios
+          </h2>
+          <p className="alt text-[15px] md:text-[16px] text-alt! leading-relaxed">
+            1,000+ bottles already in the wild.
+          </p>
+        </Reveal>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+          {tiles.map((tile, i) => (
+            <Reveal key={tile.handle} delay={(i % 3) * 0.06}>
+              <UgcVideoTile tile={tile} onOpen={() => setLightboxIndex(i)} />
+            </Reveal>
+          ))}
+        </div>
+
+        <div className="flex justify-center mt-[40px] md:mt-[56px]">
+          <a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 alt text-[15px] text-red font-medium hover:opacity-70 transition-opacity duration-150"
+          >
+            See more on Instagram
+            <svg width="15" height="15" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M3 7h8M7.5 3.5L11 7l-3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </a>
+        </div>
+
+      </div>
+
+      <AnimatePresence>
+        {lightboxIndex !== null && (
+          <UgcLightbox
+            videos={tiles}
+            index={lightboxIndex}
+            setIndex={setLightboxIndex}
+            onClose={() => setLightboxIndex(null)}
+          />
+        )}
+      </AnimatePresence>
     </section>
   )
 }
@@ -703,9 +1042,13 @@ function SiteFooter() {
     <footer ref={footerRef} className="w-full bg-[#862737] overflow-hidden relative">
 
       <div className="absolute inset-x-0 top-0 pointer-events-none select-none flex justify-center overflow-hidden pt-16 md:pt-24">
-        <span className="title leading-none whitespace-nowrap text-white/5" style={{ fontSize: 'clamp(110px, 28vw, 320px)' }}>
-          Sapone
-        </span>
+        <img
+          src={`${baseUrl}seo/logo.svg`}
+          alt=""
+          aria-hidden="true"
+          className="w-[min(1100px,95vw)] h-auto"
+          style={{ filter: 'brightness(0) invert(1)', opacity: 0.06 }}
+        />
       </div>
 
       <div className="relative z-5 px-4 md:px-10 pt-16 md:pt-24 pb-10 md:pb-[260px] max-w-[860px] mx-auto">
@@ -743,7 +1086,7 @@ function SiteFooter() {
 
       <div className="relative z-20 bg-white/5 backdrop-blur-md border-t border-white/10 px-5 md:px-10 py-5">
         <div className="max-w-[860px] mx-auto flex flex-row items-center justify-between">
-          <span className="alt text-[14px] md:text-[15px] text-white/65">© Sapone 2026</span>
+          <span className="alt text-[14px] md:text-[15px] text-white/65">Sapone, Inc 2026</span>
           <button
             onClick={() => {
               navigator.clipboard.writeText('hello@sapone.store')
@@ -862,6 +1205,7 @@ function VipModal({ onClose }) {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Something went wrong')
+      window.fbq?.('track', 'InitiateCheckout', { value: 1, currency: 'EUR' })
       window.location.href = data.url
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
@@ -1029,6 +1373,7 @@ function VipSuccess() {
         if (!ok) throw new Error(data.error || 'Verification failed')
         setEmail(data.email || '')
         setStatus('success')
+        window.fbq?.('track', 'Purchase', { value: 1, currency: 'EUR' })
       })
       .catch(() => setStatus('error'))
   }, [])
@@ -1291,10 +1636,14 @@ function App() {
       <div className="grain" aria-hidden="true" />
       <div className="relative z-10 flex items-center justify-start flex-col h-fit px-[10px] md:px-0 overflow-x-clip">
 
-    <Motion.p
+    <Motion.img
+        src={`${baseUrl}seo/logo.svg`}
+        alt="Sapone"
         initial={{ opacity: 0, y: 0, filter: 'blur(6px)' }}
-        animate={{ opacity: 1, y: 10, filter: 'blur(0px)' }}
-        transition={{ duration: 0.55, delay: 0.15, ease: [0.22, 1, 0.36, 1] }} className="title text-[24px] tracking-[-0.04em] mb-[72px] md:mb-[92px]">Sapone</Motion.p>
+        animate={{ opacity: 0.6, y: 10, filter: 'blur(0px)' }}
+        transition={{ duration: 0.55, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+        className="h-[15px] md:h-[17px] w-auto mt-[20px] md:mt-[28px] mb-[72px] md:mb-[92px]"
+      />
 
     <div className="flex items-center justify-center flex-col mb-[40px] md:mb-[64px]">
 
@@ -1306,7 +1655,7 @@ function App() {
       >
         <span className="live-dot" aria-hidden="true" />
         
-        <p className="text-[14px] alt text-text ml-[12px]!">Launching April 7th.</p>
+        <p className="text-[14px] alt text-text ml-[12px]!">Launching September 1st.</p>
         <a
           href={SAPONE_LAUNCH_EVENT_URL}
           target="_blank"
@@ -1846,6 +2195,8 @@ function App() {
       </section>
 
       <AboutSection />
+
+      <UgcWallSection />
 
       <FinalCtaSection onSuccess={() => setSubmitted(true)} onVip={() => setShowVip(true)} waitlistCount={waitlistCount} />
 
