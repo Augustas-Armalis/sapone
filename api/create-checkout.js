@@ -16,7 +16,7 @@ export default async function handler(req, res) {
       line_items: [
         {
           price_data: {
-            currency: 'eur',
+            currency: 'usd',
             unit_amount: 100,
             product_data: { name: 'Sapone VIP Early Access' },
           },

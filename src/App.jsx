@@ -20,7 +20,11 @@ async function subscribeToMailerLite(email) {
     const data = await res.json().catch(() => ({}))
     throw new Error(data.error || 'Subscription failed. Please try again.')
   }
-  if (typeof window !== 'undefined') window.fbq?.('track', 'Lead')
+  if (typeof window !== 'undefined') {
+    // Fires only after the server confirms the email was saved (waitlist join)
+    window.fbq?.('track', 'Lead')
+    window.fbq?.('track', 'CompleteRegistration')
+  }
 }
 const carouselFiles = Array.from({ length: 12 }, (_, i) => ({
   file: `${String(i + 1).padStart(2, '0')}.webp`,
@@ -519,7 +523,7 @@ function useLaunchCountdown(target) {
 }
 
 const FOUNDING_PERKS = [
-  '€12 price locked (-40%), never rises',
+  '$12 price locked (-40%), never rises',
   'Free soap dish',
   'First access to new scents',
   'Behind-the-scenes access',
@@ -571,7 +575,7 @@ function FinalCtaSection({ onSuccess, onVip, waitlistCount }) {
             Be one of the first 500
           </h2>
           <p className="alt text-[15px] md:text-[16px] text-white/55 leading-snug max-w-[420px] mx-auto">
-            Join free, or lock in founding member perks for €1.
+            Join free, or lock in founding member perks for $1.
           </p>
         </Reveal>
 
@@ -581,7 +585,7 @@ function FinalCtaSection({ onSuccess, onVip, waitlistCount }) {
             {/* Card A — Waitlist (muted) */}
             <div className="rounded-[20px] bg-white/[0.03] border border-white/10 p-6 md:p-7 flex flex-col h-full">
               <p className="alt text-[13px] uppercase tracking-[0.06em] text-white/45 mb-1.5">Waitlist</p>
-              <div className="title text-[40px] leading-none tracking-[-0.04em] text-white mb-6">€0</div>
+              <div className="title text-[40px] leading-none tracking-[-0.04em] text-white mb-6">$0</div>
               <ul className="flex flex-col gap-3 mb-7">
                 {WAITLIST_PERKS.map((perk) => (
                   <li key={perk} className="flex items-start gap-2.5">
@@ -618,7 +622,7 @@ function FinalCtaSection({ onSuccess, onVip, waitlistCount }) {
                 Only 500 spots
               </span>
               <p className="alt text-[13px] uppercase tracking-[0.06em] text-[#e8637a] mb-1.5">Founding member</p>
-              <div className="title text-[40px] leading-none tracking-[-0.04em] text-white mb-6">€1</div>
+              <div className="title text-[40px] leading-none tracking-[-0.04em] text-white mb-6">$1</div>
               <ul className="flex flex-col gap-3 mb-7">
                 {FOUNDING_PERKS.map((perk) => (
                   <li key={perk} className="flex items-start gap-2.5">
@@ -632,7 +636,7 @@ function FinalCtaSection({ onSuccess, onVip, waitlistCount }) {
                 onClick={onVip}
                 className="mt-auto w-full h-fit px-[16px] py-[13px] bg-[#862737] text-white! rounded-[12px] alt text-[15px] font-semibold cursor-pointer hover:bg-[#9e2f42] transition-all duration-150 ease-out"
               >
-                Become a founding member · €1
+                Become a founding member · $1
               </button>
             </div>
 
@@ -1132,7 +1136,7 @@ function VipModal({ onClose }) {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Something went wrong')
-      window.fbq?.('track', 'InitiateCheckout', { value: 1, currency: 'EUR' })
+      window.fbq?.('track', 'InitiateCheckout', { value: 1.0, currency: 'USD' })
       window.location.href = data.url
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
@@ -1194,7 +1198,7 @@ function VipModal({ onClose }) {
             <>
               <div className="mb-6 pr-8">
                 <span className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] text-red bg-red/8 border border-red/15 rounded-full px-3 py-1 mb-4">
-                  €1 · Early Believer Access
+                  $1 · Early Believer Access
                 </span>
                 <h2 className="title text-[22px] md:text-[28px] leading-[1.06] tracking-[-0.04em]! uppercase mb-2">
                   One coffee.<br />A lifetime of bragging rights.
@@ -1266,11 +1270,11 @@ function VipModal({ onClose }) {
                   disabled={submitting}
                   className="w-full h-fit px-[16px] py-[11px] bg-[#27262b] text-white! alt text-[15px] rounded-[12px] cursor-pointer hover:bg-[#333138] transition-all duration-150 ease-out disabled:opacity-60"
                 >
-                  {submitting ? 'Redirecting to payment...' : 'Claim My €1 VIP Spot →'}
+                  {submitting ? 'Redirecting to payment...' : 'Claim My $1 VIP Spot →'}
                 </button>
                 {error && <p className="alt text-[12px] text-red">{error}</p>}
                 <p className="alt text-[11px] text-alt text-center">
-                  Secure €1 · One-time · Via Stripe
+                  Secure $1 · One-time · Via Stripe
                 </p>
               </form>
             </>
@@ -1300,7 +1304,7 @@ function VipSuccess() {
         if (!ok) throw new Error(data.error || 'Verification failed')
         setEmail(data.email || '')
         setStatus('success')
-        window.fbq?.('track', 'Purchase', { value: 1, currency: 'EUR' })
+        window.fbq?.('track', 'Purchase', { value: 1.0, currency: 'USD' })
       })
       .catch(() => setStatus('error'))
   }, [])
@@ -1680,7 +1684,7 @@ function App() {
           onClick={() => setShowVip(true)}
           className="alt text-[12px] text-red underline underline-offset-2 decoration-red/40 hover:decoration-red transition-colors cursor-pointer font-semibold mt-1.5"
         >
-          Unlock VIP perks for €1 →
+          Unlock VIP perks for $1 →
         </button>
       </Motion.div>
     </form>
