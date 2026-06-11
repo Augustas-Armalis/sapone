@@ -672,7 +672,8 @@ function FinalCtaSection({ onSuccess, onVip, waitlistCount }) {
   )
 }
 
-const INSTAGRAM_URL = 'https://www.instagram.com/sapone_global/'
+const INSTAGRAM_URL = 'https://www.instagram.com/saponebeauty/'
+const TIKTOK_URL = 'https://www.tiktok.com/@sapone.store'
 
 /*
  * UGC WALL — real customer content.
@@ -709,6 +710,64 @@ function shuffle(arr) {
     ;[a[i], a[j]] = [a[j], a[i]]
   }
   return a
+}
+
+/*
+ * Autoplaying background video that defers ALL network fetching until it nears
+ * the viewport. This is the main lever for keeping Vercel Fast Data Transfer
+ * down: a visitor who never scrolls to a video downloads zero bytes of it.
+ * Starts buffering ~600px before it scrolls in, plays muted+looped while on
+ * screen, and pauses (stops further transfer) when scrolled away.
+ */
+function LazyAutoVideo({ src, className, style, poster }) {
+  const ref = useRef(null)
+
+  useEffect(() => {
+    const v = ref.current
+    if (!v) return undefined
+
+    // Warm-up: begin buffering shortly before the video enters the viewport.
+    const warm = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          v.preload = 'auto'
+          v.load()
+          warm.disconnect()
+        }
+      },
+      { rootMargin: '600px 0px' }
+    )
+    warm.observe(v)
+
+    // Playback: only run while actually on screen.
+    const playIO = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) v.play?.().catch(() => {})
+        else v.pause?.()
+      },
+      { threshold: 0.15 }
+    )
+    playIO.observe(v)
+
+    return () => { warm.disconnect(); playIO.disconnect() }
+  }, [src])
+
+  return (
+    <video
+      ref={ref}
+      src={src}
+      poster={poster}
+      muted
+      loop
+      playsInline
+      preload="none"
+      disablePictureInPicture
+      disableRemotePlayback
+      tabIndex={-1}
+      className={className}
+      style={style}
+    />
+  )
 }
 
 function UgcCaption({ tile }) {
@@ -1749,7 +1808,7 @@ function App() {
       <div className="flex items-center gap-3 mt-4 mb-10">
         <span className="text-[13px] alt text-muted-foreground tracking-wide">Follow us:</span>
         <a
-          href="https://www.instagram.com/sapone_global/"
+          href={INSTAGRAM_URL}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Instagram"
@@ -1760,7 +1819,7 @@ function App() {
           </svg>
         </a>
         <a
-          href="https://www.tiktok.com/@sapone_global"
+          href={TIKTOK_URL}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="TikTok"
@@ -1898,16 +1957,9 @@ function App() {
               <Reveal key={title} delay={delay} className="flex flex-col">
                 <article className="flex flex-col bg-white/80 border border-border rounded-[20px] overflow-hidden h-full">
                   <div className="relative w-full aspect-[4/3] bg-[#ece8e0] border-b border-border overflow-hidden">
-                    <video
+                    <LazyAutoVideo
                       src={video}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      disablePictureInPicture
-                      disableRemotePlayback
                       className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-                      tabIndex={-1}
                     />
                   </div>
                   <div className="p-6 md:p-8 flex flex-col flex-1">
@@ -1933,14 +1985,9 @@ function App() {
               <div className="self-start sticky" style={{ top: 'calc(50svh - 150px)' }}>
                 <Reveal className="w-full">
                   <div className="relative rounded-[20px] overflow-hidden bg-[#ece8e0] border border-border aspect-video flex items-center justify-center">
-                    <video
+                    <LazyAutoVideo
                       className="absolute inset-0 w-full h-full object-cover"
                       src={`${baseUrl}video/sharktank.mp4`}
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      preload="metadata"
                     />
                     <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-bg/90 backdrop-blur-sm border border-border rounded-full px-3.5 py-2">
                       <Tv size={13} className="text-red shrink-0" strokeWidth={1.8} />
@@ -1988,14 +2035,9 @@ function App() {
 
             <div className="lg:hidden py-[72px]">
               <div className="relative rounded-[20px] overflow-hidden bg-[#ece8e0] border border-border aspect-video flex items-center justify-center mb-8">
-                <video
+                <LazyAutoVideo
                   className="absolute inset-0 w-full h-full object-cover"
                   src={`${baseUrl}video/sharktank.mp4`}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="metadata"
                 />
                 <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-bg/90 backdrop-blur-sm border border-border rounded-full px-3.5 py-2">
                   <Tv size={13} className="text-red shrink-0" strokeWidth={1.8} />
@@ -2038,7 +2080,7 @@ function App() {
 
       </div>
 
-      <IngredientsSection onViewFull={() => setShowIngredients(true)} onVip={() => {}} />
+      <IngredientsSection onVip={() => {}} />
 
       <UgcWallSection />
 

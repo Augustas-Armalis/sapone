@@ -1,8 +1,13 @@
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const { email, group = 'waitlist' } = req.body || {}
-  if (!email) return res.status(400).json({ error: 'Email is required' })
+  const { email: rawEmail, group = 'waitlist' } = req.body || {}
+  const email = typeof rawEmail === 'string' ? rawEmail.trim().toLowerCase() : ''
+  if (!email || !EMAIL_RE.test(email)) {
+    return res.status(400).json({ error: 'A valid email is required' })
+  }
 
   const groupId = group === 'vip'
     ? process.env.MAILERLITE_VIP_GROUP_ID
