@@ -103,7 +103,7 @@ function IngredientsPage() {
 
     document.title = "Sapone — Full Ingredient List | What's Inside"
     const meta = document.querySelector('meta[name="description"]')
-    if (meta) meta.setAttribute('content', "Full ingredient list for Sapone's 2-in-1 shampoo and soap bar. 6 shampoo variants: Curly, Straight, Colored, Oily, Anti-Dandruff, Universal. 91% natural origin. Sulfate-free, paraben-free, microplastic-free.")
+    if (meta) meta.setAttribute('content', "Full ingredient list for Sapone's 2-in-1 shampoo and soap bar. 6 shampoo variants: Curly, Straight, Colored, Oily, Anti-Dandruff, Universal. 95% natural origin. Sulfate-free, paraben-free, microplastic-free.")
     return () => {
       document.title = 'Sapone® — The 2-in-1 Shampoo Bar | Plastic-Free, Shark Tank Backed'
     }

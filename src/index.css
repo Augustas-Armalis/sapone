@@ -113,6 +113,20 @@ body.scroll-locked {
   animation: live-pop 1.8s ease-out infinite;
 }
 
+.vip-dot-pulse {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: #FF6B6B;
+  animation: vip-dot-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes vip-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
 .carousel-track-wide {
   display: flex;
   width: max-content;

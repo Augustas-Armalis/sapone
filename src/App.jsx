@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion as Motion, useScroll, useTransform } from 'framer-motion'
-import { Tv, Package, Globe, ShieldCheck, Leaf, Truck, Gift, Zap, MessageCircle, Flame, Play } from 'lucide-react'
+import { Tv, Package, Globe, ShieldCheck, Leaf, Truck, Gift, MessageCircle, Lock, Rocket, Play } from 'lucide-react'
 
 const baseUrl = import.meta.env.BASE_URL
 
@@ -38,7 +38,7 @@ const carouselCards = carouselFiles.map(({ file, width, height }) => ({
 }))
 const WAITLIST_BASE_COUNT = 4507
 const WAITLIST_STORAGE_KEY = 'sapone_waitlist_count_v2'
-const WAITLIST_GOAL = 5000
+const WAITLIST_GOAL = 10000
 
 function usePersistentWaitlistCounter() {
   const [waitlistCount, setWaitlistCount] = useState(WAITLIST_BASE_COUNT)
@@ -692,16 +692,14 @@ const TIKTOK_URL = 'https://www.tiktok.com/@sapone.store'
 // `preview` = low-quality muted clip for the autoplay grid (fast to load).
 // `video`   = full-quality clip with audio, loaded only when a tile is clicked.
 const UGC_VIDEOS = [
-  { handle: '@lily_cglez',   caption: 'never going back to plastic, this is actually genius',   tone: '#4a5a78', preview: `${baseUrl}ugc/1-sm.webm`, video: `${baseUrl}ugc/1.webm`, duration: '0:12' },
-  { handle: '@sofia.moreno', caption: 'looks like a little sculpture on my shower shelf',        tone: '#7a3b3b', preview: `${baseUrl}ugc/2-sm.webm`, video: `${baseUrl}ugc/2.webm`, duration: '0:09' },
-  { handle: '@emma.rytr',    caption: 'finally a shampoo that leaves zero trash behind',         tone: '#55603f', preview: `${baseUrl}ugc/3-sm.webm`, video: `${baseUrl}ugc/3.webm`, duration: '0:15' },
   { handle: '@nat.haircare', caption: 'ok the no-bottle thing is wild, watch till the end',      tone: '#1f1f22', preview: `${baseUrl}ugc/4-sm.webm`, video: `${baseUrl}ugc/4.webm`, duration: '0:14' },
   { handle: '@claraa.b',     caption: 'got the whole set, bathroom has never looked this clean', tone: '#8a7a52', preview: `${baseUrl}ugc/5-sm.webm`, video: `${baseUrl}ugc/5.webm`, duration: '0:11' },
   { handle: '@mila.ode',     caption: 'lathers way better than i expected for a natural one',    tone: '#6b5a4a', preview: `${baseUrl}ugc/6-sm.webm`, video: `${baseUrl}ugc/6.webm`, duration: '0:18' },
   { handle: '@hanna.ksw',    caption: 'smells incredible and lasts way longer than i expected',  tone: '#3a4a5a', preview: `${baseUrl}ugc/7-sm.webm`, video: `${baseUrl}ugc/7.webm`, duration: '0:16' },
 ]
 
-const UGC_VISIBLE = 6
+const UGC_VISIBLE = 3
+const UGC_ROTATE_MS = 15000
 
 function shuffle(arr) {
   const a = [...arr]
@@ -949,8 +947,29 @@ function UgcLightbox({ videos, index, setIndex, onClose }) {
 
 function UgcWallSection() {
   const [lightboxIndex, setLightboxIndex] = useState(null)
-  // Shuffle once per page load, then show the first 6 — one swaps out at random each reload.
-  const tiles = useMemo(() => shuffle(UGC_VIDEOS).slice(0, UGC_VISIBLE), [])
+  // Shuffle once per page load, then cycle through the pool 3 at a time.
+  const pool = useMemo(() => shuffle(UGC_VIDEOS), [])
+  const [offset, setOffset] = useState(0)
+  const [shown, setShown] = useState(true) // controls the crossfade opacity
+
+  // Rotate the visible trio every ~15s with a fade-out → swap → fade-in.
+  // Paused while the lightbox is open so tiles don't shift under the viewer.
+  useEffect(() => {
+    if (lightboxIndex !== null || pool.length <= UGC_VISIBLE) return undefined
+    const cycle = window.setInterval(() => {
+      setShown(false)
+      window.setTimeout(() => {
+        setOffset((o) => (o + UGC_VISIBLE) % pool.length)
+        setShown(true)
+      }, 600)
+    }, UGC_ROTATE_MS)
+    return () => window.clearInterval(cycle)
+  }, [lightboxIndex, pool.length])
+
+  const tiles = useMemo(
+    () => Array.from({ length: Math.min(UGC_VISIBLE, pool.length) }, (_, i) => pool[(offset + i) % pool.length]),
+    [pool, offset]
+  )
 
   return (
     <section className="w-full px-4 md:px-10 pt-[40px] md:pt-[72px] pb-[72px] md:pb-[112px]">
@@ -968,13 +987,19 @@ function UgcWallSection() {
           </p>
         </Reveal>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+        <Motion.div
+          animate={{ opacity: shown ? 1 : 0 }}
+          transition={{ duration: 0.6, ease: 'easeInOut' }}
+          className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4"
+        >
           {tiles.map((tile, i) => (
-            <Reveal key={tile.handle} delay={(i % 3) * 0.06}>
-              <UgcVideoTile tile={tile} onOpen={() => setLightboxIndex(i)} />
-            </Reveal>
+            <UgcVideoTile
+              key={`${offset}-${tile.handle}`}
+              tile={tile}
+              onOpen={() => setLightboxIndex((offset + i) % pool.length)}
+            />
           ))}
-        </div>
+        </Motion.div>
 
         <div className="flex justify-center mt-[40px] md:mt-[56px]">
           <a
@@ -995,7 +1020,7 @@ function UgcWallSection() {
       <AnimatePresence>
         {lightboxIndex !== null && (
           <UgcLightbox
-            videos={tiles}
+            videos={pool}
             index={lightboxIndex}
             setIndex={setLightboxIndex}
             onClose={() => setLightboxIndex(null)}
@@ -1011,8 +1036,8 @@ const footerBadges = [
   { Icon: Package,     label: '1,000+ Bottles Sold' },
   { Icon: Globe,       label: 'Loved Across Europe' },
   { Icon: ShieldCheck, label: 'Legally Guaranteed Delivery' },
-  { Icon: Leaf,        label: '91% Natural Ingredients' },
-  { Icon: Truck,       label: 'Ships Worldwide' },
+  { Icon: Leaf,        label: '95% Natural Ingredients' },
+  { Icon: Truck,       label: 'Ships across the US' },
 ]
 
 function SiteFooter() {
@@ -1024,7 +1049,6 @@ function SiteFooter() {
   })
 
   const bottle0Y = useTransform(scrollYProgress, [0, 1], [160, -60])
-  const bottle1Y = useTransform(scrollYProgress, [0, 1], [220, -20])
   const bottle2Y = useTransform(scrollYProgress, [0, 1], [180, -40])
   const bottle3Y = useTransform(scrollYProgress, [0, 1], [140, -70])
 
@@ -1060,11 +1084,8 @@ function SiteFooter() {
       </div>
 
       <div className="hidden md:block absolute inset-x-0 top-0 bottom-[57px] pointer-events-none select-none z-15" aria-hidden="true">
-        <Motion.div style={{ y: bottle0Y, rotate: -13 }} className="absolute left-[1%] bottom-0 w-[170px] lg:w-[210px]">
+        <Motion.div style={{ y: bottle0Y, rotate: 13 }} className="absolute left-[7%] lg:left-[8%] bottom-0 w-[170px] lg:w-[210px]">
           <img src={`${baseUrl}images/raudonas.webp`} alt="" className="w-full h-auto object-contain" loading="lazy" />
-        </Motion.div>
-        <Motion.div style={{ y: bottle1Y, rotate: 8 }} className="absolute left-[20%] bottom-0 w-[148px] lg:w-[185px]">
-          <img src={`${baseUrl}images/geltonas.webp`} alt="" className="w-full h-auto object-contain" loading="lazy" />
         </Motion.div>
         <Motion.div style={{ y: bottle2Y, rotate: -6 }} className="absolute right-[20%] bottom-0 w-[148px] lg:w-[185px]">
           <img src={`${baseUrl}images/zalias.webp`} alt="" className="w-full h-auto object-contain" loading="lazy" />
@@ -1097,7 +1118,7 @@ function SiteFooter() {
 const faqs = [
   {
     q: 'Does the shampoo actually work?',
-    a: '91% natural origin formula. Worked with labs. Tested by 1,000+ customers.',
+    a: '95% natural origin formula. Worked with labs. Tested by 1,000+ customers.',
     bullets: ['Curly hair', 'Straight hair', 'Colored hair', 'Oily hair', 'Anti-dandruff', 'Universal'],
   },
   {
@@ -1492,6 +1513,13 @@ function VipSuccess() {
   )
 }
 
+const VIP_UNLOCKS = [
+  { Icon: Lock,           title: '$14 locked forever',    desc: 'your price never goes up — not at launch, not ever.' },
+  { Icon: Gift,           title: 'free soap dish',        desc: 'a founding gift, included with your first order.' },
+  { Icon: Rocket,         title: 'early access',          desc: 'shop before everyone else, the moment we launch.' },
+  { Icon: MessageCircle,  title: 'chat with the founder', desc: 'a direct line to me — shape what we build next.' },
+]
+
 function App() {
   const [page] = useState(() => window.location.pathname === '/vip-success' ? 'vip-success' : 'home')
   const [showCarousel, setShowCarousel] = useState(false)
@@ -1681,6 +1709,22 @@ function App() {
       className="flex items-center w-full justify-center flex-col mb-[72px] md:mb-[112px]"
       onSubmit={handleHeroSubmit}
     >
+      <Motion.div
+        initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        transition={{ duration: 0.55, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full max-w-[480px] mb-[18px]"
+      >
+        <div className="flex items-baseline justify-between mb-2">
+          <span className="alt text-[13px] font-semibold text-text">5,696 joined</span>
+          <span className="alt text-[13px] text-alt/70">goal: 10,000</span>
+        </div>
+        <div className="w-full rounded-full overflow-hidden" style={{ height: '9px', backgroundColor: '#E5DDD0' }}>
+          <div className="h-full rounded-full" style={{ width: '57%', backgroundColor: '#5C1A1B' }} />
+        </div>
+        <p className="alt text-[12px] text-alt/70 text-center mt-2">help us hit 10k before launch</p>
+      </Motion.div>
+
       <Motion.input
         initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
@@ -1697,21 +1741,22 @@ function App() {
         initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         transition={{ duration: 0.55, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="flex items-center justify-center gap-2.5 w-full max-w-[480px]"
+        className="flex items-stretch justify-center gap-2.5 w-full max-w-[480px]"
       >
         <button
           type="submit"
           disabled={heroSubmitting}
-          className="flex-1 h-fit px-[16px] py-[10px] bg-red text-white! rounded-[12px] alt text-[15px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out disabled:opacity-60 disabled:cursor-not-allowed"
+          className="flex-1 px-[16px] py-[11px] bg-red text-white! rounded-[12px] alt text-[15px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {heroSubmitting ? 'Joining...' : 'Join the waitlist'}
         </button>
         <button
           type="button"
           onClick={() => setShowVip(true)}
-          className="flex-1 h-fit px-[16px] py-[10px] bg-[#27262b] text-white! rounded-[12px] alt text-[15px] cursor-pointer hover:bg-[#333138] transition-all duration-150 ease-out"
+          className="flex-1 px-[16px] py-[11px] rounded-[12px] alt text-[15px] cursor-pointer transition-all duration-150 ease-out hover:opacity-90"
+          style={{ backgroundColor: '#2B2B2B', color: '#fff' }}
         >
-          Become VIP
+          Become VIP · $1
         </button>
       </Motion.div>
 
@@ -1723,28 +1768,21 @@ function App() {
         initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         transition={{ duration: 0.55, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className="flex flex-col items-center gap-0.5 mt-[10px]"
+        className="flex flex-col items-center text-center mt-[14px] max-w-[480px]"
       >
-        <div className="flex items-center justify-center gap-4 mt-2">
-          {[
-            { Icon: Flame, label: '500 spots only' },
-            { Icon: Gift, label: 'FREE soap dish' },
-            { Icon: Zap, label: 'Early access' },
-            { Icon: MessageCircle, label: 'Chat with founders' },
-          ].map(({ Icon, label }) => (
-            <span key={label} className="flex items-center gap-1 alt text-[11px] text-alt/60">
-              <Icon size={11} className="text-red shrink-0" strokeWidth={1.8} />
-              {label}
-            </span>
-          ))}
-        </div>
-        <button
-          type="button"
-          onClick={() => setShowVip(true)}
-          className="alt text-[12px] text-red underline underline-offset-2 decoration-red/40 hover:decoration-red transition-colors cursor-pointer font-semibold mt-1.5"
-        >
-          Unlock VIP perks for $1 →
-        </button>
+        <span className="flex items-center gap-1.5 alt text-[12px] font-medium text-red mb-2.5">
+          <span className="vip-dot-pulse" aria-hidden="true" />
+          only 10 founding spots left
+        </span>
+        <p className="alt text-[13px] text-text font-semibold leading-snug">
+          $1 locks your price at $14 — forever.
+        </p>
+        <p className="alt text-[12px] text-alt/70 leading-snug mt-0.5">
+          + free soap dish · early access · chat with the founder
+        </p>
+        <p className="alt text-[12px] text-alt/70 leading-snug mt-3 max-w-[420px]">
+          Launching in the US first. Join the waitlist and you'll be first in line when we ship to your country 🤍
+        </p>
       </Motion.div>
     </form>
 
@@ -1837,58 +1875,46 @@ function App() {
           ref={perspectiveSectionRef}
           className="relative w-full min-h-screen lg:min-h-[70vh] flex items-center justify-center"
         >
-          <Motion.figure
-            style={{ y: img1Y }}
-            className="hidden lg:block absolute top-[26%] left-[11%] w-[138px] aspect-4/5 rounded-[16px] overflow-hidden m-0 -rotate-12"
-          >
-            <img src={`${baseUrl}images/geltonas.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
-          </Motion.figure>
-
-          <Motion.figure
-            style={{ y: img2Y }}
-            className="hidden lg:block absolute top-[18%] right-[10%] w-[145px] aspect-4/5 rounded-[16px] overflow-hidden m-0 rotate-9"
-          >
-            <img src={`${baseUrl}images/melynas.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
-          </Motion.figure>
-
+          {/* Desktop — left: only zalias (moved up + left); right: melynas (top) + raudonas (lower) */}
           <Motion.figure
             style={{ y: img3Y }}
-            className="hidden lg:block absolute top-[63%] left-[24%] w-[215px] aspect-3/4 rounded-[16px] overflow-hidden m-0 -rotate-5"
+            className="hidden lg:block absolute top-[26%] left-[15%] w-[225px] aspect-square rounded-[16px] overflow-hidden m-0 -rotate-6"
           >
             <img src={`${baseUrl}images/zalias.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
           </Motion.figure>
 
           <Motion.figure
+            style={{ y: img2Y }}
+            className="hidden lg:block absolute top-[18%] right-[11%] w-[185px] aspect-square rounded-[16px] overflow-hidden m-0 rotate-8"
+          >
+            <img src={`${baseUrl}images/melynas.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
+          </Motion.figure>
+
+          <Motion.figure
             style={{ y: img4Y }}
-            className="hidden lg:block absolute top-[67%] right-[23%] w-[200px] aspect-3/4 rounded-[16px] overflow-hidden m-0 rotate-7"
+            className="hidden lg:block absolute top-[62%] right-[21%] w-[205px] aspect-square rounded-[16px] overflow-hidden m-0 rotate-7"
           >
             <img src={`${baseUrl}images/raudonas.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
           </Motion.figure>
 
+          {/* Mobile — geltonas removed; 3 square bottles */}
           <Motion.figure
             style={{ y: img1Y }}
-            className="lg:hidden absolute top-[2%] left-[-2%] w-[145px] aspect-3/4 rounded-[16px] overflow-hidden m-0 z-20 -rotate-6"
+            className="lg:hidden absolute top-[3%] left-[-2%] w-[140px] aspect-square rounded-[16px] overflow-hidden m-0 z-20 -rotate-6"
           >
             <img src={`${baseUrl}images/melynas.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
           </Motion.figure>
 
           <Motion.figure
             style={{ y: img2Y }}
-            className="lg:hidden absolute top-[14%] right-[-2%] w-[118px] aspect-3/4 rounded-[16px] overflow-hidden m-0 z-20 rotate-12"
+            className="lg:hidden absolute top-[13%] right-[-2%] w-[120px] aspect-square rounded-[16px] overflow-hidden m-0 z-20 rotate-10"
           >
             <img src={`${baseUrl}images/zalias.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
           </Motion.figure>
 
           <Motion.figure
-            style={{ y: img3Y }}
-            className="lg:hidden absolute bottom-[2%] left-[0%] w-[150px] aspect-3/4 rounded-[16px] overflow-hidden m-0 z-20 rotate-6"
-          >
-            <img src={`${baseUrl}images/geltonas.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
-          </Motion.figure>
-
-          <Motion.figure
             style={{ y: img4Y }}
-            className="lg:hidden absolute bottom-[13%] right-[-1%] w-[125px] aspect-3/4 rounded-[16px] overflow-hidden m-0 z-20 -rotate-12"
+            className="lg:hidden absolute bottom-[6%] left-[24%] w-[130px] aspect-square rounded-[16px] overflow-hidden m-0 z-20 rotate-6"
           >
             <img src={`${baseUrl}images/raudonas.webp`} alt="Sapone product" className="size-full object-cover" loading="lazy" decoding="async" />
           </Motion.figure>
@@ -2003,30 +2029,27 @@ function App() {
                 </span>
 
                 <h2 className="title text-[26px] md:text-[36px] leading-[1.06] tracking-[-0.04em]! mb-6 uppercase">
-                  We took Sapone to Shark&nbsp;Tank at 17 — and walked out with a&nbsp;deal.
+                  I took Sapone to Shark&nbsp;Tank at 17 — and walked out with a&nbsp;deal.
                 </h2>
 
                 <div className="flex flex-col gap-5 alt text-[14px] md:text-[15px] text-alt leading-relaxed">
                   <p>
-                    The sharks don't hand out investments. They tear apart your margins, your formula, your market size, your competition. They've seen thousands of pitches. They know when something is real.
+                    The sharks don't hand out investments. They tear apart your margins, your formula, your market, your competition. They've seen thousands of pitches — they know when something's real.
                   </p>
                   <p>
-                    We got every hard question. Why would someone switch from a bottle they've used their whole life? Can you actually scale this without losing quality?
-                    <span className="text-text font-medium"> We had an answer for every single one.</span>
+                    I got every hard question. Why would someone switch from a bottle they've used their whole life? Can you scale this without losing quality?
+                    <span className="text-text font-medium"> I had an answer for every single one.</span>
                   </p>
                   <p>
-                    The room went quiet when we revealed the numbers —{' '}
-                    <span className="text-text font-medium">552 million bottles landfilled every year in the US alone</span>,
-                    a $700B beauty industry that has never once offered a real solution, and a product that costs less to produce, lasts longer, and performs at a premium level.
+                    The room went quiet when I revealed the numbers —{' '}
+                    <span className="text-text font-medium">a $700B beauty industry that's never offered a real solution</span>,
+                    and a product that costs less to produce, lasts longer, and performs at a premium level.
                   </p>
-                  <blockquote className="border-l-2 border-red pl-4 text-text">
-                    You're one of the first people to back a Shark Tank-funded brand before it hits global shelves.
-                  </blockquote>
                   <p>
-                    We closed the deal. Since then we've been backed by cosmetic chemists, certified testing labs, and sustainability specialists who helped us take the formula from great to flawless.
+                    I closed the deal. Since then I've worked with cosmetic chemists, certified labs, and sustainability specialists to take the formula from great to flawless.
                   </p>
                   <p className="text-text font-medium">
-                    Sapone has been validated. Now it needs to be launched. This Kickstarter is the moment it goes from a Shark Tank deal to a global brand — and you're here before anyone else.
+                    You're one of the first people to back Sapone before it hits shelves. It's been validated — now it's time to launch.
                   </p>
                 </div>
               </Reveal>
@@ -2050,27 +2073,27 @@ function App() {
               </span>
 
               <h2 className="title text-[26px] leading-[1.06] tracking-[-0.04em]! mb-6 uppercase">
-                We took Sapone to Shark Tank at 17 — and walked out with a deal.
+                I took Sapone to Shark Tank at 17 — and walked out with a deal.
               </h2>
 
               <div className="flex flex-col gap-5 alt text-[14px] text-alt leading-relaxed">
                 <p>
-                  The sharks don't hand out investments. They tear apart your margins, your formula, your market size, your competition. They've seen thousands of pitches. They know when something is real.
+                  The sharks don't hand out investments. They tear apart your margins, your formula, your market, your competition. They've seen thousands of pitches — they know when something's real.
                 </p>
                 <p>
-                  We got every hard question. Why would someone switch from a bottle they've used their whole life? Can you actually scale this without losing quality?
-                  <span className="text-text font-medium"> We had an answer for every single one.</span>
+                  I got every hard question. Why would someone switch from a bottle they've used their whole life? Can you scale this without losing quality?
+                  <span className="text-text font-medium"> I had an answer for every single one.</span>
                 </p>
                 <p>
-                  The room went quiet when we revealed the numbers —{' '}
-                  <span className="text-text font-medium">552 million bottles landfilled every year in the US alone</span>,
-                  a $700B beauty industry that has never once offered a real solution.
+                  The room went quiet when I revealed the numbers —{' '}
+                  <span className="text-text font-medium">a $700B beauty industry that's never offered a real solution</span>,
+                  and a product that costs less to produce, lasts longer, and performs at a premium level.
                 </p>
-                <blockquote className="border-l-2 border-red pl-4 italic text-text">
-                  "I've been waiting for someone to do this properly."
-                </blockquote>
+                <p>
+                  I closed the deal. Since then I've worked with cosmetic chemists, certified labs, and sustainability specialists to take the formula from great to flawless.
+                </p>
                 <p className="text-text font-medium">
-                  Sapone has been validated. Now it needs to be launched.
+                  You're one of the first people to back Sapone before it hits shelves. It's been validated — now it's time to launch.
                 </p>
               </div>
             </div>
@@ -2168,6 +2191,59 @@ function App() {
       </section>
 
       <AboutSection />
+
+      <section className="w-full px-4 md:px-10 pt-[40px] md:pt-[72px] pb-[72px] md:pb-[112px]" style={{ backgroundColor: '#F5F0E8' }}>
+        <div className="max-w-[1080px] mx-auto">
+          <Reveal className="flex flex-col items-center text-center mb-[40px] md:mb-[56px]">
+            <span
+              className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] rounded-full px-3 py-1 mb-5"
+              style={{ color: '#5C1A1B', backgroundColor: 'rgba(92,26,27,0.08)', border: '1px solid rgba(92,26,27,0.15)' }}
+            >
+              Founding Member · $1
+            </span>
+            <h2 className="title text-[24px] md:text-[36px] leading-[1.06] tracking-[-0.04em]! mb-3">
+              what your $1 unlocks
+            </h2>
+            <p className="alt text-[15px] md:text-[16px] text-alt! leading-relaxed">
+              forever. even after we launch at full price.
+            </p>
+          </Reveal>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+            {VIP_UNLOCKS.map(({ Icon, title, desc }, i) => (
+              <Reveal key={title} delay={(i % 4) * 0.06}>
+                <div
+                  className="flex flex-col h-full rounded-[16px] p-5"
+                  style={{ backgroundColor: '#FFFFFF', border: '0.5px solid #E5DDD0' }}
+                >
+                  <span
+                    className="flex items-center justify-center w-10 h-10 rounded-[10px] mb-4"
+                    style={{ backgroundColor: 'rgba(92,26,27,0.08)', color: '#5C1A1B' }}
+                  >
+                    <Icon size={18} strokeWidth={1.8} />
+                  </span>
+                  <p className="alt text-[15px] font-semibold text-text mb-1.5">{title}</p>
+                  <p className="alt text-[13px] text-alt leading-snug">{desc}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal delay={0.1} className="flex flex-col items-center mt-[40px] md:mt-[48px]">
+            <button
+              type="button"
+              onClick={() => setShowVip(true)}
+              className="px-10 py-[13px] rounded-[12px] alt text-[15px] font-semibold cursor-pointer transition-all duration-150 ease-out hover:opacity-90"
+              style={{ backgroundColor: '#5C1A1B', color: '#FFFFFF' }}
+            >
+              lock my $1 spot
+            </button>
+            <p className="alt text-[12px] text-alt/70 mt-3">
+              only 500 founding spots · price ends at launch
+            </p>
+          </Reveal>
+        </div>
+      </section>
 
       <FinalCtaSection onSuccess={() => setSubmitted(true)} onVip={() => setShowVip(true)} waitlistCount={waitlistCount} />
 
