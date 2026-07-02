@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion as Motion, useScroll, useTransform } from 'framer-motion'
-import { Tv, Package, Globe, ShieldCheck, Leaf, Truck, Gift, MessageCircle, Lock, Rocket, Play } from 'lucide-react'
+import { Tv, Package, Globe, ShieldCheck, Leaf, Truck, Play } from 'lucide-react'
 
 const baseUrl = import.meta.env.BASE_URL
 
@@ -36,7 +36,7 @@ const carouselCards = carouselFiles.map(({ file, width, height }) => ({
   width,
   height,
 }))
-const WAITLIST_BASE_COUNT = 4507
+const WAITLIST_BASE_COUNT = 7000
 const WAITLIST_STORAGE_KEY = 'sapone_waitlist_count_v2'
 const WAITLIST_GOAL = 10000
 
@@ -523,12 +523,12 @@ function useLaunchCountdown(target) {
 }
 
 const FOUNDING_PERKS = [
-  '$12 price locked (-40%), never rises',
+  '$14 price locked, never rises',
   'Free soap dish',
   'First access to new scents',
   'Behind-the-scenes access',
-  'Direct chat with the founders',
-  'Name on the founders wall + scent vote',
+  'Direct chat with the founder',
+  'Name on the founding members wall + scent vote',
 ]
 
 const WAITLIST_PERKS = [
@@ -1173,7 +1173,7 @@ const VIP_PERKS = [
       </svg>
     ),
     title: 'Private WhatsApp Community',
-    desc: 'Direct line to the founders. Early previews, votes on scents and colors, behind-the-scenes updates.',
+    desc: 'Direct line to the founder. Early previews, votes on scents and colors, behind-the-scenes updates.',
   },
   {
     icon: (
@@ -1513,13 +1513,6 @@ function VipSuccess() {
   )
 }
 
-const VIP_UNLOCKS = [
-  { Icon: Lock,           title: '$14 locked forever',    desc: 'your price never goes up — not at launch, not ever.' },
-  { Icon: Gift,           title: 'free soap dish',        desc: 'a founding gift, included with your first order.' },
-  { Icon: Rocket,         title: 'early access',          desc: 'shop before everyone else, the moment we launch.' },
-  { Icon: MessageCircle,  title: 'chat with the founder', desc: 'a direct line to me — shape what we build next.' },
-]
-
 function App() {
   const [page] = useState(() => window.location.pathname === '/vip-success' ? 'vip-success' : 'home')
   const [showCarousel, setShowCarousel] = useState(false)
@@ -1716,11 +1709,11 @@ function App() {
         className="w-full max-w-[480px] mb-[18px]"
       >
         <div className="flex items-baseline justify-between mb-2">
-          <span className="alt text-[13px] font-semibold text-text">5,696 joined</span>
+          <span className="alt text-[13px] font-semibold text-text">{waitlistCount.toLocaleString()} joined</span>
           <span className="alt text-[13px] text-alt/70">goal: 10,000</span>
         </div>
         <div className="w-full rounded-full overflow-hidden" style={{ height: '9px', backgroundColor: '#E5DDD0' }}>
-          <div className="h-full rounded-full" style={{ width: '57%', backgroundColor: '#5C1A1B' }} />
+          <div className="h-full rounded-full" style={{ width: `${Math.min(100, Math.round((waitlistCount / WAITLIST_GOAL) * 100))}%`, backgroundColor: '#5C1A1B' }} />
         </div>
         <p className="alt text-[12px] text-alt/70 text-center mt-2">help us hit 10k before launch</p>
       </Motion.div>
@@ -2191,59 +2184,6 @@ function App() {
       </section>
 
       <AboutSection />
-
-      <section className="w-full px-4 md:px-10 pt-[40px] md:pt-[72px] pb-[72px] md:pb-[112px]" style={{ backgroundColor: '#F5F0E8' }}>
-        <div className="max-w-[1080px] mx-auto">
-          <Reveal className="flex flex-col items-center text-center mb-[40px] md:mb-[56px]">
-            <span
-              className="inline-flex items-center alt text-[11px] uppercase tracking-[0.08em] rounded-full px-3 py-1 mb-5"
-              style={{ color: '#5C1A1B', backgroundColor: 'rgba(92,26,27,0.08)', border: '1px solid rgba(92,26,27,0.15)' }}
-            >
-              Founding Member · $1
-            </span>
-            <h2 className="title text-[24px] md:text-[36px] leading-[1.06] tracking-[-0.04em]! mb-3">
-              what your $1 unlocks
-            </h2>
-            <p className="alt text-[15px] md:text-[16px] text-alt! leading-relaxed">
-              forever. even after we launch at full price.
-            </p>
-          </Reveal>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-            {VIP_UNLOCKS.map(({ Icon, title, desc }, i) => (
-              <Reveal key={title} delay={(i % 4) * 0.06}>
-                <div
-                  className="flex flex-col h-full rounded-[16px] p-5"
-                  style={{ backgroundColor: '#FFFFFF', border: '0.5px solid #E5DDD0' }}
-                >
-                  <span
-                    className="flex items-center justify-center w-10 h-10 rounded-[10px] mb-4"
-                    style={{ backgroundColor: 'rgba(92,26,27,0.08)', color: '#5C1A1B' }}
-                  >
-                    <Icon size={18} strokeWidth={1.8} />
-                  </span>
-                  <p className="alt text-[15px] font-semibold text-text mb-1.5">{title}</p>
-                  <p className="alt text-[13px] text-alt leading-snug">{desc}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-
-          <Reveal delay={0.1} className="flex flex-col items-center mt-[40px] md:mt-[48px]">
-            <button
-              type="button"
-              onClick={() => setShowVip(true)}
-              className="px-10 py-[13px] rounded-[12px] alt text-[15px] font-semibold cursor-pointer transition-all duration-150 ease-out hover:opacity-90"
-              style={{ backgroundColor: '#5C1A1B', color: '#FFFFFF' }}
-            >
-              lock my $1 spot
-            </button>
-            <p className="alt text-[12px] text-alt/70 mt-3">
-              only 500 founding spots · price ends at launch
-            </p>
-          </Reveal>
-        </div>
-      </section>
 
       <FinalCtaSection onSuccess={() => setSubmitted(true)} onVip={() => setShowVip(true)} waitlistCount={waitlistCount} />
 
