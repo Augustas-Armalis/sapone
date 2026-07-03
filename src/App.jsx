@@ -1366,7 +1366,7 @@ function VipModal({ onClose }) {
 }
 
 function VipSuccess() {
-  const [status, setStatus] = useState('loading') // 'loading' | 'success' | 'error'
+  const [status, setStatus] = useState('loading')
   const [email, setEmail] = useState('')
 
   useEffect(() => {
@@ -1513,6 +1513,135 @@ function VipSuccess() {
   )
 }
 
+// Hero bottles — transparent product shots that gently float and cross-fade.
+// Swap/reorder freely.
+const HERO_BOTTLES = [
+  `${baseUrl}images/raudonas.webp`,
+  `${baseUrl}images/melynas.webp`,
+  `${baseUrl}images/zalias.webp`,
+]
+
+function HeroBottle() {
+  const [i, setI] = useState(0)
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setI((v) => (v + 1) % HERO_BOTTLES.length)
+    }, 4000)
+    return () => window.clearInterval(id)
+  }, [])
+
+  return (
+    <div className="relative mx-auto aspect-square w-full max-w-[460px]">
+      {/* static ground shadow — the bottle floats above it */}
+      <div className="absolute bottom-[12%] left-1/2 h-4 w-[48%] -translate-x-1/2 rounded-[50%] bg-black/[0.12] blur-lg" aria-hidden="true" />
+
+      <div className="hero-bottle-float absolute inset-0 z-[1]">
+        <AnimatePresence>
+          <Motion.img
+            key={i}
+            src={HERO_BOTTLES[i]}
+            alt="Sapone shampoo bar"
+            fetchPriority="high"
+            decoding="async"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.9, ease: 'easeInOut' }}
+            className="absolute left-1/2 top-1/2 h-[92%] w-auto max-w-[84%] -translate-x-1/2 -translate-y-1/2 object-contain"
+          />
+        </AnimatePresence>
+      </div>
+
+      {/* logical callouts — shampoo at the cap, soap at the body (each drifts) */}
+      <div className="hero-float-a absolute right-[0%] top-[14%] z-[3]">
+        <Motion.span
+          initial={{ opacity: 0, y: 6, filter: 'blur(4px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          transition={{ duration: 0.5, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="alt flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-white/90 px-3 py-1.5 text-[11px] font-medium text-text shadow-[0_10px_24px_-12px_rgba(0,0,0,0.35)] backdrop-blur"
+        >
+          <span className="h-1.5 w-1.5 rounded-full bg-red" aria-hidden="true" />
+          Pour the shampoo
+        </Motion.span>
+      </div>
+
+      <div className="hero-float-b absolute bottom-[23%] left-[0%] z-[3]">
+        <Motion.span
+          initial={{ opacity: 0, y: 6, filter: 'blur(4px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          transition={{ duration: 0.5, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
+          className="alt flex items-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-white/90 px-3 py-1.5 text-[11px] font-medium text-text shadow-[0_10px_24px_-12px_rgba(0,0,0,0.35)] backdrop-blur"
+        >
+          <span className="h-1.5 w-1.5 rounded-full bg-red" aria-hidden="true" />
+          Wash with the soap
+        </Motion.span>
+      </div>
+
+      <div className="absolute bottom-0 left-1/2 z-[3] flex -translate-x-1/2 gap-1.5">
+        {HERO_BOTTLES.map((_, idx) => (
+          <button
+            key={idx}
+            type="button"
+            aria-label={`Show bottle ${idx + 1}`}
+            onClick={() => setI(idx)}
+            className={`h-1.5 cursor-pointer rounded-full transition-all duration-300 ${idx === i ? 'w-4 bg-red' : 'w-1.5 bg-red/25 hover:bg-red/50'}`}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function StatCard({ value, suffix = '', text, label }) {
+  const ref = useRef(null)
+  const [display, setDisplay] = useState(0)
+  const isNum = typeof value === 'number'
+  const valueRef = useRef(value)
+  valueRef.current = value
+
+  useEffect(() => {
+    if (!isNum) return undefined
+    const el = ref.current
+    if (!el) return undefined
+    let raf = 0
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+        io.disconnect()
+        const target = valueRef.current
+        const start = performance.now()
+        const tick = (now) => {
+          const p = Math.min(1, (now - start) / 1400)
+          const eased = 1 - Math.pow(1 - p, 3)
+          setDisplay(target * eased)
+          if (p < 1) raf = requestAnimationFrame(tick)
+          else setDisplay(target)
+        }
+        raf = requestAnimationFrame(tick)
+      },
+      { threshold: 0.4 }
+    )
+    io.observe(el)
+    return () => {
+      io.disconnect()
+      cancelAnimationFrame(raf)
+    }
+  }, [isNum])
+
+  return (
+    <div
+      ref={ref}
+      className="group rounded-[12px] border border-border bg-white/60 px-3 py-3.5 text-center transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-red/30 hover:bg-white"
+    >
+      <p className="alt text-[22px] font-bold leading-none tracking-[-0.02em] text-red tabular-nums md:text-[24px]">
+        {isNum ? `${Math.round(display).toLocaleString()}${suffix}` : text}
+      </p>
+      <p className="alt mt-1.5 text-[11px] uppercase tracking-[0.06em] text-alt/70">{label}</p>
+    </div>
+  )
+}
+
 function App() {
   const [page] = useState(() => window.location.pathname === '/vip-success' ? 'vip-success' : 'home')
   const [showCarousel, setShowCarousel] = useState(false)
@@ -1647,164 +1776,164 @@ function App() {
       <div className="grain" aria-hidden="true" />
       <div className="relative z-10 flex items-center justify-start flex-col h-fit px-[10px] md:px-0 overflow-x-clip">
 
-    <Motion.img
-        src={`${baseUrl}seo/logo.svg`}
-        alt="Sapone"
-        initial={{ opacity: 0, y: 0, filter: 'blur(6px)' }}
-        animate={{ opacity: 0.6, y: 10, filter: 'blur(0px)' }}
-        transition={{ duration: 0.55, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-        className="h-[15px] md:h-[17px] w-auto mt-[20px] md:mt-[28px] mb-[72px] md:mb-[92px]"
-      />
+    {/* ============================================================
+        HERO — clean two-column in the site's own language:
+        red pill eyebrow, uppercase serif headline, framed photo,
+        subtle blur-up reveals. No looping / decorative motion.
+        Keeps original logic (heroEmail, handleHeroSubmit,
+        heroSubmitting/heroError, setShowVip, waitlistCount).
+       ============================================================ */}
+    <section className="w-full px-4 md:px-10 pt-[44px] md:pt-[68px] pb-[8px]">
+      <div className="mx-auto w-full max-w-[1080px]">
 
-    <div className="flex items-center justify-center flex-col mb-[40px] md:mb-[64px]">
+        <Motion.img
+          src={`${baseUrl}seo/logo.svg`}
+          alt="Sapone"
+          initial={{ opacity: 0, filter: 'blur(6px)' }}
+          animate={{ opacity: 0.65, filter: 'blur(0px)' }}
+          transition={{ duration: 0.6, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+          className="mx-auto h-[16px] w-auto md:h-[18px]"
+        />
 
-      <Motion.div
-        initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
-        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-        transition={{ duration: 0.55, delay: 0, ease: [0.22, 1, 0.36, 1] }}
-        className="flex max-w-full flex-wrap items-center justify-center gap-y-1 bg-white border border-border rounded-full mb-[16px] px-[12px] pb-[4px] pt-[4px]"
-      >
-        <span className="live-dot" aria-hidden="true" />
-        
-        <p className="text-[14px] alt text-text ml-[12px]!">Launching September 1st.</p>
-        <a
-          href={SAPONE_LAUNCH_EVENT_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Add Sapone launch to Google Calendar"
-          className="flex ml-[8px] items-center cursor-pointer justify-center flex-row hover:opacity-80 gap-0.5"
-        >
-          <p className="text-[14px] alt text-red! underline">Notify me</p>
-          <img src={`${baseUrl}icons/arrow.svg`} alt="arrow-right" className="size-4"></img>
-        </a>
-      </Motion.div>
-      
-      <Motion.h1
-        initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
-        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-        transition={{ duration: 0.55, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-        className="text-4xl md:text-4xl lg:text-5xl title text-center tracking-[-0.04em]! mb-[12px]"
-      >
-        SHAMPOO IN SOAP PACKAGING
-      </Motion.h1>
+        <div className="mt-[40px] grid grid-cols-1 items-center gap-10 md:mt-[56px] lg:grid-cols-2 lg:gap-14">
 
-      <Motion.p
-        initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
-        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-        transition={{ duration: 0.55, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-        className="text-[16px] md:text-[18px] alt text-alt!"
-      >
-        Zero Plastic. 95% Natural. Zero waste.
-      </Motion.p>
-    </div>
+          {/* LEFT — copy + capture */}
+          <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
 
-    <form
-      className="flex items-center w-full justify-center flex-col mb-[72px] md:mb-[112px]"
-      onSubmit={handleHeroSubmit}
-    >
-      <Motion.div
-        initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
-        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-        transition={{ duration: 0.55, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full max-w-[480px] mb-[18px]"
-      >
-        <div className="flex items-baseline justify-between mb-2">
-          <span className="alt text-[13px] font-semibold text-text">{waitlistCount.toLocaleString()} joined</span>
-          <span className="alt text-[13px] text-alt/70">goal: 10,000</span>
+            <Motion.div
+              initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ duration: 0.55, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+              className="mb-5 flex flex-wrap items-center justify-center gap-2 lg:justify-start"
+            >
+              <a
+                href={SAPONE_LAUNCH_EVENT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Add Sapone launch to Google Calendar"
+                className="inline-flex items-center gap-2 rounded-full border border-red/15 bg-red/8 px-3 py-1 transition-colors hover:border-red/30"
+              >
+                <span className="live-dot" aria-hidden="true" />
+                <span className="alt text-[11px] uppercase tracking-[0.08em] text-red">Launching September 1</span>
+              </a>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white/70 px-3 py-1">
+                <Tv className="h-3 w-3 text-red" strokeWidth={2.2} />
+                <span className="alt text-[11px] uppercase tracking-[0.08em] text-text/70">As seen on Shark Tank</span>
+              </span>
+            </Motion.div>
+
+            <Motion.h1
+              initial={{ opacity: 0, y: 18, filter: 'blur(8px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ duration: 0.65, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
+              className="title text-[30px] uppercase leading-[1.04] tracking-[-0.04em]! text-text md:text-[40px] lg:text-[44px]"
+            >
+              Shampoo in soap packaging
+            </Motion.h1>
+
+            <Motion.p
+              initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ duration: 0.6, delay: 0.24, ease: [0.22, 1, 0.36, 1] }}
+              className="alt mt-4 max-w-[420px] text-[15px] leading-relaxed text-alt md:text-[16px]"
+            >
+              Zero plastic. 95% natural. Zero waste.
+            </Motion.p>
+
+            <Motion.form
+              onSubmit={handleHeroSubmit}
+              initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ duration: 0.6, delay: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              className="mt-7 w-full max-w-[440px]"
+            >
+              <div className="mb-4 w-full">
+                <div className="mb-2 flex items-baseline justify-between">
+                  <span className="alt text-[13px]">
+                    <span className="font-semibold text-text">{waitlistCount.toLocaleString()}</span>
+                    <span className="text-alt/70"> joined</span>
+                  </span>
+                  <span className="alt text-[13px] text-alt/60">goal 10,000</span>
+                </div>
+                <div className="w-full overflow-hidden rounded-full" style={{ height: '8px', backgroundColor: '#E5DDD0' }}>
+                  <div className="h-full rounded-full" style={{ width: `${Math.min(100, Math.round((waitlistCount / WAITLIST_GOAL) * 100))}%`, backgroundColor: 'var(--red)' }} />
+                </div>
+              </div>
+
+              <div className="flex flex-col items-stretch gap-2.5 sm:flex-row">
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={heroEmail}
+                  onChange={(e) => setHeroEmail(e.target.value)}
+                  required
+                  className="alt h-[46px] flex-1 rounded-[12px] border border-border bg-white px-[16px] transition-colors duration-150 ease-out hover:border-red/30 focus:border-red/40 focus:outline-red"
+                />
+                <button
+                  type="submit"
+                  disabled={heroSubmitting}
+                  className="alt h-[46px] cursor-pointer whitespace-nowrap rounded-[12px] bg-red px-[22px] text-[15px] text-white! transition-all duration-150 ease-out hover:bg-red/90 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {heroSubmitting ? 'Joining...' : 'Join the waitlist'}
+                </button>
+              </div>
+
+              {heroError && (
+                <p className="alt mt-2 text-[13px]" style={{ color: 'var(--red)' }}>{heroError}</p>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setShowVip(true)}
+                className="alt mt-2.5 flex w-full cursor-pointer items-center justify-center gap-2.5 rounded-[12px] bg-[#27262b] px-4 py-[13px] text-[15px] text-white! transition-all duration-150 ease-out hover:bg-[#333138]"
+              >
+                <span className="font-semibold">Become VIP · $1</span>
+                <span className="h-3.5 w-px bg-white/25" aria-hidden="true" />
+                <span className="text-[13px] text-white/60">Lock $14 forever</span>
+              </button>
+
+              <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 lg:justify-start">
+                {['Free soap dish', 'Early access', 'Founder chat'].map((perk) => (
+                  <span key={perk} className="alt flex items-center gap-1.5 text-[12.5px] text-alt">
+                    <span className="text-[11px] font-bold text-red" aria-hidden="true">✓</span>
+                    {perk}
+                  </span>
+                ))}
+              </div>
+
+              <p className="alt mt-3 text-[12px] leading-relaxed text-alt/60">
+                Ships to the US first. Join now to hold your spot for your country.
+              </p>
+            </Motion.form>
+          </div>
+
+          {/* RIGHT — framed photo */}
+          <Motion.div
+            initial={{ opacity: 0, y: 22, filter: 'blur(8px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full"
+          >
+            <HeroBottle />
+          </Motion.div>
+
         </div>
-        <div className="w-full rounded-full overflow-hidden" style={{ height: '9px', backgroundColor: '#E5DDD0' }}>
-          <div className="h-full rounded-full" style={{ width: `${Math.min(100, Math.round((waitlistCount / WAITLIST_GOAL) * 100))}%`, backgroundColor: '#5C1A1B' }} />
-        </div>
-        <p className="alt text-[12px] text-alt/70 text-center mt-2">help us hit 10k before launch</p>
-      </Motion.div>
 
-      <Motion.input
-        initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
-        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-        transition={{ duration: 0.55, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
-        type="email"
-        placeholder="Enter your email"
-        value={heroEmail}
-        onChange={(e) => setHeroEmail(e.target.value)}
-        required
-        className="max-w-[480px] w-full h-fit px-[16px] py-[10px] alt bg-white border border-border rounded-[12px] hover:border-red/30 transition-all duration-150 ease-out focus:outline-red focus:ring-0 focus:border-red/30 mb-[10px]"
-      />
-
-      <Motion.div
-        initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
-        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-        transition={{ duration: 0.55, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="flex items-stretch justify-center gap-2.5 w-full max-w-[480px]"
-      >
-        <button
-          type="submit"
-          disabled={heroSubmitting}
-          className="flex-1 px-[16px] py-[11px] bg-red text-white! rounded-[12px] alt text-[15px] cursor-pointer hover:bg-red/90 transition-all duration-150 ease-out disabled:opacity-60 disabled:cursor-not-allowed"
+        {/* trust strip */}
+        <Motion.div
+          initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="mx-auto mt-16 grid w-full max-w-[760px] grid-cols-2 gap-2.5 md:mt-24 md:grid-cols-4 md:gap-3"
         >
-          {heroSubmitting ? 'Joining...' : 'Join the waitlist'}
-        </button>
-        <button
-          type="button"
-          onClick={() => setShowVip(true)}
-          className="flex-1 px-[16px] py-[11px] rounded-[12px] alt text-[15px] cursor-pointer transition-all duration-150 ease-out hover:opacity-90"
-          style={{ backgroundColor: '#2B2B2B', color: '#fff' }}
-        >
-          Become VIP · $1
-        </button>
-      </Motion.div>
+          <StatCard value={waitlistCount} suffix="+" label="On the waitlist" />
+          <StatCard text="Shark Tank" label="Featured on" />
+          <StatCard value={1000} suffix="+" label="Bars sold" />
+          <StatCard text="Loved in EU" label="Social proof" />
+        </Motion.div>
 
-      {heroError && (
-        <p className="alt text-[13px] mt-2 text-center max-w-[480px]" style={{ color: 'var(--red)' }}>{heroError}</p>
-      )}
-
-      <Motion.div
-        initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
-        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-        transition={{ duration: 0.55, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className="flex flex-col items-center text-center mt-[14px] max-w-[480px]"
-      >
-        <span className="flex items-center gap-1.5 alt text-[12px] font-medium text-red mb-2.5">
-          <span className="vip-dot-pulse" aria-hidden="true" />
-          only 10 founding spots left
-        </span>
-        <p className="alt text-[13px] text-text font-semibold leading-snug">
-          $1 locks your price at $14 — forever.
-        </p>
-        <p className="alt text-[12px] text-alt/70 leading-snug mt-0.5">
-          + free soap dish · early access · chat with the founder
-        </p>
-        <p className="alt text-[12px] text-alt/70 leading-snug mt-3 max-w-[420px]">
-          Launching in the US first. Join the waitlist and you'll be first in line when we ship to your country 🤍
-        </p>
-      </Motion.div>
-    </form>
-
-    <Motion.section
-      initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
-      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      transition={{ duration: 0.55, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
-      className="w-full mb-[8px]"
-    >
-      <div className="mx-auto grid w-full max-w-[820px] grid-cols-2 gap-1 md:grid-cols-4 md:gap-1">
-          <article className="rounded-[12px] border border-border bg-white/80 px-3 py-2 md:px-3.5 md:py-2">
-            <p className="alt text-[19px] leading-[1.06] tracking-[-0.02em] text-red md:text-[20px]">{waitlistCount.toLocaleString()}+</p>
-            <p className="alt mt-0.5 text-[11px] text-alt/80">Signed up</p>
-          </article>
-          
-          <article className="rounded-[12px] border border-border bg-white/80 px-3 py-2 md:px-3.5 md:py-2">
-            <p className="alt text-[19px] leading-[1.06] tracking-[-0.02em] text-red md:text-[20px] ">SHARK TANK</p>
-            <p className="alt mt-0.5 text-[11px] text-alt/80">Featured on</p>
-          </article>
-          <article className="rounded-[12px] border border-border bg-white/80 px-3 py-2 md:px-3.5 md:py-2">
-            <p className="alt text-[19px] leading-[1.06] tracking-[-0.02em] text-red md:text-[20px]">1000+</p>
-            <p className="alt mt-0.5 text-[11px] text-alt/80">Pieces sold</p>
-          </article>
-          <article className="rounded-[12px] border border-border bg-white/80 px-3 py-2 md:px-3.5 md:py-2">
-            <p className="alt text-[19px] leading-[1.06] tracking-[-0.02em] text-red md:text-[20px]">Loved in Europe</p>
-            <p className="alt mt-0.5 text-[11px] text-alt/80">Social proof</p>
-          </article>
       </div>
-    </Motion.section>
+    </section>
     
 
       {showCarousel ? (
@@ -1812,7 +1941,7 @@ function App() {
           initial={{ opacity: 0, y: 6, filter: 'blur(6px)' }}
           animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
           transition={{ duration: 0.55, delay: 0.38, ease: [0.22, 1, 0.36, 1] }}
-          className="w-[calc(100%+20px)] -mx-[10px] md:w-full md:mx-0"
+          className="carousel-fade mt-14 w-[calc(100%+20px)] -mx-[10px] md:mt-20 md:w-full md:mx-0"
         >
           <div className="carousel-track-wide py-2">
             {longCarousel.map((card, idx) => (
@@ -1833,33 +1962,37 @@ function App() {
           </div>
         </Motion.section>
       ) : (
-        <div className="w-[calc(100%+20px)] -mx-[10px] h-[340px] md:w-full md:mx-0" aria-hidden="true" />
+        <div className="mt-14 w-[calc(100%+20px)] -mx-[10px] h-[340px] md:mt-20 md:w-full md:mx-0" aria-hidden="true" />
       )}
 
-      <div className="flex items-center gap-3 mt-4 mb-10">
-        <span className="text-[13px] alt text-muted-foreground tracking-wide">Follow us:</span>
-        <a
-          href={INSTAGRAM_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Instagram"
-          className="text-red opacity-100 hover:opacity-50 transition-opacity duration-150"
-        >
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-          </svg>
-        </a>
-        <a
-          href={TIKTOK_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="TikTok"
-          className="text-red opacity-100 hover:opacity-50 transition-opacity duration-150"
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/>
-          </svg>
-        </a>
+      <div className="flex flex-col items-center gap-3.5 mt-8 mb-12">
+        <span className="alt text-[11px] uppercase tracking-[0.12em] text-alt/60">Follow the journey</span>
+        <div className="flex items-center gap-2.5">
+          <a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Sapone on Instagram"
+            className="group flex items-center gap-2 rounded-full border border-border bg-white/70 px-4 py-2 transition-all duration-150 ease-out hover:-translate-y-0.5 hover:border-red/30 hover:bg-white"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-red" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+            <span className="alt text-[13px] text-text">@saponebeauty</span>
+          </a>
+          <a
+            href={TIKTOK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Sapone on TikTok"
+            className="group flex items-center gap-2 rounded-full border border-border bg-white/70 px-4 py-2 transition-all duration-150 ease-out hover:-translate-y-0.5 hover:border-red/30 hover:bg-white"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" className="text-red" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/>
+            </svg>
+            <span className="alt text-[13px] text-text">@sapone.store</span>
+          </a>
+        </div>
       </div>
 
         <ProblemSection />

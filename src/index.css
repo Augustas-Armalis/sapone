@@ -200,3 +200,57 @@ body.scroll-locked {
     animation-duration: 48s;
   }
 }
+
+/* Hero floating bottle + info pill */
+.hero-bottle-float {
+  will-change: transform;
+  animation: hero-bob 7s ease-in-out infinite;
+}
+
+@keyframes hero-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.hero-float-a {
+  will-change: transform;
+  animation: hero-bob-sm 6s ease-in-out infinite;
+  animation-delay: 0.4s;
+}
+
+.hero-float-b {
+  will-change: transform;
+  animation: hero-bob-sm 6.5s ease-in-out infinite;
+  animation-delay: 1.1s;
+}
+
+@keyframes hero-bob-sm {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+/* Infinite carousel — faded edges + hover life */
+.carousel-fade {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+
+.carousel-track-wide:hover {
+  animation-play-state: paused;
+}
+
+.carousel-image-card {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.carousel-image-card:hover {
+  transform: scale(1.04);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-bottle-float,
+  .hero-float-a,
+  .hero-float-b {
+    animation: none !important;
+  }
+}
