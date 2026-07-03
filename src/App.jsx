@@ -1516,9 +1516,9 @@ function VipSuccess() {
 // Hero bottles — transparent product shots that gently float and cross-fade.
 // Swap/reorder freely.
 const HERO_BOTTLES = [
-  `${baseUrl}images/raudonas.webp`,
-  `${baseUrl}images/melynas.webp`,
   `${baseUrl}images/zalias.webp`,
+  `${baseUrl}images/melynas.webp`,
+  `${baseUrl}images/raudonas.webp`,
 ]
 
 function HeroBottle() {
