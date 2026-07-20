@@ -5,10 +5,10 @@ import { Tv, Package, Globe, ShieldCheck, Leaf, Truck, Play } from 'lucide-react
 const baseUrl = import.meta.env.BASE_URL
 
 let globalLenis = null
-const SAPONE_LAUNCH_DATE = '20260901'
-const SAPONE_LAUNCH_EVENT_URL = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Sapone Launch')}&dates=${SAPONE_LAUNCH_DATE}/${'20260902'}&details=${encodeURIComponent('Sapone officially launches today.')}&location=${encodeURIComponent('Online')}`
-// Live countdown target — Sapone launches September 1st 2026
-const SAPONE_LAUNCH_DATETIME = new Date('2026-09-01T00:00:00')
+const SAPONE_LAUNCH_DATE = '20260803'
+const SAPONE_LAUNCH_EVENT_URL = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Sapone Launch')}&dates=${SAPONE_LAUNCH_DATE}/${'20260804'}&details=${encodeURIComponent('Sapone officially launches today.')}&location=${encodeURIComponent('Online')}`
+// Live countdown target — Sapone launches August 3rd 2026
+const SAPONE_LAUNCH_DATETIME = new Date('2026-08-03T00:00:00')
 
 async function subscribeToMailerLite(email) {
   const res = await fetch('/api/subscribe', {
@@ -36,9 +36,9 @@ const carouselCards = carouselFiles.map(({ file, width, height }) => ({
   width,
   height,
 }))
-const WAITLIST_BASE_COUNT = 7000
-const WAITLIST_STORAGE_KEY = 'sapone_waitlist_count_v2'
-const WAITLIST_GOAL = 10000
+const WAITLIST_BASE_COUNT = 11000
+const WAITLIST_STORAGE_KEY = 'sapone_waitlist_count_v3'
+const WAITLIST_GOAL = 13000
 
 function usePersistentWaitlistCounter() {
   const [waitlistCount, setWaitlistCount] = useState(WAITLIST_BASE_COUNT)
@@ -493,7 +493,7 @@ function SuccessOverlay({ onBack }) {
         </h1>
         <p className="alt text-[16px] text-alt max-w-[260px] leading-snug">
           We'll reach out on{' '}
-          <span className="font-medium" style={{ color: 'var(--red)' }}>September 1st</span>{' '}
+          <span className="font-medium" style={{ color: 'var(--red)' }}>August 3rd</span>{' '}
           with your early bird deal.
         </p>
 
@@ -1814,7 +1814,7 @@ function App() {
                 className="inline-flex items-center gap-2 rounded-full border border-red/15 bg-red/8 px-3 py-1 transition-colors hover:border-red/30"
               >
                 <span className="live-dot" aria-hidden="true" />
-                <span className="alt text-[11px] uppercase tracking-[0.08em] text-red">Launching September 1</span>
+                <span className="alt text-[11px] uppercase tracking-[0.08em] text-red">Launching August 3</span>
               </a>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white/70 px-3 py-1">
                 <Tv className="h-3 w-3 text-red" strokeWidth={2.2} />
@@ -1853,7 +1853,7 @@ function App() {
                     <span className="font-semibold text-text">{waitlistCount.toLocaleString()}</span>
                     <span className="text-alt/70"> joined</span>
                   </span>
-                  <span className="alt text-[13px] text-alt/60">goal 10,000</span>
+                  <span className="alt text-[13px] text-alt/60">goal {WAITLIST_GOAL.toLocaleString()}</span>
                 </div>
                 <div className="w-full overflow-hidden rounded-full" style={{ height: '8px', backgroundColor: '#E5DDD0' }}>
                   <div className="h-full rounded-full" style={{ width: `${Math.min(100, Math.round((waitlistCount / WAITLIST_GOAL) * 100))}%`, backgroundColor: 'var(--red)' }} />
