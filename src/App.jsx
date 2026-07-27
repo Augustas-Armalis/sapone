@@ -16,14 +16,16 @@ async function subscribeToMailerLite(email) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email }),
   })
+  const data = await res.json().catch(() => ({}))
   if (!res.ok) {
-    const data = await res.json().catch(() => ({}))
     throw new Error(data.error || 'Subscription failed. Please try again.')
   }
   if (typeof window !== 'undefined') {
-    // Fires only after the server confirms the email was saved (waitlist join)
-    window.fbq?.('track', 'Lead')
-    window.fbq?.('track', 'CompleteRegistration')
+    // Fires only after the server confirms the email was saved (waitlist join).
+    // event_id comes from the server and is stored there too, so the upcoming
+    // Conversions API call can be deduplicated against this browser event.
+    const eventId = data.event_id
+    window.fbq?.('track', 'Lead', { content_name: 'waitlist', event_id: eventId }, { eventID: eventId })
   }
 }
 const carouselFiles = Array.from({ length: 12 }, (_, i) => ({
@@ -1216,7 +1218,6 @@ function VipModal({ onClose }) {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Something went wrong')
-      window.fbq?.('track', 'InitiateCheckout', { value: 1.0, currency: 'USD' })
       window.location.href = data.url
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.')
@@ -1384,7 +1385,15 @@ function VipSuccess() {
         if (!ok) throw new Error(data.error || 'Verification failed')
         setEmail(data.email || '')
         setStatus('success')
-        window.fbq?.('track', 'Purchase', { value: 1.0, currency: 'USD' })
+        // VIP signup counts as a Lead (no product pages/purchases on this site).
+        // event_id is derived server-side from the Stripe session, so it is the
+        // same on refresh; guard locally so it fires only once per order.
+        const eventId = data.event_id
+        const firedKey = `sapone_vip_lead_fired_${sessionId}`
+        if (eventId && !window.localStorage.getItem(firedKey)) {
+          window.fbq?.('track', 'Lead', { content_name: 'vip', event_id: eventId }, { eventID: eventId })
+          window.localStorage.setItem(firedKey, '1')
+        }
       })
       .catch(() => setStatus('error'))
   }, [])

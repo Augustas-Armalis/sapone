@@ -29,7 +29,13 @@ export default async function handler(req, res) {
       return res.status(mlRes.status).json({ error: data.message || 'Subscription failed' })
     }
 
-    return res.status(200).json({ success: true })
+    // Unique id shared between the browser pixel and the (upcoming) Conversions
+    // API call so Meta can deduplicate the Lead. Stored server-side here.
+    const eventId = crypto.randomUUID()
+    const contentName = group === 'vip' ? 'vip' : 'waitlist'
+    console.log('[fb-lead] stored', JSON.stringify({ event_id: eventId, content_name: contentName, email }))
+
+    return res.status(200).json({ success: true, event_id: eventId })
   } catch (err) {
     console.error('MailerLite error:', err.message)
     return res.status(500).json({ error: 'Subscription failed. Please try again.' })

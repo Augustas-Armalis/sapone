@@ -34,7 +34,13 @@ export default async function handler(req, res) {
       console.error('MailerLite failed:', mlRes.status, JSON.stringify(mlData))
     }
 
-    return res.status(200).json({ success: true, email })
+    // Derived from the Stripe session id so it is stable per order: the same id
+    // is sent by the browser pixel and stored server-side for Conversions API
+    // deduplication, and it cannot change on a page refresh.
+    const eventId = `lead_vip_${session.id}`
+    console.log('[fb-lead] stored', JSON.stringify({ event_id: eventId, content_name: 'vip', email }))
+
+    return res.status(200).json({ success: true, email, event_id: eventId })
   } catch (err) {
     console.error('confirm-vip error:', err.message)
     return res.status(500).json({ error: 'Failed to confirm payment' })
