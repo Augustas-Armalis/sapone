@@ -5,10 +5,10 @@ import { Tv, Package, Globe, ShieldCheck, Leaf, Truck, Play } from 'lucide-react
 const baseUrl = import.meta.env.BASE_URL
 
 let globalLenis = null
-const SAPONE_LAUNCH_DATE = '20260803'
-const SAPONE_LAUNCH_EVENT_URL = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Sapone Launch')}&dates=${SAPONE_LAUNCH_DATE}/${'20260804'}&details=${encodeURIComponent('Sapone officially launches today.')}&location=${encodeURIComponent('Online')}`
-// Live countdown target — Sapone launches August 3rd 2026
-const SAPONE_LAUNCH_DATETIME = new Date('2026-08-03T00:00:00')
+const SAPONE_LAUNCH_DATE = '20260811'
+const SAPONE_LAUNCH_EVENT_URL = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Sapone Launch')}&dates=${SAPONE_LAUNCH_DATE}/${'20260812'}&details=${encodeURIComponent('Sapone officially launches today.')}&location=${encodeURIComponent('Online')}`
+// Live countdown target — Sapone launches August 11th 2026
+const SAPONE_LAUNCH_DATETIME = new Date('2026-08-11T00:00:00')
 
 async function subscribeToMailerLite(email) {
   const res = await fetch('/api/subscribe', {
@@ -495,7 +495,7 @@ function SuccessOverlay({ onBack }) {
         </h1>
         <p className="alt text-[16px] text-alt max-w-[260px] leading-snug">
           We'll reach out on{' '}
-          <span className="font-medium" style={{ color: 'var(--red)' }}>August 3rd</span>{' '}
+          <span className="font-medium" style={{ color: 'var(--red)' }}>August 11th</span>{' '}
           with your early bird deal.
         </p>
 
@@ -1823,7 +1823,7 @@ function App() {
                 className="inline-flex items-center gap-2 rounded-full border border-red/15 bg-red/8 px-3 py-1 transition-colors hover:border-red/30"
               >
                 <span className="live-dot" aria-hidden="true" />
-                <span className="alt text-[11px] uppercase tracking-[0.08em] text-red">Launching August 3</span>
+                <span className="alt text-[11px] uppercase tracking-[0.08em] text-red">Launching August 11</span>
               </a>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white/70 px-3 py-1">
                 <Tv className="h-3 w-3 text-red" strokeWidth={2.2} />
